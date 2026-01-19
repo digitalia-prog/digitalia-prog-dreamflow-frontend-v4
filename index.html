@@ -1,547 +1,309 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DreamFlow Pro - Scripts UGC Viraux en 30 Secondes</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-body {
-background: linear-gradient(135deg, #0f0a1a 0%, #1a0f2e 100%);
-color: #e0e0e0;
-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-.hero-gradient {
-background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
-}
-.card-hover {
-transition: all 0.3s ease;
-}
-.card-hover:hover {
-transform: translateY(-8px);
-box-shadow: 0 20px 50px rgba(168, 85, 247, 0.3);
-}
-.btn-primary {
-background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
-transition: all 0.3s ease;
-}
-.btn-primary:hover {
-transform: scale(1.05);
-box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4);
-}
-.btn-secondary {
-border: 2px solid #a855f7;
-color: #a855f7;
-transition: all 0.3s ease;
-}
-.btn-secondary:hover {
-background: #a855f7;
-color: white;
-}
-.input-field {
-background: rgba(255, 255, 255, 0.05);
-border: 1px solid rgba(168, 85, 247, 0.3);
-color: #e0e0e0;
-transition: all 0.3s ease;
-}
-.input-field:focus {
-background: rgba(255, 255, 255, 0.1);
-border-color: #a855f7;
-outline: none;
-box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
-}
-.result-box {
-background: rgba(168, 85, 247, 0.05);
-border: 1px solid rgba(168, 85, 247, 0.2);
-border-radius: 12px;
-padding: 24px;
-}
-.tab-button {
-padding: 10px 20px;
-border-bottom: 2px solid transparent;
-color: #a0aec0;
-cursor: pointer;
-transition: all 0.3s ease;
-}
-.tab-button.active {
-border-bottom-color: #a855f7;
-color: #a855f7;
-}
-.pricing-card {
-background: rgba(255, 255, 255, 0.03);
-border: 1px solid rgba(168, 85, 247, 0.2);
-border-radius: 12px;
-padding: 32px;
-}
-.pricing-card.featured {
-border: 2px solid #a855f7;
-background: rgba(168, 85, 247, 0.1);
-}
-.loading {
-display: inline-block;
-width: 20px;
-height: 20px;
-border: 3px solid rgba(168, 85, 247, 0.3);
-border-radius: 50%;
-border-top-color: #a855f7;
-animation: spin 0.8s linear infinite;
-}
-@keyframes spin {
-to { transform: rotate(360deg); }
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DreamFlow — SaaS UGC & Scripts IA</title>
+  <style>
+    :root{
+      --bg:#070013;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.08);
+      --border: rgba(255,255,255,.12);
+      --txt:#fff;
+      --muted: rgba(255,255,255,.70);
+      --grad: linear-gradient(135deg,#7c3aed,#3b82f6);
+      --ok:#22c55e;
+      --bad:#ef4444;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;}
+    body{background: radial-gradient(1200px 600px at 20% 0%, rgba(124,58,237,.35), transparent 55%),
+                  radial-gradient(1200px 600px at 80% 10%, rgba(59,130,246,.28), transparent 55%),
+                  var(--bg);
+         color:var(--txt); min-height:100vh;}
+    header{position:sticky;top:0;z-index:20;backdrop-filter: blur(14px);
+      background: rgba(7,0,19,.55); border-bottom:1px solid rgba(255,255,255,.08);}
+    .nav{max-width:1150px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
+    .brand{display:flex;gap:10px;align-items:center;font-weight:800;letter-spacing:.4px}
+    .dot{width:10px;height:10px;border-radius:99px;background:linear-gradient(135deg,#7c3aed,#3b82f6)}
+    .nav a{color:var(--muted);text-decoration:none;margin-left:16px;font-weight:600}
+    .nav a:hover{color:#fff}
+    .wrap{max-width:1150px;margin:0 auto;padding:26px 16px 70px;}
+    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:stretch;margin-top:18px;}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow: 0 14px 45px rgba(0,0,0,.35);}
+    .hero h1{font-size:44px;line-height:1.06;margin-bottom:10px}
+    .hero p{color:var(--muted);font-size:15.5px;line-height:1.5}
+    .ctaRow{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
+    .btn{border:0;border-radius:12px;padding:12px 14px;font-weight:800;cursor:pointer}
+    .btnPrimary{background:var(--grad);color:white}
+    .btnGhost{background:transparent;border:1px solid rgba(255,255,255,.18);color:white}
+    .btnPrimary:hover{filter:brightness(1.1)}
+    .btnGhost:hover{background:rgba(255,255,255,.06)}
+    #threeBox{position:relative;overflow:hidden;padding:0}
+    #threeCanvas{display:block;width:100%;height:100%;min-height:340px}
+    .badge{display:inline-flex;gap:8px;align-items:center;color:rgba(255,255,255,.85);font-weight:700;
+      background:rgba(124,58,237,.18);border:1px solid rgba(124,58,237,.35);padding:7px 10px;border-radius:999px;margin-bottom:12px}
+    section{margin-top:18px}
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .price{background:var(--panel2); border:1px solid var(--border); border-radius:18px; padding:18px}
+    .price h3{font-size:18px}
+    .price .p{color:var(--muted);margin-top:6px}
+    .price .eur{font-size:34px;font-weight:900;margin-top:10px}
+    .list{margin-top:12px;display:grid;gap:8px;color:rgba(255,255,255,.85)}
+    .li{display:flex;gap:10px;align-items:flex-start}
+    .li span{color:var(--ok);font-weight:900}
+    .formRow{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+    input, select, textarea{
+      background:rgba(0,0,0,.35); color:#fff; border:1px solid rgba(255,255,255,.16);
+      border-radius:12px; padding:12px; outline:none;
+    }
+    input:focus, select:focus, textarea:focus{border-color: rgba(124,58,237,.7)}
+    .muted{color:var(--muted);font-size:13px;margin-top:8px}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    #out{margin-top:12px;white-space:pre-wrap;line-height:1.45}
+    .ok{color:var(--ok)}
+    .bad{color:var(--bad)}
+    footer{margin-top:26px;color:rgba(255,255,255,.55);text-align:center;font-size:12px}
+    @media (max-width: 900px){
+      .hero{grid-template-columns:1fr}
+      .grid3{grid-template-columns:1fr}
+      .two{grid-template-columns:1fr}
+      .hero h1{font-size:36px}
+    }
+  </style>
 </head>
 <body>
-<nav class="fixed top-0 w-full z-50 backdrop-blur-md bg-black/30 border-b border-purple-500/20">
-<div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-<div class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">DreamFlow Pro</div>
-<div class="flex gap-4 text-sm items-center">
-<select id="langSelector" class="bg-purple-500/20 border border-purple-500/30 rounded px-2 py-1 text-sm cursor-pointer hover:bg-purple-500/30">
-<option value="fr">🇫🇷 FR</option>
-<option value="en">🇬🇧 EN</option>
-<option value="es">🇪🇸 ES</option>
-</select>
-<a href="#generator" class="hover:text-purple-400 transition">Tester</a>
-<a href="#pricing" class="hover:text-purple-400 transition">Pricing</a>
-</div>
-</div>
-</nav>
+<header>
+  <div class="nav">
+    <div class="brand"><span class="dot"></span> DreamFlow</div>
+    <div>
+      <a href="#pricing">Pricing</a>
+      <a href="#generator">Générateur</a>
+      <a href="#contact">Email</a>
+    </div>
+  </div>
+</header>
 
-<section class="hero-gradient pt-32 pb-20 px-4 relative">
-<canvas id="canvas3d" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></canvas>
-<div class="max-w-4xl mx-auto text-center relative z-10">
-<h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">Crée des scripts UGC viraux en <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">30 secondes</span></h1>
-<p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">Scripts, hooks et hashtags optimisés pour TikTok, Reels et YouTube Shorts.</p>
-<div class="flex justify-center items-center gap-3 mb-12 text-sm">
-<span class="text-gray-400">Disponible en</span>
-<span class="px-3 py-1 bg-purple-500/20 rounded-full">🇫🇷 FR</span>
-<span class="px-3 py-1 bg-purple-500/20 rounded-full">🇬🇧 EN</span>
-<span class="px-3 py-1 bg-purple-500/20 rounded-full">🇪🇸 ES</span>
-</div>
-<div class="flex justify-center gap-4 flex-wrap">
-<a href="#generator" class="btn-primary text-white px-8 py-4 rounded-lg font-semibold">✨ Tester</a>
-<a href="#pricing" class="btn-secondary px-8 py-4 rounded-lg font-semibold">💎 Pricing</a>
-</div>
-</div>
-</section>
+<div class="wrap">
+  <div class="hero">
+    <div class="card">
+      <div class="badge">⚡ SaaS UGC + Scripts IA</div>
+      <h1>Crée des scripts viraux<br/>en 30 secondes.</h1>
+      <p>
+        DreamFlow te donne des scripts UGC/Ads prêts à tourner, adaptés à ta niche.
+        Tu peux commencer dès maintenant avec le générateur.
+      </p>
+      <div class="ctaRow">
+        <button class="btn btnPrimary" onclick="document.querySelector('#generator').scrollIntoView({behavior:'smooth'})">🚀 Tester le générateur</button>
+        <button class="btn btnGhost" onclick="document.querySelector('#pricing').scrollIntoView({behavior:'smooth'})">Voir le pricing</button>
+      </div>
+      <div class="muted">✅ Formulaire email + ✅ API Render + ✅ Landing 3D</div>
+    </div>
 
-<section id="pricing" class="py-20 px-4">
-<div class="max-w-6xl mx-auto">
-<h2 class="text-4xl font-bold text-center mb-16">Plans Simples & Transparents</h2>
-<div class="grid md:grid-cols-3 gap-8">
-<div class="pricing-card card-hover">
-<div class="text-2xl font-bold mb-2">Gratuit</div>
-<div class="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">0 €</div>
-<ul class="space-y-4 mb-8 text-gray-300">
-<li class="flex items-center gap-2"><span class="text-purple-400">✓</span> 1 script / semaine</li>
-<li class="flex items-center gap-2"><span class="text-purple-400">✓</span> Upload PDF gratuit</li>
-<li class="flex items-center gap-2"><span class="text-purple-400">✓</span> Export texte</li>
-</ul>
-<button class="btn-primary w-full text-white py-3 rounded-lg font-semibold">Commencer</button>
-</div>
+    <div class="card" id="threeBox">
+      <canvas id="threeCanvas"></canvas>
+    </div>
+  </div>
 
-<div class="pricing-card featured card-hover">
-<div class="text-xs font-semibold text-purple-400 mb-2 uppercase">PLUS POPULAIRE</div>
-<div class="text-2xl font-bold mb-2">Pro</div>
-<div class="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">29 € <span class="text-lg text-gray-400">/mois</span></div>
-<ul class="space-y-4 mb-8 text-gray-300">
-<li class="flex items-center gap-2"><span class="text-purple-400">✓</span> 20 scripts / jour</li>
-<li class="flex items-center gap-2"><span class="text-purple-400">✓</span> Watermark discret</li>
-<li class="flex items-center gap-2"><span class="text-purple-400">✓</span> Export PDF</li>
-</ul>
-<button class="btn-primary w-full text-white py-3 rounded-lg font-semibold">Upgrade</button>
-</div>
+  <section id="pricing" class="card">
+    <h2>💎 Pricing</h2>
+    <p class="muted">Tu peux changer les prix après. Là c'est "propre & vendable".</p>
+    <div class="grid3" style="margin-top:14px">
+      <div class="price">
+        <h3>Starter</h3>
+        <div class="p">Pour tester</div>
+        <div class="eur">0€</div>
+        <div class="list">
+          <div class="li"><span>✓</span> Générateur (limité)</div>
+          <div class="li"><span>✓</span> Export texte</div>
+          <div class="li"><span>✓</span> Support basique</div>
+        </div>
+        <div class="ctaRow" style="margin-top:14px">
+          <button class="btn btnGhost" onclick="document.querySelector('#generator').scrollIntoView({behavior:'smooth'})">Commencer</button>
+        </div>
+      </div>
 
-<div class="pricing-card card-hover">
-<div class="text-2xl font-bold mb-2">Agency</div>
-<div class="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">199 € <span class="text-lg text-gray-400">/mois</span></div>
-<ul class="space-y-4 mb-8 text-gray-300">
-<li class="flex items-center gap-2"><span class="text-purple-400">✓</span> 1000 scripts / mois</li>
-<li class="flex items-center gap-2"><span class="text-purple-400">✓</span> Pas de watermark</li>
-<li class="flex items-center gap-2"><span class="text-purple-400">✓</span> API complète</li>
-</ul>
-<button class="btn-primary w-full text-white py-3 rounded-lg font-semibold">Contact</button>
-</div>
-</div>
-</div>
-</section>
+      <div class="price" style="border:1px solid rgba(124,58,237,.55)">
+        <h3>Pro</h3>
+        <div class="p">Pour vendre/scale</div>
+        <div class="eur">29€</div>
+        <div class="list">
+          <div class="li"><span>✓</span> Scripts illimités</div>
+          <div class="li"><span>✓</span> Angles UGC/Ads</div>
+          <div class="li"><span>✓</span> Historique</div>
+        </div>
+        <div class="ctaRow" style="margin-top:14px">
+          <button class="btn btnPrimary" onclick="alert('Paiement à brancher ensuite (Stripe). Là on verrouille le produit.')">Passer Pro</button>
+        </div>
+      </div>
 
-<section id="analytics" class="py-20 px-4 bg-gradient-to-b from-transparent to-purple-500/5">
-<div class="max-w-6xl mx-auto">
-<h2 class="text-4xl font-bold text-center mb-12">Dashboard Analytics</h2>
-<div class="grid md:grid-cols-4 gap-4 mb-12">
-<div class="bg-purple-500/10 border border-purple-500/20 rounded-lg p-6">
-<div class="text-gray-400 text-sm mb-2">Scripts Générés</div>
-<div class="text-4xl font-bold text-purple-400" id="statScripts">0</div>
-</div>
-<div class="bg-purple-500/10 border border-purple-500/20 rounded-lg p-6">
-<div class="text-gray-400 text-sm mb-2">Hooks Créés</div>
-<div class="text-4xl font-bold text-pink-400" id="statHooks">0</div>
-</div>
-<div class="bg-purple-500/10 border border-purple-500/20 rounded-lg p-6">
-<div class="text-gray-400 text-sm mb-2">Hashtags</div>
-<div class="text-4xl font-bold text-blue-400" id="statHashtags">0</div>
-</div>
-<div class="bg-purple-500/10 border border-purple-500/20 rounded-lg p-6">
-<div class="text-gray-400 text-sm mb-2">Réseau Favori</div>
-<div class="text-2xl font-bold text-green-400" id="statFavorite">--</div>
-</div>
-</div>
-</div>
-</section>
+      <div class="price">
+        <h3>Agency</h3>
+        <div class="p">Pour ton agence UGC</div>
+        <div class="eur">79€</div>
+        <div class="list">
+          <div class="li"><span>✓</span> Multi-clients</div>
+          <div class="li"><span>✓</span> Templates</div>
+          <div class="li"><span>✓</span> Export PDF (plus tard)</div>
+        </div>
+        <div class="ctaRow" style="margin-top:14px">
+          <button class="btn btnGhost" onclick="document.querySelector('#contact').scrollIntoView({behavior:'smooth'})">Me contacter</button>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<section id="generator" class="py-20 px-4">
-<div class="max-w-4xl mx-auto">
-<h2 class="text-4xl font-bold text-center mb-12">Générateur</h2>
-<div class="space-y-6">
-<div class="grid md:grid-cols-2 gap-4">
-<div>
-<label class="block text-sm font-semibold mb-2">Réseau</label>
-<select id="network" class="input-field w-full px-4 py-3 rounded-lg">
-<option value="tiktok">📱 TikTok</option>
-<option value="reels">📸 Reels</option>
-<option value="youtube">▶️ YouTube</option>
-</select>
-</div>
-<div>
-<label class="block text-sm font-semibold mb-2">Langue</label>
-<select id="language" class="input-field w-full px-4 py-3 rounded-lg">
-<option value="fr">🇫🇷 FR</option>
-<option value="en">🇬🇧 EN</option>
-<option value="es">🇪🇸 ES</option>
-</select>
-</div>
-</div>
-<input type="text" id="niche" placeholder="Niche..." class="input-field w-full px-4 py-3 rounded-lg">
-<input type="text" id="angle" placeholder="Angle..." class="input-field w-full px-4 py-3 rounded-lg">
-<textarea id="customPrompt" placeholder="Prompt personnalisé..." class="input-field w-full px-4 py-3 rounded-lg h-20 resize-none"></textarea>
-<div class="flex gap-4 flex-wrap">
-<button id="generateBtn" class="btn-primary text-white px-8 py-3 rounded-lg font-semibold">⚡ Générer</button>
-<button id="copyBtn" class="btn-secondary px-8 py-3 rounded-lg font-semibold" disabled>📋 Copier</button>
-<button onclick="openPdfModal()" class="btn-secondary px-8 py-3 rounded-lg font-semibold">📄 PDF</button>
-</div>
-<div id="resultContainer" class="hidden">
-<div class="result-box">
-<div class="flex gap-2 mb-6 border-b border-purple-500/20 pb-4">
-<button class="tab-button active" onclick="switchTab('script')">📝 Script</button>
-<button class="tab-button" onclick="switchTab('hooks')">🔥 Hooks</button>
-<button class="tab-button" onclick="switchTab('hashtags')">#️⃣ Tags</button>
-</div>
-<div id="script-tab" class="tab-content">
-<div id="scriptResult" class="bg-black/30 p-4 rounded-lg text-gray-200 whitespace-pre-wrap"></div>
-</div>
-<div id="hooks-tab" class="tab-content hidden">
-<div id="hooksResult" class="space-y-3"></div>
-</div>
-<div id="hashtags-tab" class="tab-content hidden">
-<div id="hashtagsResult" class="flex flex-wrap gap-2"></div>
-</div>
-</div>
-</div>
-<div id="errorContainer" class="hidden">
-<div class="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-red-200">
-<p id="errorMessage"></p>
-</div>
-</div>
-<div id="loadingContainer" class="hidden text-center">
-<div class="inline-block loading mb-4"></div>
-<p class="text-gray-400">Génération...</p>
-</div>
-</div>
-</div>
-</section>
+  <section id="generator" class="card">
+    <h2>✨ Générateur</h2>
+    <div class="two" style="margin-top:12px">
+      <div>
+        <div class="muted">Réseau</div>
+        <select id="network" style="width:100%">
+          <option value="TikTok">TikTok</option>
+          <option value="Instagram Reels">Instagram Reels</option>
+          <option value="YouTube Shorts">YouTube Shorts</option>
+        </select>
 
-<div id="pdfModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-y-auto">
-<div class="bg-black/90 border border-purple-500/30 rounded-lg max-w-2xl w-full my-8">
-<div class="sticky top-0 bg-black/90 border-b border-purple-500/20 p-6 flex justify-between items-center">
-<h2 class="text-2xl font-bold text-purple-400">📄 Upload PDF</h2>
-<button onclick="closePdfModal()" class="text-gray-400 hover:text-white text-2xl">×</button>
-</div>
-<div class="p-6 space-y-4">
-<div class="bg-purple-500/10 border-2 border-dashed border-purple-500/30 rounded-lg p-8 text-center cursor-pointer" id="pdfDropZone">
-<input type="file" id="pdfInput" accept=".pdf" class="hidden">
-<p class="text-lg font-semibold mb-2">Glissez un PDF ou cliquez</p>
-<p class="text-sm text-gray-400">Max 10MB</p>
-</div>
-<div id="pdfProgress" class="hidden">
-<div class="w-full bg-black/30 rounded-full h-2">
-<div id="pdfProgressBar" class="bg-purple-500 h-2 rounded-full" style="width: 0%"></div>
-</div>
-<p class="text-sm text-gray-400 mt-2" id="pdfStatus">Traitement...</p>
-</div>
-<div id="pdfResult" class="hidden">
-<div class="bg-green-500/10 border border-green-500/30 rounded-lg p-4 mb-4">
-<p class="text-green-300">✅ PDF traité!</p>
-</div>
-<div class="bg-black/30 border border-purple-500/20 rounded-lg p-4 mb-4">
-<div id="pdfText" class="bg-black/30 p-3 rounded text-gray-300 text-sm max-h-32 overflow-y-auto"></div>
-</div>
-<button id="generateFromPdfBtn" class="btn-primary text-white px-8 py-3 rounded-lg font-semibold w-full">🚀 Générer</button>
-</div>
-</div>
-</div>
+        <div class="muted" style="margin-top:10px">Niche</div>
+        <input id="niche" style="width:100%" placeholder="Ex: e-commerce vêtements, skincare, coach fitness..." />
+
+        <div class="muted" style="margin-top:10px">Angle / Objectif</div>
+        <textarea id="angle" style="width:100%;min-height:92px" placeholder="Ex: avant/après, preuve sociale, promo limitée, histoire founder..."></textarea>
+
+        <div class="ctaRow" style="margin-top:12px">
+          <button class="btn btnPrimary" onclick="generate()">🚀 Générer</button>
+          <button class="btn btnGhost" onclick="copyOut()">Copier</button>
+        </div>
+        <div class="muted">Le générateur appelle ton API Render : <span style="opacity:.9;font-weight:800">/api/generate</span></div>
+      </div>
+
+      <div>
+        <div class="muted">Résultat</div>
+        <div id="out" class="card" style="min-height:230px;background:rgba(0,0,0,.22)"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="card">
+    <h2>📩 Formulaire Email</h2>
+    <p class="muted">Chaque email sera envoyé en notification à <b>dreamfloww@outlook.fr</b>.</p>
+    <div class="formRow">
+      <input id="leadEmail" type="email" placeholder="Ton email" style="flex:1;min-width:220px" />
+      <button class="btn btnPrimary" onclick="sendLead()">Envoyer</button>
+    </div>
+    <div id="leadStatus" class="muted"></div>
+  </section>
+
+  <footer>© DreamFlow — SaaS UGC & Scripts IA</footer>
 </div>
 
-<div id="cguModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-y-auto">
-<div class="bg-black/90 border border-purple-500/30 rounded-lg max-w-2xl w-full my-8">
-<div class="p-6 flex justify-between items-center">
-<h2 class="text-2xl font-bold text-purple-400" id="cguTitle">CGU</h2>
-<button onclick="closeCGU()" class="text-gray-400 hover:text-white text-2xl">×</button>
-</div>
-<div class="p-6 text-gray-300 space-y-4 max-h-96 overflow-y-auto" id="cguContent"></div>
-</div>
-</div>
-
-<footer class="border-t border-purple-500/20 py-12 px-4">
-<div class="max-w-6xl mx-auto">
-<div class="flex justify-center gap-4 mb-6 text-sm">
-<button onclick="openCGU('fr')" class="hover:text-purple-400 transition">CGU FR</button>
-<span class="text-gray-600">•</span>
-<button onclick="openCGU('en')" class="hover:text-purple-400 transition">Terms EN</button>
-<span class="text-gray-600">•</span>
-<button onclick="openCGU('es')" class="hover:text-purple-400 transition">Términos ES</button>
-</div>
-<div class="text-center text-gray-400">
-<p>© 2025 DreamFlow Pro 💜</p>
-</div>
-</div>
-</footer>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<!-- Three.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
-// Language System
-const translations = {
-fr: {
-hero_title: 'Crée des scripts UGC viraux en',
-hero_highlight: '30 secondes',
-hero_desc: 'Scripts, hooks et hashtags optimisés pour TikTok, Reels et YouTube Shorts.',
-pricing_title: 'Plans Simples & Transparents',
-analytics_title: 'Dashboard Analytics',
-generator_title: 'Générateur',
-network_label: 'Réseau',
-lang_label: 'Langue',
-niche_placeholder: 'Niche...',
-angle_placeholder: 'Angle...',
-prompt_placeholder: 'Prompt personnalisé...',
-gen_btn: '⚡ Générer',
-copy_btn: '📋 Copier',
-pdf_btn: '📄 PDF',
-free: 'Gratuit',
-pro: 'Pro',
-agency: 'Agency',
-per_month: '/mois',
-start_btn: 'Commencer',
-upgrade_btn: 'Upgrade',
-contact_btn: 'Contact'
-},
-en: {
-hero_title: 'Create viral UGC scripts in',
-hero_highlight: '30 seconds',
-hero_desc: 'Scripts, hooks and hashtags optimized for TikTok, Reels and YouTube Shorts.',
-pricing_title: 'Simple & Transparent Plans',
-analytics_title: 'Analytics Dashboard',
-generator_title: 'Generator',
-network_label: 'Network',
-lang_label: 'Language',
-niche_placeholder: 'Niche...',
-angle_placeholder: 'Angle...',
-prompt_placeholder: 'Custom prompt...',
-gen_btn: '⚡ Generate',
-copy_btn: '📋 Copy',
-pdf_btn: '📄 PDF',
-free: 'Free',
-pro: 'Pro',
-agency: 'Agency',
-per_month: '/month',
-start_btn: 'Start',
-upgrade_btn: 'Upgrade',
-=contact_btn: 'Contact'
-},
-es: {
-hero_title: 'Crea scripts UGC virales en',
-hero_highlight: '30 segundos',
-hero_desc: 'Scripts, hooks y hashtags optimizados para TikTok, Reels y YouTube Shorts.',
-pricing_title: 'Planes Simples y Transparentes',
-analytics_title: 'Panel de Análisis',
-generator_title: 'Generador',
-network_label: 'Red',
-lang_label: 'Idioma',
-niche_placeholder: 'Nicho...',
-angle_placeholder: 'Ángulo...',
-prompt_placeholder: 'Prompt personalizado...',
-gen_btn: '⚡ Generar',
-copy_btn: '📋 Copiar',
-pdf_btn: '📄 PDF',
-free: 'Gratis',
-pro: 'Pro',
-agency: 'Agency',
-per_month: '/mes',
-start_btn: 'Comenzar',
-upgrade_btn: 'Mejorar',
-contact_btn: 'Contacto'
-}
-};
+  // ✅ Mets ici l'URL de ton API Render
+  const API_BASE = "https://dreamflow-api.onrender.com";
 
-let currentLang = 'fr';
+  async function generate(){
+    const out = document.getElementById("out");
+    out.textContent = "⏳ Génération en cours...";
 
-function changeLang(lang) {
-currentLang = lang;
-const t = translations[lang];
-document.querySelector('h1').innerHTML = `${t.hero_title} <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">${t.hero_highlight}</span>`;
-document.querySelectorAll('h2')[0].textContent = t.pricing_title;
-document.querySelectorAll('h2')[1].textContent = t.analytics_title;
-document.querySelectorAll('h2')[2].textContent = t.generator_title;
-document.querySelectorAll('label')[0].textContent = t.network_label;
-document.querySelectorAll('label')[1].textContent = t.lang_label;
-document.getElementById('niche').placeholder = t.niche_placeholder;
-document.getElementById('angle').placeholder = t.angle_placeholder;
-document.getElementById('customPrompt').placeholder = t.prompt_placeholder;
-document.getElementById('generateBtn').textContent = t.gen_btn;
-document.getElementById('copyBtn').textContent = t.copy_btn;
-document.querySelector('button[onclick="openPdfModal()"]').textContent = t.pdf_btn;
-}
+    const network = document.getElementById("network").value;
+    const niche = document.getElementById("niche").value.trim();
+    const angle = document.getElementById("angle").value.trim();
 
-document.getElementById('langSelector').addEventListener('change', (e) => {
-changeLang(e.target.value);
-});
+    const prompt = `
+Génère 3 scripts UGC très viraux pour ${network}.
+Niche: ${niche || "non précisée"}
+Objectif/angle: ${angle || "augmenter ventes / leads"}
+Donne une structure claire : Hook / Scènes / Texte à l'écran / CTA / Hashtags.
+    `.trim();
 
-changeLang('fr');
+    try{
+      const r = await fetch(API_BASE + "/api/generate", {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ prompt })
+      });
+      const data = await r.json();
+      if(!data.success){
+        out.innerHTML = "<span class='bad'>❌ " + (data.error || "Erreur") + "</span>";
+        return;
+      }
+      out.textContent = data.script;
+    }catch(e){
+      out.innerHTML = "<span class='bad'>❌ API inaccessible. Vérifie Render.</span>";
+    }
+  }
 
-// Three.js
-const canvas = document.getElementById('canvas3d');
-if (canvas) {
-const scene = new THREE.Scene();
-const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-renderer.setClearColor(0x000000, 0);
-const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
-camera.position.set(0, 0.2, 3.2);
-const light = new THREE.DirectionalLight(0xffffff, 1.4);
-light.position.set(2, 2, 2);
-scene.add(light);
-scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-const geo = new THREE.TorusKnotGeometry(0.7, 0.22, 160, 18);
-const mat = new THREE.MeshStandardMaterial({metalness:0.85,roughness:0.18,color:new THREE.Color(0x9333ea)});
-const mesh = new THREE.Mesh(geo, mat);
-scene.add(mesh);
-function resize(){const w=canvas.clientWidth;const h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
-window.addEventListener("resize",resize);
-resize();
-let t=0;
-function animate(){t+=0.01;mesh.rotation.x+=0.008;mesh.rotation.y+=0.012;mesh.position.y=Math.sin(t)*0.08;renderer.render(scene,camera);requestAnimationFrame(animate);}
-animate();
-}
+  function copyOut(){
+    const text = document.getElementById("out").innerText || "";
+    navigator.clipboard.writeText(text);
+    alert("Copié ✅");
+  }
 
-// CGU
-const cguContent = {
-fr: {title: 'CGU', content: '<h3 class="text-lg font-semibold text-purple-400 mt-4">Service</h3><p>DreamFlow Pro génère des scripts marketing par IA.</p>'},
-en: {title: 'Terms', content: '<h3 class="text-lg font-semibold text-purple-400 mt-4">Service</h3><p>DreamFlow Pro is an AI script generator.</p>'},
-es: {title: 'Términos', content: '<h3 class="text-lg font-semibold text-purple-400 mt-4">Servicio</h3><p>DreamFlow Pro genera scripts por IA.</p>'}
-};
+  async function sendLead(){
+    const status = document.getElementById("leadStatus");
+    const email = document.getElementById("leadEmail").value.trim();
+    status.textContent = "⏳ Envoi...";
+    try{
+      const r = await fetch(API_BASE + "/api/lead", {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ email })
+      });
+      const data = await r.json();
+      if(!data.success){
+        status.innerHTML = "<span class='bad'>❌ " + (data.error || "Erreur") + "</span>";
+        return;
+      }
+      status.innerHTML = "<span class='ok'>✅ " + (data.message || "Envoyé") + "</span>";
+      document.getElementById("leadEmail").value = "";
+    }catch(e){
+      status.innerHTML = "<span class='bad'>❌ API inaccessible. Vérifie Render.</span>";
+    }
+  }
 
-function openCGU(lang) {
-document.getElementById('cguTitle').textContent = cguContent[lang].title;
-document.getElementById('cguContent').innerHTML = cguContent[lang].content;
-document.getElementById('cguModal').classList.remove('hidden');
-}
+  // --- Landing 3D (simple, fluide) ---
+  const canvas = document.getElementById("threeCanvas");
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
+  camera.position.set(0, 0.2, 3.2);
 
-function closeCGU() {
-document.getElementById('cguModal').classList.add('hidden');
-}
+  const light = new THREE.DirectionalLight(0xffffff, 1.4);
+  light.position.set(2, 2, 2);
+  scene.add(light);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
 
-// PDF
-function openPdfModal() {
-document.getElementById('pdfModal').classList.remove('hidden');
-}
+  const geo = new THREE.TorusKnotGeometry(0.7, 0.22, 160, 18);
+  const mat = new THREE.MeshStandardMaterial({
+    metalness: 0.85,
+    roughness: 0.18,
+    color: new THREE.Color(0x7c3aed)
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  scene.add(mesh);
 
-function closePdfModal() {
-document.getElementById('pdfModal').classList.add('hidden');
-}
+  function resize(){
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener("resize", resize);
+  resize();
 
-let extractedPdfText = '';
-const pdfDropZone = document.getElementById('pdfDropZone');
-const pdfInput = document.getElementById('pdfInput');
-
-pdfDropZone.addEventListener('click', () => pdfInput.click());
-pdfDropZone.addEventListener('dragover', (e) => {
-e.preventDefault();
-pdfDropZone.style.background = 'rgba(168, 85, 247, 0.2)';
-});
-pdfDropZone.addEventListener('dragleave', () => {
-pdfDropZone.style.background = '';
-});
-pdfDropZone.addEventListener('drop', (e) => {
-e.preventDefault();
-pdfDropZone.style.background = '';
-if (e.dataTransfer.files[0]) handlePdfUpload(e.dataTransfer.files[0]);
-});
-
-pdfInput.addEventListener('change', (e) => {
-if (e.target.files[0]) handlePdfUpload(e.target.files[0]);
-});
-
-async function handlePdfUpload(file) {
-if (file.size > 10 * 1024 * 1024) {
-alert('Fichier trop volumineux');
-return;
-}
-
-document.getElementById('pdfProgress').classList.remove('hidden');
-document.getElementById('pdfResult').classList.add('hidden');
-
-try {
-const arrayBuffer = await file.arrayBuffer();
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-let text = '';
-
-for (let i = 1; i <= pdf.numPages; i++) {
-const page = await pdf.getPage(i);
-const content = await page.getTextContent();
-text += content.items.map(item => item.str).join(' ') + '\n';
-document.getElementById('pdfProgressBar').style.width = ((i / pdf.numPages) * 100) + '%';
-}
-
-extractedPdfText = text.substring(0, 2000);
-document.getElementById('pdfText').textContent = extractedPdfText;
-document.getElementById('pdfProgress').classList.add('hidden');
-document.getElementById('pdfResult').classList.remove('hidden');
-} catch (error) {
-alert('Erreur PDF');
-document.getElementById('pdfProgress').classList.add('hidden');
-}
-}
-
-document.getElementById('generateFromPdfBtn').addEventListener('click', () => {
-document.getElementById('niche').value = 'PDF';
-document.getElementById('angle').value = 'Optimisé';
-document.getElementById('customPrompt').value = extractedPdfText;
-closePdfModal();
-generateScript();
-});
-
-// Generator
-let currentResult = {script: '', hooks: [], hashtags: []};
-
-function switchTab(tabName) {
-document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-document.getElementById(`${tabName}-tab`).classList.remove('hidden');
-event.target.classList.add('active');
-}
-
-async function generateScript() {
-const niche = document.getElementById('niche').value;
-const angle = document.getElementById('angle').value;
-
-if (!niche || !angle) {
-document.getElementById('errorMessage').textContent = 'Remplissez Niche et Angle';
-document.getElementById('errorContainer').classList.remove('hidden');
-return;
-}
-
-document.getElementById('loadingContainer').classList.remove('hidden');
-document.getElementById('errorContainer').classList.add('hidden');
-
-try {
-const response = await fetch('YOUR_API_
+  let t = 0;
+  function animate(){
+    t += 0.01;
+    mesh.rotation.x += 0.008;
+    mesh.rotation.y += 0.012;
+    mesh.position.y = Math.sin(t) * 0.08;
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+  }
+  animate();
+</script>
+</body>
+</html>

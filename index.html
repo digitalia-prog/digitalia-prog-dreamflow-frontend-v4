@@ -401,32 +401,72 @@ function changeLang(lang) {
   currentLang = lang;
   const t = translations[lang];
   
-  document.querySelector('.hero h1').innerHTML = t.heroTitle;
-  document.querySelector('.hero p').textContent = t.heroDesc;
-  document.querySelectorAll('.btn')[0].textContent = t.testBtn;
-  document.querySelectorAll('.btn')[1].textContent = t.priceBtn;
-  document.querySelector('#analytics h2').textContent = t.analyticsTitle;
-  document.querySelector('#pricing h2').textContent = t.pricingTitle;
-  document.querySelector('#pricing .muted').textContent = t.pricingDesc;
-  document.querySelector('#generator h2').textContent = t.generatorTitle;
+  // Hero section
+  const heroTitle = document.querySelector('.hero h1');
+  const heroDesc = document.querySelector('.hero p');
+  if(heroTitle) heroTitle.innerHTML = t.heroTitle;
+  if(heroDesc) heroDesc.textContent = t.heroDesc;
   
-  const labels = document.querySelectorAll('.two .muted');
-  labels[0].textContent = t.langLabel;
-  labels[1].textContent = t.platformLabel;
-  labels[2].textContent = t.nicheLabel;
-  labels[3].textContent = t.angleLabel;
-  labels[4].textContent = t.resultLabel;
+  // Hero buttons
+  const heroBtns = document.querySelectorAll('.hero .btn');
+  if(heroBtns[0]) heroBtns[0].textContent = t.testBtn;
+  if(heroBtns[1]) heroBtns[1].textContent = t.priceBtn;
   
-  document.querySelectorAll('.two .btn')[0].textContent = t.generateBtn;
-  document.querySelectorAll('.two .btn')[1].textContent = t.copyBtn;
-  document.querySelectorAll('.two .btn')[2].textContent = t.uploadBtn;
+  // Section titles
+  const analyticsTitle = document.querySelector('#analytics h2');
+  const pricingTitle = document.querySelector('#pricing h2');
+  const pricingDesc = document.querySelector('#pricing .muted');
+  const generatorTitle = document.querySelector('#generator h2');
   
-  document.querySelector('#niche option').textContent = t.selectNiche;
+  if(analyticsTitle) analyticsTitle.textContent = t.analyticsTitle;
+  if(pricingTitle) pricingTitle.textContent = t.pricingTitle;
+  if(pricingDesc) pricingDesc.textContent = t.pricingDesc;
+  if(generatorTitle) generatorTitle.textContent = t.generatorTitle;
+  
+  // Generator labels
+  const labels = document.querySelectorAll('#generator .muted');
+  if(labels[0]) labels[0].textContent = t.langLabel;
+  if(labels[1]) labels[1].innerHTML = '📝 Type de contenu';
+  if(labels[2]) labels[2].textContent = t.platformLabel;
+  if(labels[3]) labels[3].textContent = t.nicheLabel;
+  if(labels[4]) labels[4].textContent = t.angleLabel;
+  if(labels[5]) labels[5].textContent = t.resultLabel;
+  
+  // Generator buttons
+  const genBtns = document.querySelectorAll('#generator .btn');
+  if(genBtns[0]) genBtns[0].textContent = t.generateBtn;
+  if(genBtns[1]) genBtns[1].textContent = t.copyBtn;
+  if(genBtns[2]) genBtns[2].textContent = t.uploadBtn;
+  
+  // Niche selector first option
+  const nicheFirst = document.querySelector('#niche option');
+  if(nicheFirst) nicheFirst.textContent = t.selectNiche;
+  
+  // Pricing cards
+  const priceCards = document.querySelectorAll('.price');
+  if(priceCards[0]) {
+    priceCards[0].querySelector('h3').textContent = t.starterPlan;
+    priceCards[0].querySelector('.p').textContent = t.starterDesc;
+    priceCards[0].querySelector('.btn').textContent = t.startBtn;
+  }
+  if(priceCards[1]) {
+    priceCards[1].querySelectorAll('h3')[0].textContent = t.proPlan;
+    priceCards[1].querySelector('.p').textContent = t.proDesc;
+    priceCards[1].querySelector('.btn').textContent = t.upgradeBtn;
+  }
+  if(priceCards[2]) {
+    priceCards[2].querySelector('h3').textContent = t.agencyPlan;
+    priceCards[2].querySelector('.p').textContent = t.agencyDesc;
+    priceCards[2].querySelector('.btn').textContent = t.contactBtn;
+  }
 }
 
 document.getElementById('langSelector').addEventListener('change', (e) => {
   changeLang(e.target.value);
 });
+
+// Initialize with French
+changeLang('fr');
 
 function scrollTo(id){document.querySelector(id).scrollIntoView({behavior:'smooth'})}
 

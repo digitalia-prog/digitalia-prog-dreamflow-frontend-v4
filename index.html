@@ -215,6 +215,14 @@
           <option value="es">🇪🇸 Español</option>
         </select>
 
+        <div class="muted" style="margin-top:10px">📝 Type de contenu</div>
+        <select id="contentType">
+          <option value="script">🎬 Script UGC complet</option>
+          <option value="hook">🔥 Hook viral</option>
+          <option value="prompt">✨ Prompt Hook optimisé</option>
+          <option value="hack">🚀 Growth Hack</option>
+        </select>
+
         <div class="muted" style="margin-top:10px">📱 Plateforme</div>
         <select id="network">
           <option value="TikTok">TikTok</option>
@@ -300,6 +308,125 @@
 <script>
 const userPlan = 'free'; // Change to 'pro' or 'agency'
 let currentScript = '';
+let currentLang = 'fr';
+
+const translations = {
+  fr: {
+    heroTitle: 'Crée des scripts viraux<br/>en 30 secondes.',
+    heroDesc: 'DreamFlow te donne des scripts UGC/Ads prêts à tourner, adaptés à ta niche. Commence maintenant avec le générateur gratuit.',
+    testBtn: '🚀 Tester maintenant',
+    priceBtn: 'Voir les prix',
+    analyticsTitle: '📊 Dashboard Analytics',
+    pricingTitle: '💎 Pricing',
+    pricingDesc: 'Plans flexibles selon tes besoins. Change ou annule à tout moment.',
+    generatorTitle: '✨ Générateur de Scripts IA',
+    starterPlan: 'Starter',
+    starterDesc: 'Pour tester',
+    proPlan: 'Pro',
+    proDesc: 'Pour créateurs & agences',
+    agencyPlan: 'Agency',
+    agencyDesc: 'Pour ton agence UGC',
+    startBtn: 'Commencer',
+    upgradeBtn: 'Passer Pro',
+    contactBtn: 'Nous contacter',
+    langLabel: '🌍 Langue',
+    platformLabel: '📱 Plateforme',
+    nicheLabel: '🎯 Niche',
+    angleLabel: '📝 Angle / Objectif',
+    generateBtn: '🚀 Générer',
+    copyBtn: '📋 Copier',
+    uploadBtn: '📄 Upload PDF',
+    resultLabel: 'Résultat',
+    selectNiche: 'Sélectionne...'
+  },
+  en: {
+    heroTitle: 'Create viral scripts<br/>in 30 seconds.',
+    heroDesc: 'DreamFlow gives you ready-to-shoot UGC/Ads scripts, tailored to your niche. Start now with the free generator.',
+    testBtn: '🚀 Test now',
+    priceBtn: 'See pricing',
+    analyticsTitle: '📊 Analytics Dashboard',
+    pricingTitle: '💎 Pricing',
+    pricingDesc: 'Flexible plans for your needs. Change or cancel anytime.',
+    generatorTitle: '✨ AI Script Generator',
+    starterPlan: 'Starter',
+    starterDesc: 'To test',
+    proPlan: 'Pro',
+    proDesc: 'For creators & agencies',
+    agencyPlan: 'Agency',
+    agencyDesc: 'For your UGC agency',
+    startBtn: 'Start',
+    upgradeBtn: 'Upgrade Pro',
+    contactBtn: 'Contact us',
+    langLabel: '🌍 Language',
+    platformLabel: '📱 Platform',
+    nicheLabel: '🎯 Niche',
+    angleLabel: '📝 Angle / Goal',
+    generateBtn: '🚀 Generate',
+    copyBtn: '📋 Copy',
+    uploadBtn: '📄 Upload PDF',
+    resultLabel: 'Result',
+    selectNiche: 'Select...'
+  },
+  es: {
+    heroTitle: 'Crea scripts virales<br/>en 30 segundos.',
+    heroDesc: 'DreamFlow te da scripts UGC/Ads listos para grabar, adaptados a tu nicho. Empieza ahora con el generador gratuito.',
+    testBtn: '🚀 Probar ahora',
+    priceBtn: 'Ver precios',
+    analyticsTitle: '📊 Panel Analytics',
+    pricingTitle: '💎 Precios',
+    pricingDesc: 'Planes flexibles según tus necesidades. Cambia o cancela cuando quieras.',
+    generatorTitle: '✨ Generador de Scripts IA',
+    starterPlan: 'Starter',
+    starterDesc: 'Para probar',
+    proPlan: 'Pro',
+    proDesc: 'Para creadores y agencias',
+    agencyPlan: 'Agency',
+    agencyDesc: 'Para tu agencia UGC',
+    startBtn: 'Comenzar',
+    upgradeBtn: 'Mejorar Pro',
+    contactBtn: 'Contactarnos',
+    langLabel: '🌍 Idioma',
+    platformLabel: '📱 Plataforma',
+    nicheLabel: '🎯 Nicho',
+    angleLabel: '📝 Ángulo / Objetivo',
+    generateBtn: '🚀 Generar',
+    copyBtn: '📋 Copiar',
+    uploadBtn: '📄 Subir PDF',
+    resultLabel: 'Resultado',
+    selectNiche: 'Selecciona...'
+  }
+};
+
+function changeLang(lang) {
+  currentLang = lang;
+  const t = translations[lang];
+  
+  document.querySelector('.hero h1').innerHTML = t.heroTitle;
+  document.querySelector('.hero p').textContent = t.heroDesc;
+  document.querySelectorAll('.btn')[0].textContent = t.testBtn;
+  document.querySelectorAll('.btn')[1].textContent = t.priceBtn;
+  document.querySelector('#analytics h2').textContent = t.analyticsTitle;
+  document.querySelector('#pricing h2').textContent = t.pricingTitle;
+  document.querySelector('#pricing .muted').textContent = t.pricingDesc;
+  document.querySelector('#generator h2').textContent = t.generatorTitle;
+  
+  const labels = document.querySelectorAll('.two .muted');
+  labels[0].textContent = t.langLabel;
+  labels[1].textContent = t.platformLabel;
+  labels[2].textContent = t.nicheLabel;
+  labels[3].textContent = t.angleLabel;
+  labels[4].textContent = t.resultLabel;
+  
+  document.querySelectorAll('.two .btn')[0].textContent = t.generateBtn;
+  document.querySelectorAll('.two .btn')[1].textContent = t.copyBtn;
+  document.querySelectorAll('.two .btn')[2].textContent = t.uploadBtn;
+  
+  document.querySelector('#niche option').textContent = t.selectNiche;
+}
+
+document.getElementById('langSelector').addEventListener('change', (e) => {
+  changeLang(e.target.value);
+});
 
 function scrollTo(id){document.querySelector(id).scrollIntoView({behavior:'smooth'})}
 
@@ -323,19 +450,38 @@ function showCGU(lang){
 
 function generate(){
   const niche = document.getElementById('niche').value;
+  const contentType = document.getElementById('contentType').value;
   if(!niche){alert('Sélectionne une niche');return;}
   
   const out = document.getElementById('out');
   out.textContent = '⏳ Génération...';
   
   setTimeout(()=>{
-    const scripts = {
-      "E-commerce":"🎬 SCRIPT UGC E-COMMERCE\n\n📍 HOOK (3s)\n\"Attends, ce produit a changé ma vie...\"\n\n🎥 SCÈNE 1\nZoom produit\nTexte: \"Avant vs Après\"\n\n🎥 SCÈNE 2\nDémo en action\nVoix: \"Sceptique au début...\"\n\n🎥 SCÈNE 3\nRésultat 30 jours\n\n💥 CTA: Lien bio -20%\n\n#️⃣ #ugc #ecommerce #avantaprès",
-      "Mode":"🎬 SCRIPT MODE\n\n📍 HOOK\n\"50€ = 500€ de style\"\n\n🎥 Unboxing dramatique\n🎥 Essayage angles multiples\n🎥 Comparaison luxe\n\n💥 CTA: Shop avant rupture\n\n#️⃣ #fashion #ootd #haul",
-      "Beauté":"🎬 SCRIPT BEAUTÉ\n\n📍 HOOK\n\"LE produit qui change tout\"\n\n🎥 Avant/Après peau\n🎥 Application produit\n🎥 Résultat glowing\n\n💥 CTA: Lien bio\n\n#️⃣ #beauty #skincare #glowup"
+    const content = {
+      script: {
+        "E-commerce":"🎬 SCRIPT UGC E-COMMERCE\n\n📍 HOOK (3s)\n\"Attends, ce produit a changé ma vie...\"\n\n🎥 SCÈNE 1\nZoom produit\nTexte: \"Avant vs Après\"\n\n🎥 SCÈNE 2\nDémo en action\nVoix: \"Sceptique au début...\"\n\n🎥 SCÈNE 3\nRésultat 30 jours\n\n💥 CTA: Lien bio -20%\n\n#️⃣ #ugc #ecommerce #avantaprès",
+        "Mode":"🎬 SCRIPT MODE\n\n📍 HOOK\n\"50€ = 500€ de style\"\n\n🎥 Unboxing dramatique\n🎥 Essayage angles multiples\n🎥 Comparaison luxe\n\n💥 CTA: Shop avant rupture\n\n#️⃣ #fashion #ootd #haul",
+        "Beauté":"🎬 SCRIPT BEAUTÉ\n\n📍 HOOK\n\"LE produit qui change tout\"\n\n🎥 Avant/Après peau\n🎥 Application produit\n🎥 Résultat glowing\n\n💥 CTA: Lien bio\n\n#️⃣ #beauty #skincare #glowup"
+      },
+      hook: {
+        "E-commerce":"🔥 HOOKS VIRAUX E-COMMERCE\n\n1. \"Attends... j'ai trouvé LE produit à 30€ qui remplace mon rituel à 300€\"\n\n2. \"POV: Tu découvres que ce truc existe depuis 5 ans et personne te l'a dit\"\n\n3. \"Stop tout. Si tu achètes encore [produit cher], regarde ça d'abord\"\n\n4. \"Ça fait 3 mois que j'utilise ça en secret... Résultat fou\"\n\n5. \"Les influenceurs te cachent ce produit car...\"\n\n💡 FORMULE: Curiosité + Exclusivité + Transformation",
+        "Mode":"🔥 HOOKS VIRAUX MODE\n\n1. \"Cette veste à 45€ sur Vinted ressemble à du Balenciaga à 2000€\"\n\n2. \"POV: Tu portes du Zara mais tout le monde pense que c'est du luxe\"\n\n3. \"Le secret des stylistes pour paraître riche avec 100€ de budget\"\n\n4. \"J'ai dépensé 5000€ en fringues avant de découvrir cette astuce\"\n\n5. \"Personne ne voit la différence entre ça et du Dior\"\n\n💡 FORMULE: Comparaison Luxe + Prix Choc + Social Proof",
+        "Beauté":"🔥 HOOKS VIRAUX BEAUTÉ\n\n1. \"Ma peau avant/après ce produit à 15€... Les dermatologues détestent ça\"\n\n2. \"POV: Tu utilises ce truc tous les jours sans savoir qu'il fait vieillir ta peau\"\n\n3. \"J'ai volé la routine skincare de ma dermato... Résultat en 7 jours\"\n\n4. \"Ce produit pharmacy est meilleur que mon sérum à 200€\"\n\n5. \"La routine skincare qui a sauvé ma peau d'acné en 30 jours\"\n\n💡 FORMULE: Transformation + Prix Accessible + Expertise"
+      },
+      prompt: {
+        "E-commerce":"✨ PROMPT HOOK OPTIMISÉ E-COMMERCE\n\n📋 STRUCTURE:\n\"[Action urgente] + [Bénéfice choc] + [Preuve sociale]\"\n\nEXEMPLES:\n\n🎯 Prompt 1:\n\"Arrête de scroller. Ce produit à [prix] a généré 50K€ de ventes en 48h sur TikTok. Voici pourquoi...\"\n\n🎯 Prompt 2:\n\"POV: Tu paies [prix cher] pour [produit] alors que cette alternative à [prix bas] fait exactement pareil (+ preuve)\"\n\n🎯 Prompt 3:\n\"[Nombre] personnes ont commandé ça hier. Stock restant: [chiffre]. Voici ce qui se passe...\"\n\n💡 FORMULES PROMPT HOOK:\n✅ Urgence + Rareté + FOMO\n✅ Comparaison prix + Résultat identique\n✅ Chiffres précis + Social proof\n✅ Problème relatable + Solution inattendue",
+        "Mode":"✨ PROMPT HOOK OPTIMISÉ MODE\n\n📋 STRUCTURE:\n\"[Transformation style] + [Comparaison luxe] + [Prix accessible]\"\n\nEXEMPLES:\n\n🎯 Prompt 1:\n\"Comment avoir un style à 10K€ avec 200€ de budget. Thread des meilleures pièces invisibles:\"\n\n🎯 Prompt 2:\n\"Cette pièce [marque accessible] = sosie parfait de [marque luxe]. Personne ne voit la différence (preuve en photos)\"\n\n🎯 Prompt 3:\n\"Les 5 basiques qui font croire que tu portes du luxe (même si tout vient de [marque fast fashion])\"\n\n💡 FORMULES PROMPT HOOK:\n✅ Transformation visible + Budget réaliste\n✅ Dupes luxe + Comparaison photo\n✅ Codes secrets stylistes + Astuces pros\n✅ Avant/Après style + Prix total",
+        "Beauté":"✨ PROMPT HOOK OPTIMISÉ BEAUTÉ\n\n📋 STRUCTURE:\n\"[Problème peau relatable] + [Solution inattendue] + [Résultat timeline]\"\n\nEXEMPLES:\n\n🎯 Prompt 1:\n\"Ma peau était [problème]. J'ai testé ce produit pharmacy à 12€. Résultat jour 7 vs jour 30 (photos)\"\n\n🎯 Prompt 2:\n\"Les dermatologues recommandent ces 3 ingrédients pour [problème]. Voici les meilleurs produits sous 30€:\"\n\n🎯 Prompt 3:\n\"Routine skincare qui a réparé ma barrière cutanée en 2 semaines. Total budget: 45€\"\n\n💡 FORMULES PROMPT HOOK:\n✅ Timeline précise + Photos avant/après\n✅ Expertise médicale + Prix accessible\n✅ Problème spécifique + Solution step-by-step\n✅ Ingrédients actifs + Preuves scientifiques"
+      },
+      hack: {
+        "E-commerce":"🚀 GROWTH HACKS E-COMMERCE\n\n💎 HACK #1: UGCCEPTION\n→ Demande aux clients de filmer leur unboxing\n→ Reposte avec @mention + code promo unique\n→ Résultat: +340% engagement, -60% CAC\n\n💎 HACK #2: SCARCITY LOOP\n→ Stock limité visible en temps réel\n→ Notif \"Plus que X en stock\"\n→ Timer 24h restock\n→ Résultat: +85% conversion\n\n💎 HACK #3: MICRO-INFLUENCERS SWARM\n→ 50 micro-influenceurs (5-20K) > 1 macro\n→ Produit gratuit + 15% commission\n→ Post organique > pub payée\n→ Résultat: ROI x12\n\n💎 HACK #4: ABANDON CART RECOVERY\n→ Email 1h après: \"Oups, tu as oublié ça\"\n→ SMS 24h: Code -10% expire dans 2h\n→ Retarget FB/IG avec avis clients\n→ Résultat: Récupère 35% des paniers",
+        "Mode":"🚀 GROWTH HACKS MODE\n\n💎 HACK #1: LOOKBOOK UGC\n→ Clients postent leur OOTD avec #VotreBrand\n→ Tu reposts les meilleurs\n→ Ils gagnent bon d'achat 50€\n→ Résultat: Contenu gratuit infini + communauté engagée\n\n💎 HACK #2: STYLE QUIZ VIRAL\n→ Quiz \"Quel est ton style?\"\n→ Résultat = sélection produits personnalisée\n→ Partage résultat = -15% code promo\n→ Résultat: 40% conversion quiz→achat\n\n💎 HACK #3: DROPS LIMITÉS\n→ Nouvelle collection tous les jeudis 18h\n→ Quantités limitées annoncées\n→ Sold out en 2h = FOMO max\n→ Résultat: Attente + hype + revente\n\n💎 HACK #4: AMBASSADOR PROGRAM\n→ Top clients = ambassadeurs\n→ Code perso 20% + commission 15%\n→ Avantages VIP (early access, gifts)\n→ Résultat: Acquisition organique x5",
+        "Beauté":"🚀 GROWTH HACKS BEAUTÉ\n\n💎 HACK #1: ROUTINE BUILDER\n→ Quiz peau (3 questions)\n→ IA recommande routine sur-mesure\n→ Bundle -25% si achat complet\n→ Résultat: Panier moyen +180%\n\n💎 HACK #2: BEFORE/AFTER CHALLENGE\n→ Challenge 30 jours avec produit\n→ Poste progrès jour 7/14/30\n→ Meilleure transformation = produits 6 mois offerts\n→ Résultat: Preuve sociale massive + viralité\n\n💎 HACK #3: INGREDIENT EDUCATION\n→ Contenu éducatif ingrédients (Rétinol, Niacinamide...)\n→ \"Si tu utilises X, essaie notre Y\"\n→ Compare avec concurrents (concentration, prix)\n→ Résultat: Autorité + confiance + SEO\n\n💎 HACK #4: SUBSCRIPTION SURPRISE\n→ Abonnement mensuel routine\n→ 1 surprise product chaque mois\n→ Annulation impossible 1er mois (garantie résultat)\n→ Résultat: LTV x8, récurrence 85%"
+      }
     };
     
-    currentScript = scripts[niche] || "🎬 SCRIPT GÉNÉRIQUE\n\n📍 HOOK\nAccroche forte\n\n🎥 DÉMO\nValeur produit\n\n💥 CTA\nAction claire\n\n#️⃣ #ugc #viral";
+    const selectedContent = content[contentType];
+    currentScript = selectedContent[niche] || `📝 ${contentType.toUpperCase()} GÉNÉRIQUE\n\nContenu généré pour ${niche}`;
     out.textContent = currentScript;
     
     const wm = document.getElementById('watermarkDiv');

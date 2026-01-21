@@ -141,7 +141,14 @@ input:focus,select:focus{border-color:rgba(124,58,237,.7)}
 <div class="two">
 <div>
 <div id="formFun">
-<div class="muted" data-tr="funSub">🎬 Sujet de ta vidéo</div>
+<div class="muted">📝 Type de contenu</div>
+<select id="contentType">
+<option value="script">🎬 Script UGC complet</option>
+<option value="hook">🔥 Hook viral (5 versions)</option>
+<option value="prompt">✨ Prompt Hook optimisé</option>
+<option value="hack">🚀 Growth Hack</option>
+</select>
+<div class="muted" style="margin-top:10px" data-tr="funSub">🎬 Sujet de ta vidéo</div>
 <input id="funSubject" placeholder="Ex: mon chien..."/>
 <div class="muted" style="margin-top:10px" data-tr="funType">🎨 Type de vidéo</div>
 <select id="funType">
@@ -151,7 +158,14 @@ input:focus,select:focus{border-color:rgba(124,58,237,.7)}
 </select>
 </div>
 <div id="formBiz" style="display:none">
-<div class="muted" data-tr="bizBrand">🏢 Nom de ta marque *</div>
+<div class="muted">📝 Type de contenu</div>
+<select id="contentTypeBiz">
+<option value="script">🎬 Script UGC complet</option>
+<option value="hook">🔥 Hook viral (5 versions)</option>
+<option value="prompt">✨ Prompt Hook optimisé</option>
+<option value="hack">🚀 Growth Hack</option>
+</select>
+<div class="muted" style="margin-top:10px" data-tr="bizBrand">🏢 Nom de ta marque *</div>
 <input id="bizBrand" placeholder="Ex: HydroSmart..."/>
 <div class="muted" style="margin-top:10px" data-tr="bizProd">📦 Produit *</div>
 <input id="bizProduct" placeholder="Ex: Gourde..."/>
@@ -174,7 +188,188 @@ const tr={fr:{navPricing:'Pricing',navGen:'Générateur',badge:'⚡ SaaS UGC + S
 let mode='fun',script='';
 document.getElementById('lang').onchange=e=>{const l=e.target.value;document.querySelectorAll('[data-tr]').forEach(el=>{const k=el.getAttribute('data-tr');if(tr[l][k])el.innerHTML=tr[l][k]})};
 function selectMode(m){mode=m;document.getElementById('modeFunBtn').classList.toggle('active',m==='fun');document.getElementById('modeBizBtn').classList.toggle('active',m==='biz');document.getElementById('formFun').style.display=m==='fun'?'block':'none';document.getElementById('formBiz').style.display=m==='biz'?'block':'none'}
-function generate(){const out=document.getElementById('out');out.textContent='⏳ Génération...';setTimeout(()=>{if(mode==='fun'){const sub=document.getElementById('funSubject').value||'mon chien';script=`🎬 SCRIPT FUN\n\n📍 HOOK\n"Regardez ça..."\n\n🎥 ${sub}\n\n💥 #viral`;out.textContent=script}else{const brand=document.getElementById('bizBrand').value||'MaMarque';const prod=document.getElementById('bizProduct').value||'Produit';script=`🎬 SCRIPT BUSINESS - ${brand}\n\n📍 HOOK\n"Découvre ${prod}..."\n\n🎥 DÉMO\n\n💥 CTA Lien bio`;out.textContent=script}},1000)}
+function generate(){
+const out=document.getElementById('out');
+out.textContent='⏳ Génération...';
+setTimeout(()=>{
+const contentType = mode==='fun' ? document.getElementById('contentType').value : document.getElementById('contentTypeBiz').value;
+
+if(mode==='fun'){
+const sub=document.getElementById('funSubject').value||'mon chien';
+
+if(contentType==='script'){
+script=`🎬 SCRIPT UGC FUN - ${sub.toUpperCase()}
+
+📍 HOOK (3s)
+"Regardez ce qui vient de se passer..."
+
+🎥 SCÈNE 1 (5s)
+Intro du sujet
+Musique tendance
+
+🎥 SCÈNE 2 (10s)
+Le moment clé / l'action
+Texte à l'écran: "${sub}"
+
+🎥 SCÈNE 3 (7s)
+La fin / la chute
+
+💥 CTA
+"Tag quelqu'un qui doit voir ça !"
+"Part 2 ? 👀"
+
+#️⃣ HASHTAGS
+#viral #fyp #pourtoi #${sub.replace(/\s/g,'')} #tendance #fun`;
+}else if(contentType==='hook'){
+script=`🔥 5 HOOKS VIRAUX - ${sub.toUpperCase()}
+
+1️⃣ "Personne ne parle de ${sub}... et c'est fou"
+
+2️⃣ "POV: ${sub} qui fait n'importe quoi 😂"
+
+3️⃣ "Attends de voir ce que ${sub} vient de faire..."
+
+4️⃣ "Les 3 choses que tu ne savais pas sur ${sub}"
+
+5️⃣ "Si tu as ${sub}, regarde jusqu'à la fin"
+
+💡 FORMULE: Curiosité + Exclusivité + FOMO`;
+}else if(contentType==='prompt'){
+script=`✨ PROMPT HOOK OPTIMISÉ - ${sub.toUpperCase()}
+
+📋 STRUCTURE
+"[Action urgente] + [Moment relatable] + [Promesse]"
+
+🎯 EXEMPLES PRÊTS:
+
+Hook 1: "Stop scrolling. ${sub} et ce qui se passe est fou..."
+Hook 2: "POV: ${sub} et tu réalises que..."
+Hook 3: "Personne ne te dit ça sur ${sub} (thread)"
+
+💡 FORMULES:
+✅ Contraste (avant/après)
+✅ Social proof ("1M de vues")
+✅ Question ouverte
+✅ Chiffres précis`;
+}else if(contentType==='hack'){
+script=`🚀 GROWTH HACKS - ${sub.toUpperCase()}
+
+💎 HACK #1: BOUCLE DE VIRALITÉ
+→ Début = Fin de vidéo
+→ Les gens rewatch
+→ Algo boost
+
+💎 HACK #2: CLIFFHANGER
+→ "Part 2 en commentaire"
+→ Engagement x10
+→ Favorise reach
+
+💎 HACK #3: TREND HIJACKING
+→ Utilise son trending du moment
+→ Ajoute ton angle unique sur ${sub}
+→ Surf la vague virale
+
+💎 HACK #4: COLLAB COMMENT
+→ Tag micro-influenceurs en com
+→ "Qu'en penses-tu @..."
+→ Ils répondent = visibilité`;
+}
+
+}else{
+const brand=document.getElementById('bizBrand').value||'MaMarque';
+const prod=document.getElementById('bizProduct').value||'Produit';
+
+if(contentType==='script'){
+script=`🎬 SCRIPT UGC BUSINESS - ${brand.toUpperCase()}
+
+📋 INFO: ${brand} - ${prod}
+
+📍 HOOK (3s)
+"J'ai trouvé ${prod} et ma vie a changé..."
+
+🎥 SCÈNE 1 - PROBLÈME (5s)
+Montre le problème avant ${brand}
+Texte: "Avant ${brand}"
+
+🎥 SCÈNE 2 - SOLUTION (10s)
+Présente ${prod} en action
+Voix: "Depuis que j'utilise ${brand}..."
+
+🎥 SCÈNE 3 - RÉSULTAT (7s)
+Transformation visible
+Texte: "Résultat avec ${brand}"
+
+💥 CTA
+"${brand} - Lien en bio"
+"Code VIRAL pour -20%"
+"Plus que X en stock !"
+
+#️⃣ HASHTAGS
+#${brand.toLowerCase()} #ugc #${prod.toLowerCase().replace(/\s/g,'')} #viral #ad`;
+}else if(contentType==='hook'){
+script=`🔥 5 HOOKS BUSINESS - ${brand.toUpperCase()}
+
+1️⃣ "Attends... ${prod} à ce prix ? Impossible"
+
+2️⃣ "POV: Tu découvres ${brand} et tu regrettes de pas l'avoir connu avant"
+
+3️⃣ "${prod} qui change tout (preuve en 30 sec)"
+
+4️⃣ "J'ai testé ${brand} pendant 30 jours... Résultat fou"
+
+5️⃣ "Si tu achètes encore [concurrent], regarde ça avant"
+
+💡 FORMULE: Prix choc + Transformation + FOMO`;
+}else if(contentType==='prompt'){
+script=`✨ PROMPT HOOK BUSINESS - ${brand.toUpperCase()}
+
+📋 STRUCTURE
+"[Problème relatable] + [Solution ${brand}] + [Preuve sociale]"
+
+🎯 EXEMPLES:
+
+Hook 1: "Tu paies [prix cher] pour [problème] ? ${prod} à [prix] fait pareil (j'ai testé)"
+
+Hook 2: "${brand}: le ${prod} qui a généré X€ de ventes en X jours (comment)"
+
+Hook 3: "J'ai comparé ${brand} vs [concurrent] pendant 30j. Résultat:"
+
+💡 FORMULES BUSINESS:
+✅ Comparaison prix (économie)
+✅ Résultat chiffré précis
+✅ Avant/après transformation
+✅ Alternative à [concurrent]`;
+}else if(contentType==='hack'){
+script=`🚀 GROWTH HACKS BUSINESS - ${brand.toUpperCase()}
+
+💎 HACK #1: UGC LOOP
+→ Client filme unboxing
+→ Tu repostes avec @mention
+→ Code promo unique 15%
+→ Résultat: +340% engagement
+
+💎 HACK #2: SCARCITY TIMER
+→ "Plus que X en stock" en temps réel
+→ Timer 24h restockage
+→ Résultat: +85% conversion
+
+💎 HACK #3: MICRO-INFLUENCERS
+→ 50 micros (5-20K) > 1 macro
+→ ${prod} gratuit + 15% commission
+→ Post organique > pub payée
+→ ROI x12
+
+💎 HACK #4: SOCIAL PROOF BOMB
+→ Agrège tous les avis clients
+→ Créer une vidéo compilation
+→ "500+ clients satisfaits"
+→ Trust instant = ventes`;
+}
+}
+
+out.textContent=script;
+},1000)
+}
 function copyScript(){if(!script)return alert('Génère d\'abord!');navigator.clipboard.writeText(script);alert('✅ Copié!')}
 const c=document.getElementById('threeCanvas');if(c&&THREE){const s=new THREE.Scene(),r=new THREE.WebGLRenderer({canvas:c,antialias:1,alpha:1});r.setClearColor(0,0);const cam=new THREE.PerspectiveCamera(55,1,.1,100);cam.position.set(0,.2,3.2);const l=new THREE.DirectionalLight(0xffffff,1.4);l.position.set(2,2,2);s.add(l);s.add(new THREE.AmbientLight(0xffffff,.55));const geo=new THREE.TorusKnotGeometry(.7,.22,160,18);const mat=new THREE.MeshStandardMaterial({metalness:.85,roughness:.18,color:new THREE.Color(0x7c3aed)});const m=new THREE.Mesh(geo,mat);s.add(m);function re(){const w=c.clientWidth;const h=c.clientHeight;r.setSize(w,h,0);cam.aspect=w/h;cam.updateProjectionMatrix()}window.addEventListener("resize",re);re();let t=0;function an(){t+=.01;m.rotation.x+=.008;m.rotation.y+=.012;m.position.y=Math.sin(t)*.08;r.render(s,cam);requestAnimationFrame(an)}an()}
 </script>

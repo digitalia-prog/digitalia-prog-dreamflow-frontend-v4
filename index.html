@@ -51,6 +51,9 @@ input:focus,select:focus{border-color:rgba(124,58,237,.7)}
 .modeBtn .title{font-weight:800;font-size:16px;margin-bottom:4px}
 .modeBtn .desc{font-size:12px;color:var(--muted)}
 @media (max-width:900px){.hero{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}.two{grid-template-columns:1fr}.hero h1{font-size:36px}}
+.platformBtn{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(124,58,237,.3);border-radius:8px;padding:10px 16px;cursor:pointer;font-weight:600;transition:all .3s;font-size:13px}
+.platformBtn:hover{border-color:rgba(124,58,237,.7);background:rgba(124,58,237,.1)}
+.platformBtn.active{background:#7c3aed;border-color:#7c3aed;color:white}
 </style>
 </head>
 <body>
@@ -174,14 +177,15 @@ input:focus,select:focus{border-color:rgba(124,58,237,.7)}
 <option value="prompt">✨ Prompt Hook optimisé</option>
 <option value="hack">🚀 Growth Hack</option>
 <div class="muted" style="margin-top:10px">📱 Plateforme</div>
-<select id="bizPlatform">
-<option value="tiktok">TikTok</option>
-<option value="instagram-reels">Instagram Reels</option>
-<option value="youtube-shorts">YouTube Shorts</option>
-<option value="facebook-reels">Facebook Reels</option>
-<option value="instagram-stories">Instagram Stories</option>
-<option value="facebook-stories">Facebook Stories</option>
-</select>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+<button type="button" class="platformBtn" data-platform="tiktok" onclick="selectPlatform('tiktok')">TikTok</button>
+<button type="button" class="platformBtn" data-platform="instagram-reels" onclick="selectPlatform('instagram-reels')">Instagram Reels</button>
+<button type="button" class="platformBtn" data-platform="youtube-shorts" onclick="selectPlatform('youtube-shorts')">YouTube Shorts</button>
+<button type="button" class="platformBtn" data-platform="facebook-reels" onclick="selectPlatform('facebook-reels')">Facebook Reels</button>
+<button type="button" class="platformBtn" data-platform="instagram-stories" onclick="selectPlatform('instagram-stories')">Instagram Stories</button>
+<button type="button" class="platformBtn" data-platform="facebook-stories" onclick="selectPlatform('facebook-stories')">Facebook Stories</button>
+</div>
+<input type="hidden" id="bizPlatformHidden" value="tiktok"/>
 </select>
 <div class="muted" style="margin-top:10px" data-tr="bizBrand">🏢 Nom de ta marque *</div>
 <input id="bizBrand" placeholder="Ex: HydroSmart..."/>
@@ -206,12 +210,14 @@ const tr={fr:{navPricing:'Pricing',navGen:'Générateur',badge:'⚡ SaaS UGC + S
 let mode='fun',script='';
 document.getElementById('lang').onchange=e=>{const l=e.target.value;document.querySelectorAll('[data-tr]').forEach(el=>{const k=el.getAttribute('data-tr');if(tr[l][k])el.innerHTML=tr[l][k]})};
 function selectMode(m){mode=m;document.getElementById('modeFunBtn').classList.toggle('active',m==='fun');document.getElementById('modeBizBtn').classList.toggle('active',m==='biz');document.getElementById('formFun').style.display=m==='fun'?'block':'none';document.getElementById('formBiz').style.display=m==='biz'?'block':'none'}
+function selectPlatform(p){document.getElementById('bizPlatformHidden').value=p;document.querySelectorAll('.platformBtn').forEach(btn=>{btn.classList.toggle('active',btn.dataset.platform===p)});}
+
 function generate(){
 const out=document.getElementById('out');
 out.textContent='⏳ Génération...';
 setTimeout(()=>{
 const contentType = mode==='fun' ? document.getElementById('contentType').value : document.getElementById('contentTypeBiz').value;
-const platform = mode==='fun' ? document.getElementById('funPlatform').value : document.getElementById('bizPlatform').value;
+const platform = mode==='fun' ? document.getElementById('funPlatform').value : document.getElementById('bizPlatformHidden').value;
 
 if(mode==='fun'){
 const sub=document.getElementById('funSubject').value||'mon chien';
@@ -391,6 +397,7 @@ out.textContent=script;
 }
 function copyScript(){if(!script)return alert('Génère d\'abord!');navigator.clipboard.writeText(script);alert('✅ Copié!')}
 const c=document.getElementById('threeCanvas');if(c&&THREE){const s=new THREE.Scene(),r=new THREE.WebGLRenderer({canvas:c,antialias:1,alpha:1});r.setClearColor(0,0);const cam=new THREE.PerspectiveCamera(55,1,.1,100);cam.position.set(0,.2,3.2);const l=new THREE.DirectionalLight(0xffffff,1.4);l.position.set(2,2,2);s.add(l);s.add(new THREE.AmbientLight(0xffffff,.55));const geo=new THREE.TorusKnotGeometry(.7,.22,160,18);const mat=new THREE.MeshStandardMaterial({metalness:.85,roughness:.18,color:new THREE.Color(0x7c3aed)});const m=new THREE.Mesh(geo,mat);s.add(m);function re(){const w=c.clientWidth;const h=c.clientHeight;r.setSize(w,h,0);cam.aspect=w/h;cam.updateProjectionMatrix()}window.addEventListener("resize",re);re();let t=0;function an(){t+=.01;m.rotation.x+=.008;m.rotation.y+=.012;m.position.y=Math.sin(t)*.08;r.render(s,cam);requestAnimationFrame(an)}an()}
+selectPlatform('tiktok');
 </script>
 <footer style="background:rgba(0,0,0,.3);border-top:1px solid rgba(255,255,255,.1);padding:24px 16px;margin-top:40px;text-align:center">
 <div class="wrap" style="max-width:1150px;margin:0 auto">

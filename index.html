@@ -148,14 +148,25 @@ input:focus,select:focus{border-color:rgba(124,58,237,.7)}
 <option value="prompt">✨ Prompt Hook optimisé</option>
 <option value="hack">🚀 Growth Hack</option>
 </select>
-<div class="muted" style="margin-top:10px" data-tr="funSub">🎬 Sujet de ta vidéo</div>
-<input id="funSubject" placeholder="Ex: mon chien..."/>
-<div class="muted" style="margin-top:10px" data-tr="funType">🎨 Type de vidéo</div>
-<select id="funType">
-<option data-tr="typeFun1">😂 Drôle</option>
-<option data-tr="typeFun2">🥰 Mignon</option>
-<option data-tr="typeFun3">🗣️ Storytime</option>
+<div class="muted">📱 Plateforme</div>
+<select id="funPlatform">
+<option value="tiktok">TikTok</option>
+<option value="instagram-reels">Instagram Reels</option>
+<option value="youtube-shorts">YouTube Shorts</option>
+<option value="facebook-reels">Facebook Reels</option>
+<option value="instagram-stories">Instagram Stories</option>
+<option value="facebook-stories">Facebook Stories</option>
 </select>
+<div class="muted">🎬 Sujet de ta vidéo</div>
+<input id="funSubject" placeholder="Ex: mon chien..."/>
+<div class="muted">🎨 Type de vidéo</div>
+<select id="funType">
+<option value="funny">😂 Funny</option>
+<option value="educational">📚 Educational</option>
+<option value="trending">🔥 Trending</option>
+<option value="storytelling">📖 Storytelling</option>
+</select>
+<button class="btn btnPrimary" onclick="generate()" data-tr="btnGen">Générer le Script</button>
 </div>
 <div id="formBiz" style="display:none">
 <div class="muted">📝 Type de contenu</div>
@@ -165,213 +176,36 @@ input:focus,select:focus{border-color:rgba(124,58,237,.7)}
 <option value="prompt">✨ Prompt Hook optimisé</option>
 <option value="hack">🚀 Growth Hack</option>
 </select>
-<div class="muted" style="margin-top:10px" data-tr="bizBrand">🏢 Nom de ta marque *</div>
+<div class="muted">📱 Plateforme</div>
+<select id="bizPlatform">
+<option value="tiktok">TikTok</option>
+<option value="instagram-reels">Instagram Reels</option>
+<option value="youtube-shorts">YouTube Shorts</option>
+<option value="facebook-reels">Facebook Reels</option>
+<option value="instagram-stories">Instagram Stories</option>
+<option value="facebook-stories">Facebook Stories</option>
+</select>
+<div class="muted">🏢 Nom de ta marque *</div>
 <input id="bizBrand" placeholder="Ex: HydroSmart..."/>
-<div class="muted" style="margin-top:10px" data-tr="bizProd">📦 Produit *</div>
+<div class="muted">📦 Produit *</div>
 <input id="bizProduct" placeholder="Ex: Gourde..."/>
-</div>
-<div class="ctaRow" style="margin-top:12px">
-<button class="btn btnPrimary" onclick="generate()" data-tr="btnGen">🚀 Générer</button>
-<button class="btn btnGhost" onclick="copyScript()" data-tr="btnCopy">📋 Copier</button>
+<div class="muted">💰 Prix *</div>
+<input id="bizPrice" placeholder="Ex: 29€..."/>
+<button class="btn btnPrimary" onclick="generate()" data-tr="btnGen">Générer le Script</button>
 </div>
 </div>
 <div>
-<div class="muted" data-tr="result">Résultat</div>
-<div id="out" data-tr="outPlace">Ton script apparaîtra ici...</div>
+<div id="out"></div>
+<button class="btn btnGhost" onclick="copyScript()" style="margin-top:12px;width:100%">📋 Copier le script</button>
 </div>
 </div>
 </section>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
-const tr={fr:{navPricing:'Pricing',navGen:'Générateur',badge:'⚡ SaaS UGC + Scripts IA',hero:'Générateur de scripts viraux<br/>en 30 secondes.',heroDesc:'DreamFlow te donne des scripts UGC/Ads prêts à tourner, adaptés à ta niche. Commence maintenant avec le générateur gratuit.',btnStart:'🚀 Tester maintenant',btnPrice:'Voir les prix',bullets:'✅ Scripts personnalisés • ✅ Anti-revente • ✅ Sécurisé',pricingTitle:'💎 Pricing',pricingDesc:'Plans flexibles selon tes besoins. Change ou annule à tout moment.',starter:'Starter',starterDesc:'Pour tester',f1:'2 scripts / mois',f2:'Mode Fun uniquement',f3:'Watermark visible',btnCom:'Commencer',popular:'⭐ POPULAIRE',pro:'Pro',proDesc:'Pour créateurs & vendeurs',perMonth:'/mois',fp1:'100 scripts / mois',fp2:'Mode Fun + Business',fp3:'Watermark discret',fp4:'Upload PDF',btnPro:'Passer Pro - 69€/mois',agency:'Agency',agencyDesc:'Pour agences UGC',fa1:'500 scripts / mois',fa2:'Sans watermark',fa3:'API complète',fa4:'Multi-clients',btnAg:'Contact Agency',genTitle:'✨ Générateur de Scripts IA',modeFun:'Mode Fun',modeFunDesc:'Vidéos perso (chien, vlog...)',modeBiz:'Mode Business',modeBizDesc:'Scripts vente (marque...)',funSub:'🎬 Sujet de ta vidéo',funType:'🎨 Type de vidéo',typeFun1:'😂 Drôle',typeFun2:'🥰 Mignon',typeFun3:'🗣️ Storytime',bizBrand:'🏢 Nom de ta marque *',bizProd:'📦 Produit *',btnGen:'🚀 Générer',btnCopy:'📋 Copier',result:'Résultat',outPlace:'Ton script apparaîtra ici...'},en:{navPricing:'Pricing',navGen:'Generator',badge:'⚡ UGC SaaS + AI Scripts',hero:'Viral script generator<br/>in 30 seconds.',heroDesc:'DreamFlow gives you ready-to-shoot UGC/Ads scripts, tailored to your niche. Start now with the free generator.',btnStart:'🚀 Start now',btnPrice:'See pricing',bullets:'✅ Personalized scripts • ✅ Anti-resale • ✅ Secure',pricingTitle:'💎 Pricing',pricingDesc:'Flexible plans for your needs. Change or cancel anytime.',starter:'Starter',starterDesc:'To test',f1:'2 scripts / month',f2:'Fun Mode only',f3:'Visible watermark',btnCom:'Start',popular:'⭐ POPULAR',pro:'Pro',proDesc:'For creators & sellers',perMonth:'/month',fp1:'100 scripts / month',fp2:'Fun + Business Mode',fp3:'Discrete watermark',fp4:'PDF upload',btnPro:'Upgrade Pro - €69/month',agency:'Agency',agencyDesc:'For UGC agencies',fa1:'500 scripts / month',fa2:'No watermark',fa3:'Complete API',fa4:'Multi-clients',btnAg:'Contact Agency',genTitle:'✨ AI Script Generator',modeFun:'Fun Mode',modeFunDesc:'Personal videos (dog, vlog...)',modeBiz:'Business Mode',modeBizDesc:'Sales scripts (brand...)',funSub:'🎬 Video subject',funType:'🎨 Video type',typeFun1:'😂 Funny',typeFun2:'🥰 Cute',typeFun3:'🗣️ Storytime',bizBrand:'🏢 Brand name *',bizProd:'📦 Product *',btnGen:'🚀 Generate',btnCopy:'📋 Copy',result:'Result',outPlace:'Your script will appear here...'},es:{navPricing:'Precios',navGen:'Generador',badge:'⚡ SaaS UGC + Scripts IA',hero:'Generador de scripts virales<br/>en 30 segundos.',heroDesc:'DreamFlow te da scripts UGC/Ads listos para grabar, adaptados a tu nicho. Empieza ahora con el generador gratuito.',btnStart:'🚀 Probar ahora',btnPrice:'Ver precios',bullets:'✅ Scripts personalizados • ✅ Anti-reventa • ✅ Seguro',pricingTitle:'💎 Precios',pricingDesc:'Planes flexibles según tus necesidades. Cambia o cancela cuando quieras.',starter:'Starter',starterDesc:'Para probar',f1:'2 scripts / mes',f2:'Solo Modo Fun',f3:'Marca visible',btnCom:'Comenzar',popular:'⭐ POPULAR',pro:'Pro',proDesc:'Para creadores y vendedores',perMonth:'/mes',fp1:'100 scripts / mes',fp2:'Modo Fun + Business',fp3:'Marca discreta',fp4:'Subir PDF',btnPro:'Mejorar Pro - 69€/mes',agency:'Agency',agencyDesc:'Para agencias UGC',fa1:'500 scripts / mes',fa2:'Sin marca',fa3:'API completa',fa4:'Multi-clientes',btnAg:'Contactar Agency',genTitle:'✨ Generador de Scripts IA',modeFun:'Modo Fun',modeFunDesc:'Videos personales (perro, vlog...)',modeBiz:'Modo Business',modeBizDesc:'Scripts ventas (marca...)',funSub:'🎬 Tema del video',funType:'🎨 Tipo de video',typeFun1:'😂 Gracioso',typeFun2:'🥰 Lindo',typeFun3:'🗣️ Historia',bizBrand:'🏢 Nombre de marca *',bizProd:'📦 Producto *',btnGen:'🚀 Generar',btnCopy:'📋 Copiar',result:'Resultado',outPlace:'Tu script aparecerá aquí...'}};
+const tr={fr:{badge:'⚡ SaaS UGC + Scripts IA',hero:'Générateur de scripts viraux en 30 secondes.',heroDesc:'DreamFlow te donne des scripts UGC/Ads prêts à tourner, adaptés à ta niche. Commence maintenant avec le générateur gratuit.',btnStart:'🚀 Tester maintenant',btnPrice:'Voir les prix',bullets:'✅ Scripts personnalisés • ✅ Anti-revente • ✅ Sécurisé',navPricing:'Pricing',navGen:'Générateur',pricingTitle:'💎 Pricing',pricingDesc:'Plans flexibles selon tes besoins. Change ou annule à tout moment.',starter:'Starter',starterDesc:'Pour tester',f1:'2 scripts / mois',f2:'Mode Fun uniquement',f3:'Watermark visible',btnCom:'Commencer',popular:'⭐ POPULAIRE',pro:'Pro',proDesc:'Pour créateurs & vendeurs',fp1:'100 scripts / mois',fp2:'Mode Fun + Business',fp3:'Watermark discret',fp4:'Upload PDF',btnPro:'Passer Pro - 69€/mois',agency:'Agency',agencyDesc:'Pour agences UGC',fa1:'500 scripts / mois',fa2:'Sans watermark',fa3:'API complète',fa4:'Multi-clients',btnAg:'Contact Agency',perMonth:'/mois',genTitle:'✨ Générateur de Scripts IA',modeFun:'Mode Fun',modeFunDesc:'Vidéos perso (chien, vlog...)',modeBiz:'Mode Business',modeBizDesc:'Scripts vente (marque...)',btnGen:'Générer le Script'},en:{badge:'⚡ UGC SaaS + AI Scripts',hero:'Generate viral scripts in 30 seconds.',heroDesc:'DreamFlow gives you ready-to-film UGC/Ads scripts, tailored to your niche. Start now with the free generator.',btnStart:'🚀 Try now',btnPrice:'See pricing',bullets:'✅ Custom scripts • ✅ Anti-resale • ✅ Secure',navPricing:'Pricing',navGen:'Generator',pricingTitle:'💎 Pricing',pricingDesc:'Flexible plans for your needs. Change or cancel anytime.',starter:'Starter',starterDesc:'For testing',f1:'2 scripts / month',f2:'Fun mode only',f3:'Visible watermark',btnCom:'Get Started',popular:'⭐ POPULAR',pro:'Pro',proDesc:'For creators & sellers',fp1:'100 scripts / month',fp2:'Fun + Business mode',fp3:'Subtle watermark',fp4:'PDF Upload',btnPro:'Go Pro - 69€/month',agency:'Agency',agencyDesc:'For UGC agencies',fa1:'500 scripts / month',fa2:'No watermark',fa3:'Complete API',fa4:'Multi-client',btnAg:'Contact Agency',perMonth:'/month',genTitle:'✨ Script Generator AI',modeFun:'Fun Mode',modeFunDesc:'Personal videos (dog, vlog...)',modeBiz:'Business Mode',modeBizDesc:'Sales scripts (brand...)',btnGen:'Generate Script'},es:{badge:'⚡ SaaS UGC + Scripts IA',hero:'Genera scripts virales en 30 segundos.',heroDesc:'DreamFlow te da scripts UGC/Ads listos para filmar, adaptados a tu nicho. Comienza ahora con el generador gratuito.',btnStart:'🚀 Prueba ahora',btnPrice:'Ver precios',bullets:'✅ Scripts personalizados • ✅ Anti-reventa • ✅ Seguro',navPricing:'Precios',navGen:'Generador',pricingTitle:'💎 Precios',pricingDesc:'Planes flexibles según tus necesidades. Cambia o cancela en cualquier momento.',starter:'Starter',starterDesc:'Para probar',f1:'2 scripts / mes',f2:'Solo modo Fun',f3:'Marca de agua visible',btnCom:'Comenzar',popular:'⭐ POPULAR',pro:'Pro',proDesc:'Para creadores y vendedores',fp1:'100 scripts / mes',fp2:'Modo Fun + Business',fp3:'Marca de agua discreta',fp4:'Subir PDF',btnPro:'Ir a Pro - 69€/mes',agency:'Agencia',agencyDesc:'Para agencias UGC',fa1:'500 scripts / mes',fa2:'Sin marca de agua',fa3:'API completa',fa4:'Multi-cliente',btnAg:'Contactar Agencia',perMonth:'/mes',genTitle:'✨ Generador de Scripts IA',modeFun:'Modo Fun',modeFunDesc:'Videos personales (perro, vlog...)',modeBiz:'Modo Business',modeBizDesc:'Scripts de venta (marca...)',btnGen:'Generar Script'}};
 let mode='fun',script='';
 document.getElementById('lang').onchange=e=>{const l=e.target.value;document.querySelectorAll('[data-tr]').forEach(el=>{const k=el.getAttribute('data-tr');if(tr[l][k])el.innerHTML=tr[l][k]})};
 function selectMode(m){mode=m;document.getElementById('modeFunBtn').classList.toggle('active',m==='fun');document.getElementById('modeBizBtn').classList.toggle('active',m==='biz');document.getElementById('formFun').style.display=m==='fun'?'block':'none';document.getElementById('formBiz').style.display=m==='biz'?'block':'none'}
-function generate(){
-const out=document.getElementById('out');
-out.textContent='⏳ Génération...';
-setTimeout(()=>{
-const contentType = mode==='fun' ? document.getElementById('contentType').value : document.getElementById('contentTypeBiz').value;
-
-if(mode==='fun'){
-const sub=document.getElementById('funSubject').value||'mon chien';
-
-if(contentType==='script'){
-script=`🎬 SCRIPT UGC FUN - ${sub.toUpperCase()}
-
-📍 HOOK (3s)
-"Regardez ce qui vient de se passer..."
-
-🎥 SCÈNE 1 (5s)
-Intro du sujet
-Musique tendance
-
-🎥 SCÈNE 2 (10s)
-Le moment clé / l'action
-Texte à l'écran: "${sub}"
-
-🎥 SCÈNE 3 (7s)
-La fin / la chute
-
-💥 CTA
-"Tag quelqu'un qui doit voir ça !"
-"Part 2 ? 👀"
-
-#️⃣ HASHTAGS
-#viral #fyp #pourtoi #${sub.replace(/\s/g,'')} #tendance #fun`;
-}else if(contentType==='hook'){
-script=`🔥 5 HOOKS VIRAUX - ${sub.toUpperCase()}
-
-1️⃣ "Personne ne parle de ${sub}... et c'est fou"
-
-2️⃣ "POV: ${sub} qui fait n'importe quoi 😂"
-
-3️⃣ "Attends de voir ce que ${sub} vient de faire..."
-
-4️⃣ "Les 3 choses que tu ne savais pas sur ${sub}"
-
-5️⃣ "Si tu as ${sub}, regarde jusqu'à la fin"
-
-💡 FORMULE: Curiosité + Exclusivité + FOMO`;
-}else if(contentType==='prompt'){
-script=`✨ PROMPT HOOK OPTIMISÉ - ${sub.toUpperCase()}
-
-📋 STRUCTURE
-"[Action urgente] + [Moment relatable] + [Promesse]"
-
-🎯 EXEMPLES PRÊTS:
-
-Hook 1: "Stop scrolling. ${sub} et ce qui se passe est fou..."
-Hook 2: "POV: ${sub} et tu réalises que..."
-Hook 3: "Personne ne te dit ça sur ${sub} (thread)"
-
-💡 FORMULES:
-✅ Contraste (avant/après)
-✅ Social proof ("1M de vues")
-✅ Question ouverte
-✅ Chiffres précis`;
-}else if(contentType==='hack'){
-script=`🚀 GROWTH HACKS - ${sub.toUpperCase()}
-
-💎 HACK #1: BOUCLE DE VIRALITÉ
-→ Début = Fin de vidéo
-→ Les gens rewatch
-→ Algo boost
-
-💎 HACK #2: CLIFFHANGER
-→ "Part 2 en commentaire"
-→ Engagement x10
-→ Favorise reach
-
-💎 HACK #3: TREND HIJACKING
-→ Utilise son trending du moment
-→ Ajoute ton angle unique sur ${sub}
-→ Surf la vague virale
-
-💎 HACK #4: COLLAB COMMENT
-→ Tag micro-influenceurs en com
-→ "Qu'en penses-tu @..."
-→ Ils répondent = visibilité`;
-}
-
-}else{
-const brand=document.getElementById('bizBrand').value||'MaMarque';
-const prod=document.getElementById('bizProduct').value||'Produit';
-
-if(contentType==='script'){
-script=`🎬 SCRIPT UGC BUSINESS - ${brand.toUpperCase()}
-
-📋 INFO: ${brand} - ${prod}
-
-📍 HOOK (3s)
-"J'ai trouvé ${prod} et ma vie a changé..."
-
-🎥 SCÈNE 1 - PROBLÈME (5s)
-Montre le problème avant ${brand}
-Texte: "Avant ${brand}"
-
-🎥 SCÈNE 2 - SOLUTION (10s)
-Présente ${prod} en action
-Voix: "Depuis que j'utilise ${brand}..."
-
-🎥 SCÈNE 3 - RÉSULTAT (7s)
-Transformation visible
-Texte: "Résultat avec ${brand}"
-
-💥 CTA
-"${brand} - Lien en bio"
-"Code VIRAL pour -20%"
-"Plus que X en stock !"
-
-#️⃣ HASHTAGS
-#${brand.toLowerCase()} #ugc #${prod.toLowerCase().replace(/\s/g,'')} #viral #ad`;
-}else if(contentType==='hook'){
-script=`🔥 5 HOOKS BUSINESS - ${brand.toUpperCase()}
-
-1️⃣ "Attends... ${prod} à ce prix ? Impossible"
-
-2️⃣ "POV: Tu découvres ${brand} et tu regrettes de pas l'avoir connu avant"
-
-3️⃣ "${prod} qui change tout (preuve en 30 sec)"
-
-4️⃣ "J'ai testé ${brand} pendant 30 jours... Résultat fou"
-
-5️⃣ "Si tu achètes encore [concurrent], regarde ça avant"
-
-💡 FORMULE: Prix choc + Transformation + FOMO`;
-}else if(contentType==='prompt'){
-script=`✨ PROMPT HOOK BUSINESS - ${brand.toUpperCase()}
-
-📋 STRUCTURE
-"[Problème relatable] + [Solution ${brand}] + [Preuve sociale]"
-
-🎯 EXEMPLES:
-
-Hook 1: "Tu paies [prix cher] pour [problème] ? ${prod} à [prix] fait pareil (j'ai testé)"
-
-Hook 2: "${brand}: le ${prod} qui a généré X€ de ventes en X jours (comment)"
-
-Hook 3: "J'ai comparé ${brand} vs [concurrent] pendant 30j. Résultat:"
-
-💡 FORMULES BUSINESS:
-✅ Comparaison prix (économie)
-✅ Résultat chiffré précis
-✅ Avant/après transformation
-✅ Alternative à [concurrent]`;
-}else if(contentType==='hack'){
-script=`🚀 GROWTH HACKS BUSINESS - ${brand.toUpperCase()}
-
-💎 HACK #1: UGC LOOP
-→ Client filme unboxing
-→ Tu repostes avec @mention
-→ Code promo unique 15%
-→ Résultat: +340% engagement
-
-💎 HACK #2: SCARCITY TIMER
-→ "Plus que X en stock" en temps réel
-→ Timer 24h restockage
-→ Résultat: +85% conversion
-
-💎 HACK #3: MICRO-INFLUENCERS
-→ 50 micros (5-20K) > 1 macro
-→ ${prod} gratuit + 15% commission
-→ Post organique > pub payée
-→ ROI x12
-
-💎 HACK #4: SOCIAL PROOF BOMB
-→ Agrège tous les avis clients
-→ Créer une vidéo compilation
-→ "500+ clients satisfaits"
-→ Trust instant = ventes`;
-}
-}
-
-out.textContent=script;
-},1000)
-}
+function generate(){const out=document.getElementById('out');out.textContent='⏳ Génération...';setTimeout(()=>{const contentType=mode==='fun'?document.getElementById('contentType').value:document.getElementById('contentTypeBiz').value;const platform=mode==='fun'?document.getElementById('funPlatform').value:document.getElementById('bizPlatform').value;if(mode==='fun'){const sub=document.getElementById('funSubject').value||'mon chien';if(contentType==='script'){script=`🎬 SCRIPT UGC FUN - ${sub.toUpperCase()}\n\n📍 HOOK (3s)\n"Regardez ce qui vient de se passer..."\n\n🎥 SCÈNE 1 - INTRO (5s)\n${sub} - moment viral\n\n🎥 SCÈNE 2 - CLIMAX (8s)\n Le moment clé\n\n💥 CTA\n"Abonne-toi + partage"\n\n#️⃣ HASHTAGS\n#${sub.toLowerCase()} #${platform} #viral #trending`}else if(contentType==='hook'){script=`🔥 5 HOOKS VIRAUX - ${sub.toUpperCase()}\n\n1️⃣ "Personne ne parle de ${sub}... et c'est fou"\n\n2️⃣ "POV: ${sub} qui fait n'importe quoi 😂"\n\n3️⃣ "ATTENDEZ... ${sub}!?"\n\n4️⃣ "J'ai trouvé le truc que tout le monde cache sur ${sub}"\n\n5️⃣ "${sub}: la vidéo que personne n'attendait"\n\n💡 Formule: Surprise + Relatable + FOMO`}else if(contentType==='prompt'){script=`✨ PROMPT HOOK OPTIMISÉ - ${sub.toUpperCase()}\n\n📋 STRUCTURE\n"[Action urgente] + [Moment relatable] + [Promesse]"\n\n🎯 EXEMPLES:\n\nPrompt 1:\n"Regarde ${sub}... attend, tu vas voir pourquoi c'est fou"\n\nPrompt 2:\n"Personne ne sait que ${sub}..."\n\nPrompt 3:\n"Si tu vois ${sub} comme ça, tu dois absolument savoir ça"\n\n💡 FORMULES:\n✅ Curiosité + Relatable\n✅ Chiffres précis\n✅ Promesse claire`}else if(contentType==='hack'){script=`🚀 GROWTH HACKS - ${sub.toUpperCase()}\n\n💎 HACK #1: BOUCLE DE VIRALITÉ\n→ Début = Fin de vidéo\n→ Les gens rewatch\n→ Résultat: +200% views\n\n💎 HACK #2: PATTERN INTERRUPT\n→ Première frame = couleur vive + mouvement\n→ Les gens s'arrêtent\n→ ROI: x5\n\n💎 HACK #3: MICRO-CLIFFHANGERS\n→ Divise en 3 petits hooks\n→ Chaque 3 sec = "pourquoi faire"\n→ Résultat: -5% abandon\n\n💎 HACK #4: ÉMOJIS STRATÉGIQUES\n→ 1 emoji = 1 émotion clé\n→ ${sub} + emoji = viral\n→ Résultat: +150% engagement`}}else{const brand=document.getElementById('bizBrand').value||'MaMarque';const prod=document.getElementById('bizProduct').value||'Produit';const price=document.getElementById('bizPrice').value||'29€';if(contentType==='script'){script=`🎬 SCRIPT UGC BUSINESS - ${brand.toUpperCase()}\n\n📋 INFO: ${brand} - ${prod}\n\n📍 HOOK (3s)\n"J'ai trouvé ${prod} et ma vie a changé..."\n\n🎥 SCÈNE 1 - PROBLÈME (5s)\nMontre le problème avant ${brand}\nTexte: "Avant ${brand}"\n\n🎥 SCÈNE 2 - SOLUTION (10s)\nPrésente ${prod} en action\nVoix: "Depuis que j'utilise ${brand}..."\n\n🎥 SCÈNE 3 - RÉSULTAT (7s)\nTransformation visible\nTexte: "Résultat avec ${brand}"\n\n💥 CTA\n"${brand} - Lien en bio"\n"Code VIRAL pour -20%"\n"Plus que X en stock !"\n\n#️⃣ HASHTAGS\n#${brand.toLowerCase()} #ugc #${prod.toLowerCase().replace(/\s/g,'')} #viral #ad`}else if(contentType==='hook'){script=`🔥 5 HOOKS BUSINESS - ${brand.toUpperCase()}\n\n1️⃣ "Attends... ${prod} à ce prix ? Impossible"\n\n2️⃣ "POV: Tu découvres ${brand} et tu regrettes de pas l'avoir connu avant"\n\n3️⃣ "${prod} qui change tout (preuve en 30 sec)"\n\n4️⃣ "J'ai testé ${brand} pendant 30 jours... Résultat fou"\n\n5️⃣ "Si tu achètes encore le concurrent, regarde ça avant"\n\n💡 FORMULE: Prix choc + Transformation + FOMO`}else if(contentType==='prompt'){script=`✨ PROMPT HOOK BUSINESS - ${brand.toUpperCase()}\n\n📋 STRUCTURE\n"[Problème relatable] + [Solution ${brand}] + [Preuve sociale]"\n\n🎯 EXEMPLES:\n\nHook 1: "Tu paies [prix cher] pour [problème] ? ${prod} à ${price} fait pareil (j'ai testé)"\n\nHook 2: "${brand}: le ${prod} qui a généré X€ de ventes en X jours (comment)"\n\nHook 3: "J'ai comparé ${brand} vs [concurrent] pendant 30j. Résultat:"\n\n💡 FORMULES BUSINESS:\n✅ Comparaison prix (économie)\n✅ Résultat chiffré précis\n✅ Avant/après transformation\n✅ Alternative au concurrent`}else if(contentType==='hack'){script=`🚀 GROWTH HACKS BUSINESS - ${brand.toUpperCase()}\n\n💎 HACK #1: UGC LOOP\n→ Client filme unboxing\n→ Tu repostes avec @mention\n→ Code promo unique 15%\n→ Résultat: +340% engagement\n\n💎 HACK #2: SCARCITY TIMER\n→ "Plus que X en stock" en temps réel\n→ Timer 24h restockage\n→ Résultat: +85% conversion\n\n💎 HACK #3: MICRO-INFLUENCERS\n→ 50 micros (5-20K) > 1 macro\n→ ${prod} gratuit + 15% commission\n→ Post organique > pub payée\n→ ROI x12\n\n💎 HACK #4: SOCIAL PROOF BOMB\n→ Agrège tous les avis clients\n→ Créer une vidéo compilation\n→ "500+ clients satisfaits"\n→ Trust instant = ventes`}}out.textContent=script},1000)}
 function copyScript(){if(!script)return alert('Génère d\'abord!');navigator.clipboard.writeText(script);alert('✅ Copié!')}
-const c=document.getElementById('threeCanvas');if(c&&THREE){const s=new THREE.Scene(),r=new THREE.WebGLRenderer({canvas:c,antialias:1,alpha:1});r.setClearColor(0,0);const cam=new THREE.PerspectiveCamera(55,1,.1,100);cam.position.set(0,.2,3.2);const l=new THREE.DirectionalLight(0xffffff,1.4);l.position.set(2,2,2);s.add(l);s.add(new THREE.AmbientLight(0xffffff,.55));const geo=new THREE.TorusKnotGeometry(.7,.22,160,18);const mat=new THREE.MeshStandardMaterial({metalness:.85,roughness:.18,color:new THREE.Color(0x7c3aed)});const m=new THREE.Mesh(geo,mat);s.add(m);function re(){const w=c.clientWidth;const h=c.clientHeight;r.setSize(w,h,0);cam.aspect=w/h;cam.updateProjectionMatrix()}window.addEventListener("resize",re);re();let t=0;function an(){t+=.01;m.rotation.x+=.008;m.rotation.y+=.012;m.position.y=Math.sin(t)*.08;r.render(s,cam);requestAnimationFrame(an)}an()}
-</script>
-</body>
-</html>
+const c=document.getElementById('threeCanvas');if(c&&THREE){const s=new THREE.Scene(),r=new THREE.WebGLRenderer({canvas:c,antialias:1,alpha:1});r.setClearColor(0,0);const cam=new THREE.PerspectiveCamera(55,1,.1,100);cam.position.set(0,.2,3.2);const l=new THREE.DirectionalLight(0xffffff,1.4);l.position.set(2,2,2);s.add(l);s.add(new THREE.AmbientLight(0xffffff,.55));const geo=new THREE.TorusKnotGeometry(.7,.22,160,18);const mat=new THREE.MeshStandardMaterial({metalness:.85,roughness:.18,color:new THREE.Color(0x7c3aed)});const m=new THREE.Mesh(geo,mat);s.add(m);function re(){const w=c.clientWidth;const h=c.clientHeight;r.setSize(w,h,0);cam.aspect=w/h

@@ -110,13 +110,6 @@ function generate() {
     else if (contentType === 'agence') content = generateAgencyScripts(niche, platform, prompt, scriptCount, language, style);
     result.innerHTML = content;
   }, 1500);
-    let content = '';
-    if (contentType === 'ugc') content = generateUGC(niche, platform, prompt, scriptCount, language, style);
-    else if (contentType === 'hook') content = generateHooks(niche, platform, prompt, scriptCount, language, style);
-    else if (contentType === 'script') content = generateFullScript(niche, platform, prompt, scriptCount, language, style);
-    else if (contentType === 'agence') content = generateAgencyScripts(niche, platform, prompt, scriptCount, language, style);
-    result.innerHTML = content;
-  }, 1500);
   }, 1500);
 }
 
@@ -188,22 +181,113 @@ function generateHooks(niche, platform, prompt, count, lang) {
     es: ["Nadie habla de esto pero...", "Descubrí el secreto", "Para de hacer esto en 2026", "POV: Descubres la verdad", "Espera... ¿QUÉ?!", "No pensé que fuera posible", "Todos están equivocados", "Es revolucionario", "Antes vs Después", "Lo que te ocultan"]
   };
   
+function generateHooks(niche, platform, prompt, count, lang, style = 'emotional') {
+  const styleHooksDB = {
+    emotional: {
+      fr: ["J'avais honte de ça...", "Personne ne comprend ce que je vis", "J'ai pleuré pendant 3 jours", "Je pensais que j'étais seul(e)", "Mon plus grand regret"],
+      en: ["I was ashamed of this...", "Nobody understands what I'm going through", "I cried for 3 days", "I thought I was alone", "My biggest regret"],
+      es: ["Me avergonzaba de esto...", "Nadie entiende lo que vivo", "Lloré durante 3 días", "Pensé que estaba solo/a", "Mi mayor arrepentimiento"]
+    },
+    aggressive: {
+      fr: ["ARRÊTE de faire ça !", "Tu te trompes complètement", "C'est une GROSSE erreur", "Personne ne te dit la vérité", "STOP maintenant"],
+      en: ["STOP doing this!", "You're completely wrong", "This is a BIG mistake", "Nobody tells you the truth", "STOP now"],
+      es: ["¡PARA de hacer eso!", "Estás completamente equivocado", "Es un GRAN error", "Nadie te dice la verdad", "PARA ahora"]
+    },
+    luxury: {
+      fr: ["Le secret des riches", "Ce que l'élite ne veut pas que tu saches", "Accès VIP exclusif", "Réservé aux initiés", "Luxe discret"],
+      en: ["The secret of the rich", "What the elite don't want you to know", "Exclusive VIP access", "Reserved for insiders", "Discreet luxury"],
+      es: ["El secreto de los ricos", "Lo que la élite no quiere que sepas", "Acceso VIP exclusivo", "Reservado para iniciados", "Lujo discreto"]
+    },
+    comparison: {
+      fr: ["Avant vs Après", "J'étais comme toi avant", "La différence est choquante", "Tu ne vas pas croire la transformation", "Regarde ce changement"],
+      en: ["Before vs After", "I used to be like you", "The difference is shocking", "You won't believe the transformation", "Look at this change"],
+      es: ["Antes vs Después", "Antes era como tú", "La diferencia es impactante", "No creerás la transformación", "Mira este cambio"]
+    },
+    'social-proof': {
+      fr: ["10 000 personnes approuvent", "Résultats prouvés", "Client satisfait témoigne", "Note 5/5 étoiles", "Recommandé par des experts"],
+      en: ["10,000 people approve", "Proven results", "Satisfied customer testifies", "5/5 star rating", "Recommended by experts"],
+      es: ["10,000 personas aprueban", "Resultados probados", "Cliente satisfecho testifica", "Calificación 5/5 estrellas", "Recomendado por expertos"]
+    },
+    'before-after': {
+      fr: ["Ma vie avant/après", "J'ai tout changé en 30 jours", "Transformation totale", "De 0 à résultat", "Le glow up"],
+      en: ["My life before/after", "I changed everything in 30 days", "Total transformation", "From 0 to results", "The glow up"],
+      es: ["Mi vida antes/después", "Cambié todo en 30 días", "Transformación total", "De 0 a resultados", "El glow up"]
+    },
+    funny: {
+      fr: ["Personne : ... Moi :", "Le truc qui m'énerve", "Quand ta mère dit non", "Moi vs la réalité", "C'est relatable ou pas ?"],
+      en: ["Nobody: ... Me:", "The thing that annoys me", "When your mom says no", "Me vs reality", "Is this relatable or not?"],
+      es: ["Nadie: ... Yo:", "Lo que me molesta", "Cuando tu mamá dice no", "Yo vs la realidad", "¿Es relatable o no?"]
+    },
+    storytime: {
+      fr: ["Il y a 3 mois...", "Je vais vous raconter", "Histoire vraie", "Vous n'allez pas croire ce qui s'est passé", "Flashback"],
+      en: ["3 months ago...", "I'm going to tell you", "True story", "You won't believe what happened", "Flashback"],
+      es: ["Hace 3 meses...", "Les voy a contar", "Historia real", "No creerás lo que pasó", "Flashback"]
+    },
+    pov: {
+      fr: ["POV: Tu découvres la vérité", "POV: Quand...", "Imagine que...", "Tu es en train de...", "Ce moment où..."],
+      en: ["POV: You discover the truth", "POV: When...", "Imagine that...", "You're about to...", "That moment when..."],
+      es: ["POV: Descubres la verdad", "POV: Cuando...", "Imagina que...", "Estás a punto de...", "Ese momento cuando..."]
+    },
+    motivation: {
+      fr: ["C'est MAINTENANT ou jamais", "Tu mérites mieux", "Arrête de te limiter", "Crois en toi", "Le moment est venu"],
+      en: ["It's NOW or never", "You deserve better", "Stop limiting yourself", "Believe in yourself", "The time has come"],
+      es: ["Es AHORA o nunca", "Mereces más", "Deja de limitarte", "Cree en ti", "Ha llegado el momento"]
+    },
+    chill: {
+      fr: ["Petit vlog du jour", "Ma routine", "Get ready with me", "Chill vibes only", "Journée tranquille"],
+      en: ["Little vlog of the day", "My routine", "Get ready with me", "Chill vibes only", "Peaceful day"],
+      es: ["Pequeño vlog del día", "Mi rutina", "Prepárate conmigo", "Solo buenas vibras", "Día tranquilo"]
+    }
+  };
+  
+  const hooks = styleHooksDB[style]?.[lang] || styleHooksDB.emotional[lang];
+  
   let hookList = '';
-  const displayCount = Math.min(count, 10);
+  const displayCount = Math.min(count, 5);
   for (let i = 0; i < displayCount; i++) {
     hookList += `<div style="background:rgba(30,15,50,0.8);padding:15px;margin-bottom:10px;border-radius:10px;border-left:4px solid #667eea;">
-      <strong>Hook #${i+1}:</strong> ${hooksDB[lang][i]}
+      <strong>Hook #${i+1} (${style}):</strong> ${hooks[i]}
     </div>`;
-function generateFullScript(niche, platform, prompt, count, lang, style = 'emotional') {
-  const t = translations[lang];
-  const styleHooks = {
-    emotional: { fr: "J'avais honte de ça...", en: "I was ashamed...", es: "Me avergonzaba..." },
-    aggressive: { fr: "ARRÊTE cette erreur !", en: "STOP this mistake!", es: "¡PARA este error!" },
-    luxury: { fr: "Le secret des riches", en: "The secret of the rich", es: "El secreto de los ricos" }
-  };
-  const hook = styleHooks[style]?.[lang] || styleHooks.emotional[lang];
-  return '<h2 style="color:#667eea;">Script STYLE: ' + style + '</h2><p style="padding:20px;background:rgba(30,15,50,0.8);border-radius:10px;"><strong>Hook:</strong> "' + hook + '"</p>';
+  }
+  
+  return '<h2 style="color:#667eea;">🔥 Hooks STYLE: ' + style + '</h2>' + hookList;
 }
+
+function generateFullScript(niche, platform, prompt, count, lang) {
+  const t = translations[lang];
+  return `
+<h2 style="color:#667eea;margin-bottom:20px;">🎬 ${count} Script${count>1?'s':''} Complet${count>1?'s':''}</h2>
+<div style="background:rgba(20,10,40,0.8);border:2px solid #667eea;padding:25px;border-radius:15px;">
+  <h3 style="color:#667eea;">📹 Script Vidéo - ${platform.toUpperCase()}</h3>
+  <p><strong>${t.duration}:</strong> ${platformDurations[platform]}</p>
+  <hr style="margin:20px 0;">
+  
+  <div style="background:rgba(30,15,50,0.8);padding:15px;border-radius:10px;margin:15px 0;">
+    <h4 style="color:#667eea;">🎯 ${t.hook} (0-3s)</h4>
+    <p>"${lang==='fr'?'Tu perds de l\'argent si tu ne sais pas ça':lang==='en'?'You\'re losing money if you don\'t know this':'Pierdes dinero si no sabes esto'}"</p>
+  </div>
+  
+  <div style="background:rgba(20,10,40,0.8)3cd;padding:15px;border-radius:10px;margin:15px 0;">
+    <h4>💬 ${t.body} (3-20s)</h4>
+    <p>${lang==='fr'?'Présentation problème + solution':'Problem + solution presentation'}</p>
+    <ul style="margin-left:20px;">
+      <li>${lang==='fr'?'Bénéfice #1':'Benefit #1'}</li>
+      <li>${lang==='fr'?'Bénéfice #2':'Benefit #2'}</li>
+      <li>${lang==='fr'?'Preuve sociale':'Social proof'}</li>
+    </ul>
+  </div>
+  
+  <div style="background:#667eea;color:white;padding:15px;border-radius:10px;">
+    <h4>🚀 ${t.cta} (20-30s)</h4>
+    <p>"${lang==='fr'?'Lien en bio MAINTENANT':lang==='en'?'Link in bio NOW':'Enlace en bio AHORA'}"</p>
+  </div>
+</div>
+<p style="margin-top:20px;padding:15px;background:rgba(20,10,40,0.8)3cd;border-radius:10px;">
+  <strong>${t.note}:</strong> ${t.connect_api}
+</p>
+`;
+}
+
 function generateAgencyScripts(niche, platform, prompt, count, lang) {
   const t = translations[lang];
   return `

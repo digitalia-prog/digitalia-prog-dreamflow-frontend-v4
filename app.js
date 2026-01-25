@@ -93,16 +93,30 @@ function generate() {
     return;
   }
   
+  
+  // Récupérer le style sélectionné
+  const funStyle = document.getElementById('funStyle')?.value || 'funny';
+  const bizStyle = document.getElementById('bizStyle')?.value || 'emotional';
+  const style = mode === 'fun' ? funStyle : bizStyle;
+  
   result.innerHTML = '<p style="color:#667eea;">' + t.generating + '</p>';
   result.classList.add('show');
   
   setTimeout(() => {
     let content = '';
-    if (contentType === 'ugc') content = generateUGC(niche, platform, prompt, scriptCount, language);
-    else if (contentType === 'hook') content = generateHooks(niche, platform, prompt, scriptCount, language);
-    else if (contentType === 'script') content = generateFullScript(niche, platform, prompt, scriptCount, language);
-    else if (contentType === 'agence') content = generateAgencyScripts(niche, platform, prompt, scriptCount, language);
+    if (contentType === 'ugc') content = generateUGC(niche, platform, prompt, scriptCount, language, style);
+    else if (contentType === 'hook') content = generateHooks(niche, platform, prompt, scriptCount, language, style);
+    else if (contentType === 'script') content = generateFullScript(niche, platform, prompt, scriptCount, language, style);
+    else if (contentType === 'agence') content = generateAgencyScripts(niche, platform, prompt, scriptCount, language, style);
     result.innerHTML = content;
+  }, 1500);
+    let content = '';
+    if (contentType === 'ugc') content = generateUGC(niche, platform, prompt, scriptCount, language, style);
+    else if (contentType === 'hook') content = generateHooks(niche, platform, prompt, scriptCount, language, style);
+    else if (contentType === 'script') content = generateFullScript(niche, platform, prompt, scriptCount, language, style);
+    else if (contentType === 'agence') content = generateAgencyScripts(niche, platform, prompt, scriptCount, language, style);
+    result.innerHTML = content;
+  }, 1500);
   }, 1500);
 }
 
@@ -180,55 +194,16 @@ function generateHooks(niche, platform, prompt, count, lang) {
     hookList += `<div style="background:rgba(30,15,50,0.8);padding:15px;margin-bottom:10px;border-radius:10px;border-left:4px solid #667eea;">
       <strong>Hook #${i+1}:</strong> ${hooksDB[lang][i]}
     </div>`;
-  }
-  
-  return `
-<h2 style="color:#667eea;margin-bottom:20px;">🔥 ${count} Hooks ${lang==='fr'?'Viraux':lang==='en'?'Viral':'Virales'}</h2>
-<div style="background:rgba(30,15,50,0.8);padding:20px;border-radius:10px;margin-bottom:20px;">
-  <p><strong>${translations[lang].platform}:</strong> ${platform}</p>
-</div>
-${hookList}
-<p style="padding:15px;background:rgba(20,10,40,0.8)3cd;border-radius:10px;margin-top:20px;">
-  <strong>${translations[lang].note}:</strong> ${translations[lang].connect_api}
-</p>
-`;
-}
-
-function generateFullScript(niche, platform, prompt, count, lang) {
+function generateFullScript(niche, platform, prompt, count, lang, style = 'emotional') {
   const t = translations[lang];
-  return `
-<h2 style="color:#667eea;margin-bottom:20px;">🎬 ${count} Script${count>1?'s':''} Complet${count>1?'s':''}</h2>
-<div style="background:rgba(20,10,40,0.8);border:2px solid #667eea;padding:25px;border-radius:15px;">
-  <h3 style="color:#667eea;">📹 Script Vidéo - ${platform.toUpperCase()}</h3>
-  <p><strong>${t.duration}:</strong> ${platformDurations[platform]}</p>
-  <hr style="margin:20px 0;">
-  
-  <div style="background:rgba(30,15,50,0.8);padding:15px;border-radius:10px;margin:15px 0;">
-    <h4 style="color:#667eea;">🎯 ${t.hook} (0-3s)</h4>
-    <p>"${lang==='fr'?'Tu perds de l\'argent si tu ne sais pas ça':lang==='en'?'You\'re losing money if you don\'t know this':'Pierdes dinero si no sabes esto'}"</p>
-  </div>
-  
-  <div style="background:rgba(20,10,40,0.8)3cd;padding:15px;border-radius:10px;margin:15px 0;">
-    <h4>💬 ${t.body} (3-20s)</h4>
-    <p>${lang==='fr'?'Présentation problème + solution':'Problem + solution presentation'}</p>
-    <ul style="margin-left:20px;">
-      <li>${lang==='fr'?'Bénéfice #1':'Benefit #1'}</li>
-      <li>${lang==='fr'?'Bénéfice #2':'Benefit #2'}</li>
-      <li>${lang==='fr'?'Preuve sociale':'Social proof'}</li>
-    </ul>
-  </div>
-  
-  <div style="background:#667eea;color:white;padding:15px;border-radius:10px;">
-    <h4>🚀 ${t.cta} (20-30s)</h4>
-    <p>"${lang==='fr'?'Lien en bio MAINTENANT':lang==='en'?'Link in bio NOW':'Enlace en bio AHORA'}"</p>
-  </div>
-</div>
-<p style="margin-top:20px;padding:15px;background:rgba(20,10,40,0.8)3cd;border-radius:10px;">
-  <strong>${t.note}:</strong> ${t.connect_api}
-</p>
-`;
+  const styleHooks = {
+    emotional: { fr: "J'avais honte de ça...", en: "I was ashamed...", es: "Me avergonzaba..." },
+    aggressive: { fr: "ARRÊTE cette erreur !", en: "STOP this mistake!", es: "¡PARA este error!" },
+    luxury: { fr: "Le secret des riches", en: "The secret of the rich", es: "El secreto de los ricos" }
+  };
+  const hook = styleHooks[style]?.[lang] || styleHooks.emotional[lang];
+  return '<h2 style="color:#667eea;">Script STYLE: ' + style + '</h2><p style="padding:20px;background:rgba(30,15,50,0.8);border-radius:10px;"><strong>Hook:</strong> "' + hook + '"</p>';
 }
-
 function generateAgencyScripts(niche, platform, prompt, count, lang) {
   const t = translations[lang];
   return `

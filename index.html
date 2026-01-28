@@ -1,266 +1,280 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DreamFlow Pro – Générateur de Scripts IA</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>UGCGrowth — SaaS UGC & Scripts IA</title>
+<style>
+:root{--bg:#070013;--panel:rgba(255,255,255,.06);--border:rgba(255,255,255,.12);--txt:#fff;--muted:rgba(255,255,255,.70);--grad:linear-gradient(135deg,#7c3aed,#3b82f6)}
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+body{background:radial-gradient(1200px 600px at 20% 0%,rgba(124,58,237,.35),transparent 55%),radial-gradient(1200px 600px at 80% 10%,rgba(59,130,246,.28),transparent 55%),var(--bg);color:var(--txt);min-height:100vh}
+header{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:rgba(7,0,19,.55);border-bottom:1px solid rgba(255,255,255,.08)}
+.nav{max-width:1150px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:10px;align-items:center;font-weight:800;letter-spacing:.4px}
+.dot{width:10px;height:10px;border-radius:99px;background:linear-gradient(135deg,#7c3aed,#3b82f6)}
+.nav a{color:var(--muted);text-decoration:none;margin-left:16px;font-weight:600}
+.nav a:hover{color:#fff}
+.wrap{max-width:1150px;margin:0 auto;padding:26px 16px 70px}
+.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:stretch;margin-top:18px;margin-bottom:24px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:0 14px 45px rgba(0,0,0,.35)}
+.hero h1{font-size:44px;line-height:1.06;margin-bottom:10px}
+.hero p{color:var(--muted);font-size:15.5px;line-height:1.5}
+.ctaRow{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:12px 14px;font-weight:800;cursor:pointer}
+.btnPrimary{background:var(--grad);color:white}
+.btnGhost{background:transparent;border:1px solid rgba(255,255,255,.18);color:white}
+.btnPrimary:hover{filter:brightness(1.1)}
+.btnGhost:hover{background:rgba(255,255,255,.06)}
+#threeBox{position:relative;overflow:hidden;padding:0;background:rgba(0,0,0,.2)}
+#threeCanvas{display:block;width:100%;height:100%;min-height:340px}
+.badge{display:inline-flex;gap:8px;align-items:center;color:rgba(255,255,255,.85);font-weight:700;background:rgba(124,58,237,.18);border:1px solid rgba(124,58,237,.35);padding:7px 10px;border-radius:999px;margin-bottom:12px}
+section{margin-top:24px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.price{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px}
+.price.featured{border:2px solid #7c3aed;background:rgba(124,58,237,.08)}
+.price h3{font-size:18px}
+.price .p{color:var(--muted);margin-top:6px;font-size:14px}
+.price .eur{font-size:34px;font-weight:900;margin-top:10px}
+.list{margin-top:12px;display:grid;gap:8px;color:rgba(255,255,255,.85);font-size:14px}
+.li{display:flex;gap:10px;align-items:flex-start}
+.li span{color:#22c55e;font-weight:900}
+input,select{background:rgba(0,0,0,.35);color:#fff;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:12px;outline:none;width:100%}
+input:focus,select:focus{border-color:rgba(124,58,237,.7)}
+.muted{color:var(--muted);font-size:13px;margin-top:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#out{margin-top:12px;white-space:pre-wrap;line-height:1.45;min-height:230px;background:rgba(0,0,0,.22);padding:18px;border-radius:12px;color:#fff;font-size:13px;max-height:600px;overflow-y:auto}
+.modeSelector{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.modeBtn{padding:16px;border-radius:12px;border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.03);cursor:pointer;text-align:center;transition:all .3s}
+.modeBtn:hover{border-color:rgba(124,58,237,.5);background:rgba(124,58,237,.1)}
+.modeBtn.active{border-color:#7c3aed;background:rgba(124,58,237,.15)}
+.modeBtn .icon{font-size:32px;margin-bottom:8px}
+.modeBtn .title{font-weight:800;font-size:16px;margin-bottom:4px}
+.modeBtn .desc{font-size:12px;color:var(--muted)}
+.platformBtn{background:rgba(124,58,237,.2);color:#fff;border:1px solid rgba(124,58,237,.5);border-radius:8px;padding:10px 16px;cursor:pointer;font-weight:600;transition:all .3s;font-size:13px}
+.platformBtn:hover{border-color:rgba(124,58,237,.7);background:rgba(124,58,237,.1)}
+.platformBtn.active{background:#7c3aed;border-color:#7c3aed;color:white}
+.summaryToggle{display:flex;gap:10px;align-items:center;margin-top:12px;padding:10px;background:rgba(124,58,237,.1);border-radius:8px;font-size:12px}
+.summaryToggle input{width:auto;margin:0}
+@media (max-width:900px){.hero{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}.two{grid-template-columns:1fr}.hero h1{font-size:36px}}
+</style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <h2>🚀 DreamFlow</h2>
-      <p>IA Scripts Pro</p>
-      
-      <div class="menu">
-        <h3>Navigation</h3>
-        <button class="nav-btn active" onclick="showSection('generator')">✨ Générateur</button>
-        <button class="nav-btn" onclick="showSection('dashboard')">📊 Dashboard</button>
-      </div>
-      
-      <div class="menu">
-        <h3>Templates</h3>
-        <button class="template-btn" onclick="loadTemplate('ugc-beaute')">💄 UGC Beauté</button>
-        <button class="template-btn" onclick="loadTemplate('ugc-tech')">📱 UGC Tech</button>
-        <button class="template-btn" onclick="loadTemplate('hook-viral')">🔥 Hook Viral</button>
-        <button class="template-btn" onclick="loadTemplate('script-pub')">🎬 Script Pub</button>
-        <button class="template-btn" onclick="loadTemplate('agence')">🏢 Agence Marketing</button>
-      </div>
-    </aside>
+<header>
+<div class="nav">
+<div class="brand"><span class="dot"></span> UGCGrowth</div>
+<div>
+<select id="lang" style="background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.3);border-radius:8px;padding:4px 8px;font-size:13px;color:#fff;cursor:pointer;margin-right:12px">
+<option value="fr">🇫🇷 FR</option>
+<option value="en">🇬🇧 EN</option>
+<option value="es">🇪🇸 ES</option>
+</select>
+<a href="#pricing">Pricing</a>
+<a href="#gen">Générateur</a>
+</div>
+</div>
+</header>
+<div class="wrap">
+<div class="hero">
+<div class="card">
+<div class="badge">⚡ SaaS UGC + Scripts IA</div>
+<h1>Générateur de scripts viraux<br/>en moins de 15 secondes.</h1>
+<p>UGCGrowth te donne des scripts UGC/Ads prêts à tourner, adaptés à ta niche. Commence maintenant avec le générateur gratuit.</p>
+<div class="ctaRow">
+<button class="btn btnPrimary">🚀 Tester maintenant</button>
+<button class="btn btnGhost">Voir les prix</button>
+</div>
+<div class="muted">✅ Scripts personnalisés • ✅ Anti-revente • ✅ Sécurisé</div>
+</div>
+<div class="card" id="threeBox"><canvas id="threeCanvas"></canvas></div>
+</div>
 
-    <main class="content">
-      <!-- SECTION GÉNÉRATEUR -->
-      <div id="generator-section" class="section active">
-        <h1>Générateur de Scripts IA</h1>
-        
-        <div class="options">
-          <div class="option-group">
-            <label>🌍 Langue :</label>
-            <select id="language">
-              <option value="fr">🇫🇷 Français</option>
-              <option value="en">🇬🇧 English</option>
-              <option value="es">🇪🇸 Español</option>
-            </select>
-          </div>
+<section id="pricing" class="card">
+<h2>💎 Pricing</h2>
+<p class="muted">Plans flexibles selon tes besoins. Change ou annule à tout moment.</p>
+<div class="grid3" style="margin-top:14px">
+<div class="price">
+<h3>Starter</h3>
+<div class="p">Pour tester</div>
+<div class="eur">0€</div>
+<div class="list">
+<div class="li"><span>✓</span> <span>10 créations IA / mois</span></div>
+<div class="li"><span>✓</span> <span>Mode Fun uniquement</span></div>
+<div class="li"><span>✓</span> <span>Watermark visible</span></div>
+</div>
+<button class="btn btnGhost" style="width:100%;margin-top:14px">Commencer</button>
+</div>
+<div class="price featured">
+<div style="color:#a855f7;font-size:11px;font-weight:800;margin-bottom:8px">⭐ POPULAIRE</div>
+<h3>Pro</h3>
+<div class="p">Pour créateurs & vendeurs</div>
+<div class="eur">69€ <span style="font-size:16px;font-weight:400;color:var(--muted)">/mois</span></div>
+<div class="list">
+<div class="li"><span>✓</span> <span>300 créations IA / mois</span></div>
+<div class="li"><span>✓</span> <span>Mode Fun + Business</span></div>
+<div class="li"><span>✓</span> <span>Watermark discret</span></div>
+<div class="li"><span>✓</span> <span>Upload PDF</span></div>
+</div>
+<button class="btn btnPrimary" style="width:100%;margin-top:14px">Passer Pro - 69€/mois</button>
+</div>
+<div class="price">
+<h3>Agency</h3>
+<div class="p">Pour agences UGC</div>
+<div class="eur">349€ <span style="font-size:16px;font-weight:400;color:var(--muted)">/mois</span></div>
+<div class="list">
+<div class="li"><span>✓</span> <span>Créations illimitées</span></div>
+<div class="li"><span>✓</span> <span>Sans watermark</span></div>
+<div class="li"><span>✓</span> <span>API complète</span></div>
+<div class="li"><span>✓</span> <span>Multi-clients</span></div>
+</div>
+<button class="btn btnGhost" style="width:100%;margin-top:14px">Contact Agency</button>
+</div>
+</div>
+</section>
 
-          <div class="option-group">
-            <label>📱 Plateforme :</label>
-            <select id="platform">
-              <option value="tiktok">TikTok</option>
-              <option value="instagram-reels">Instagram Reels</option>
-              <option value="instagram-stories">Instagram Stories</option>
-              <option value="facebook-reels">Facebook Reels</option>
-              <option value="facebook-stories">Facebook Stories</option>
-              <option value="youtube-shorts">YouTube Shorts</option>
-              <option value="snapchat">Snapchat</option>
-              <option value="linkedin">LinkedIn</option>
-              <option value="twitter">X (Twitter)</option>
-              <option value="pinterest">Pinterest</option>
-            </select>
-          </div>
+<section id="gen" class="card">
+<h2>✨ Générateur de Scripts IA</h2>
+<div class="modeSelector">
+<div class="modeBtn active">
+<div class="icon">🟢</div>
+<div class="title">Mode Fun</div>
+<div class="desc">Vidéos perso (chien, vlog...)</div>
+</div>
+<div class="modeBtn">
+<div class="icon">🟣</div>
+<div class="title">Mode Business</div>
+<div class="desc">Scripts vente (marque...)</div>
+</div>
+</div>
+<div class="two">
+<div>
+<div id="formFun">
+<div class="muted">📝 Type de contenu</div>
+<select>
+<option>🎬 Script UGC complet</option>
+<option>🔥 Hook viral (5 versions)</option>
+<option>✨ Prompt Hook optimisé</option>
+<option>🚀 Growth Hack</option>
+</select>
+<div class="muted" style="margin-top:10px">📱 Plateforme</div>
+<select>
+<option>TikTok</option>
+<option>Instagram Reels</option>
+<option>YouTube Shorts</option>
+</select>
+<div class="muted" style="margin-top:10px">🎬 Sujet de ta vidéo</div>
+<input placeholder="Ex: mon chien..."/>
+<div class="muted" style="margin-top:10px">🎨 Style du script</div>
+<select>
+<option>😂 Drôle</option>
+<option>🎥 Storytime</option>
+<option>😭 POV</option>
+<option>🔥 Motivation</option>
+<option>✨ Chill / Vlog</option>
+</select>
+</div>
+<div class="ctaRow" style="margin-top:12px">
+<button class="btn btnPrimary" onclick="genDemo()">🚀 Générer</button>
+<button class="btn btnGhost">📋 Copier</button>
+<button class="btn btnGhost">📄 Exporter PDF</button>
+</div>
+<div class="summaryToggle">
+<input type="checkbox" checked/>
+<label>Afficher le résumé exécutif (à retirer avant envoi client)</label>
+</div>
+</div>
+<div>
+<div class="muted">Résultat</div>
+<div id="out">🎯 Objectif : créer une vidéo viral prête à être postée
 
-          <div class="option-group">
-            <label>📝 Type de contenu :</label>
-            <select id="contentType">
-              <option value="ugc">UGC (User Generated Content)</option>
-              <option value="hook">Hook accrocheur</option>
-              <option value="script">Script complet</option>
-              <option value="agence">Présentation agence</option>
-            </select>
-          </div>
+Clique sur "Générer" pour voir le résultat avec :
+✅ Vocabulaire clair (face caméra, smartphone, durée)
+✅ Intention claire au début
+✅ Format consultant structuré
+✅ Scripts actionnables
+✅ Résumé exécutif optionnel</div>
+</div>
+</div>
+</section>
+</div>
 
-          <div class="option-group">
-            <label>🎯 Niche :</label>
-            <select id="niche">
-              <optgroup label="🛍️ E-COMMERCE & RETAIL">
-                <option value="ecommerce">E-commerce général</option>
-                <option value="dropshipping">Dropshipping</option>
-                <option value="fashion">Mode & Fashion</option>
-                <option value="luxe">Luxe & Premium</option>
-                <option value="streetwear">Streetwear</option>
-              </optgroup>
-              <optgroup label="💄 BEAUTÉ & BIEN-ÊTRE">
-                <option value="beaute">Beauté & Cosmétiques</option>
-                <option value="skincare">Skincare</option>
-                <option value="makeup">Maquillage</option>
-                <option value="parfum">Parfumerie</option>
-                <option value="coiffure">Coiffure</option>
-                <option value="onglerie">Onglerie</option>
-                <option value="spa">Spa & Wellness</option>
-              </optgroup>
-              <optgroup label="💪 SANTÉ & FITNESS">
-                <option value="fitness">Fitness & Musculation</option>
-                <option value="yoga">Yoga & Méditation</option>
-                <option value="nutrition">Nutrition & Diététique</option>
-                <option value="supplements">Compléments alimentaires</option>
-                <option value="sport">Équipement sportif</option>
-                <option value="coaching">Coaching personnel</option>
-              </optgroup>
-              <optgroup label="📱 TECH & DIGITAL">
-                <option value="tech">Tech & Gadgets</option>
-                <option value="gaming">Gaming & Esport</option>
-                <option value="software">Logiciels & SaaS</option>
-                <option value="apps">Applications mobiles</option>
-                <option value="crypto">Crypto & NFT</option>
-                <option value="ai">Intelligence Artificielle</option>
-              </optgroup>
-              <optgroup label="🏠 MAISON & DÉCO">
-                <option value="deco">Décoration intérieure</option>
-                <option value="mobilier">Mobilier & Design</option>
-                <option value="bricolage">Bricolage & DIY</option>
-                <option value="jardin">Jardinage</option>
-                <option value="electromenager">Électroménager</option>
-              </optgroup>
-              <optgroup label="🍔 FOOD & DRINK">
-                <option value="food">Food & Gastronomie</option>
-                <option value="restaurant">Restaurant & HoReCa</option>
-                <option value="vegan">Vegan & Bio</option>
-                <option value="patisserie">Pâtisserie & Boulangerie</option>
-                <option value="boissons">Boissons & Cocktails</option>
-                <option value="mealprep">Meal Prep</option>
-              </optgroup>
-              <optgroup label="🎓 ÉDUCATION & FORMATION">
-                <option value="education">Éducation & E-learning</option>
-                <option value="coaching-business">Coaching business</option>
-                <option value="langues">Langues étrangères</option>
-                <option value="dev-perso">Développement personnel</option>
-                <option value="finance-perso">Finance personnelle</option>
-              </optgroup>
-              <optgroup label="✈️ VOYAGE & LIFESTYLE">
-                <option value="voyage">Voyage & Tourisme</option>
-                <option value="hotel">Hôtellerie</option>
-                <option value="lifestyle">Lifestyle</option>
-                <option value="luxe-travel">Voyage de luxe</option>
-              </optgroup>
-              <optgroup label="👶 FAMILLE & ENFANTS">
-                <option value="bebe">Bébé & Puériculture</option>
-                <option value="jouets">Jouets & Jeux</option>
-                <option value="parentalite">Parentalité</option>
-                <option value="education-enfants">Éducation enfants</option>
-              </optgroup>
-              <optgroup label="🐕 ANIMAUX">
-                <option value="animaux">Animaux de compagnie</option>
-                <option value="animalerie">Animalerie</option>
-                <option value="veterinaire">Vétérinaire</option>
-              </optgroup>
-              <optgroup label="🚗 AUTO & MOTO">
-                <option value="auto">Automobile</option>
-                <option value="moto">Moto</option>
-                <option value="accessoires-auto">Accessoires auto</option>
-              </optgroup>
-              <optgroup label="🎨 ART & CRÉATIVITÉ">
-                <option value="art">Art & Design</option>
-                <option value="photographie">Photographie</option>
-                <option value="artisanat">Artisanat</option>
-                <option value="musique">Musique</option>
-              </optgroup>
-              <optgroup label="💼 BUSINESS & SERVICES">
-                <option value="agence-marketing">Agence marketing</option>
-                <option value="agence-web">Agence web</option>
-                <option value="consulting">Consulting</option>
-                <option value="immobilier">Immobilier</option>
-                <option value="assurance">Assurance</option>
-                <option value="banque">Banque & Finance</option>
-                <option value="juridique">Juridique</option>
-              </optgroup>
-              <optgroup label="🎮 DIVERTISSEMENT">
-                <option value="streaming">Streaming & Média</option>
-                <option value="evenementiel">Événementiel</option>
-                <option value="cinema">Cinéma & Séries</option>
-                <option value="livre">Livres & Édition</option>
-              </optgroup>
-              <optgroup label="🌱 ÉCO & DURABLE">
-                <option value="ecologie">Écologie & Zero waste</option>
-                <option value="bio">Bio & Naturel</option>
-                <option value="durable">Développement durable</option>
-              </optgroup>
-            </select>
-          </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// 3D Animation
+const c=document.getElementById('threeCanvas');
+if(c&&window.THREE){
+  const s=new window.THREE.Scene(),r=new window.THREE.WebGLRenderer({canvas:c,antialias:1,alpha:1});
+  r.setClearColor(0,0);
+  const cam=new window.THREE.PerspectiveCamera(55,1,.1,100);
+  cam.position.set(0,.2,3.2);
+  const l=new window.THREE.DirectionalLight(0xffffff,1.4);
+  l.position.set(2,2,2);
+  s.add(l);
+  s.add(new window.THREE.AmbientLight(0xffffff,.55));
+  const geo=new window.THREE.TorusKnotGeometry(.7,.22,160,18);
+  const mat=new window.THREE.MeshStandardMaterial({metalness:.85,roughness:.18,color:new window.THREE.Color(0x7c3aed)});
+  const m=new window.THREE.Mesh(geo,mat);
+  s.add(m);
+  function re(){const w=c.clientWidth;const h=c.clientHeight;r.setSize(w,h,0);cam.aspect=w/h;cam.updateProjectionMatrix()}
+  window.addEventListener("resize",re);
+  re();
+  let t=0;
+  function an(){t+=.01;m.rotation.x+=.008;m.rotation.y+=.012;m.position.y=Math.sin(t)*.08;r.render(s,cam);requestAnimationFrame(an)}
+  an()
+}
 
-          <div class="option-group">
-            <label>📊 Nombre de scripts (1-1000) :</label>
-            <input type="number" id="scriptCount" min="1" max="1000" value="3" placeholder="Ex: 50">
-          </div>
-        </div>
+function genDemo(){
+document.getElementById('out').textContent = `🎯 Objectif : créer une vidéo viral prête à être postée
 
-        <textarea id="prompt" placeholder="Décris ton produit ou service...
-Ex : Crème hydratante bio pour peaux sensibles, texture légère, résultats visibles en 7 jours"></textarea>
-        
-        <button class="generate-btn" onclick="generate()">✨ Générer les Scripts</button>
-        
-        <div id="result"></div>
-      </div>
+🎬 SCRIPT UGC COMPLET - MON CHIEN
 
-      <!-- SECTION DASHBOARD -->
-      <div id="dashboard-section" class="section">
-        <h1>📊 Dashboard Analytics</h1>
-        
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">📝</div>
-            <div class="stat-info">
-              <h3>Scripts Générés</h3>
-              <p class="stat-number" id="totalScripts">1,247</p>
-              <span class="stat-change positive">+12% ce mois</span>
-            </div>
-          </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon">🔥</div>
-            <div class="stat-info">
-              <h3>Taux de Conversion</h3>
-              <p class="stat-number">87%</p>
-              <span class="stat-change positive">+5% vs mois dernier</span>
-            </div>
-          </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon">⏱️</div>
-            <div class="stat-info">
-              <h3>Temps Moyen</h3>
-              <p class="stat-number">2.4s</p>
-              <span class="stat-change negative">-0.3s vs mois dernier</span>
-            </div>
-          </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon">🎯</div>
-            <div class="stat-info">
-              <h3>Niches Actives</h3>
-              <p class="stat-number">23</p>
-              <span class="stat-change positive">+3 nouvelles</span>
-            </div>
-          </div>
-        </div>
+🎥 Format : Face caméra (smartphone)
+⏱️ Durée totale : 25 secondes
 
-        <div class="charts-grid">
-          <div class="chart-card">
-            <h3>📈 Évolution des Générations</h3>
-            <canvas id="generationsChart"></canvas>
-          </div>
-          
-          <div class="chart-card">
-            <h3>📱 Répartition par Plateforme</h3>
-            <canvas id="platformsChart"></canvas>
-          </div>
-        </div>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-        <div class="charts-grid">
-          <div class="chart-card">
-            <h3>🎯 Top 5 Niches</h3>
-            <canvas id="nichesChart"></canvas>
-          </div>
-          
-          <div class="chart-card">
-            <h3>📊 Types de Contenu</h3>
-            <canvas id="contentTypesChart"></canvas>
-          </div>
-        </div>
-      </div>
-    </main>
-  </div>
+📍 SCÈNE 1 - HOOK (0-3s)
+Action : Filmez-vous en train de regarder la caméra, surpris
+Texte à dire : "Regardez ce qui vient de se passer..."
+Musique : Tendance + volume fort
 
-  <script src="app.js"></script>
-</body>
-</html>
+📍 SCÈNE 2 - ACTION PRINCIPALE (3-15s)
+Action : Montrez ce qui se passe avec votre chien
+Détail : Gros plan si c'est petit
+Texte à l'écran : "MON CHIEN"
+Musique : Même track, plus basse
+
+📍 SCÈNE 3 - MOMENT CLÉ (15-22s)
+Action : Votre réaction / le résultat
+Texte à dire : "C'est dingue hein ?"
+Durée : Laissez respirer 2-3 secondes
+
+📍 SCÈNE 4 - CTA (22-25s)
+Action : Filmez-vous direct à caméra
+Texte à dire : "Tag quelqu'un qui doit voir ça ! Part 2 ?"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 RÉSUMÉ EXÉCUTIF (à adapter ou retirer avant envoi)
+🎥 Format : Face caméra (smartphone)
+📱 Plateforme : TikTok
+⏱️ Durée totale : 15-30 secondes
+📈 Résultat attendu : Maximum d'engagement et partages
+
+💡 Comment l'utiliser :
+• Adaptez le texte à votre voix / ton
+• Coupez les parties non pertinentes
+• Renvoyez à votre client/équipe
+• Le résumé peut être retiré avant envoi`;
+}
+</script>
+
+<footer style="background:rgba(0,0,0,.3);border-top:1px solid rgba(255,255,255,.1);padding:24px 16px;margin-top:40px;text-align:center">
+<div class="wrap" style="max-width:1150px;margin:0 auto">
+<div style="font-size:12px;color:rgba(255,255,255,.6);line-height:1.6">
+<p>© 2025 UGCGrowth. Tous droits réservés.</p>
+<p style="margin-top:12px">
+<a style="cursor:pointer;color:#7c3aed;text-decoration:none;margin:0 8px">Conditions Générales</a> • 
+<a style="color:#7c3aed;text-decoration:none;margin:0 8px">Politique de Confidentialité</a> • 
+<a href="/cdn-cgi/l/email-protection#0a6e786f6b676c66657d7d4a657f7e66656561246c78" style="color:#7c3aed;text-decoration:none;margin:0 8px">Contact</a>
+<
+

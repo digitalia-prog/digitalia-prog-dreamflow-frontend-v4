@@ -25,7 +25,7 @@ header{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:rg
 .btnGhost{background:transparent;border:1px solid rgba(255,255,255,.18);color:white}
 .btnPrimary:hover{filter:brightness(1.1)}
 .btnGhost:hover{background:rgba(255,255,255,.06)}
-#threeBox{position:relative;overflow:hidden;padding:0;background:rgba(0,0,0,.2)}
+#threeBox{position:relative;overflow:hidden;padding:0}
 #threeCanvas{display:block;width:100%;height:100%;min-height:340px}
 .badge{display:inline-flex;gap:8px;align-items:center;color:rgba(255,255,255,.85);font-weight:700;background:rgba(124,58,237,.18);border:1px solid rgba(124,58,237,.35);padding:7px 10px;border-radius:999px;margin-bottom:12px}
 section{margin-top:24px}
@@ -68,213 +68,190 @@ input:focus,select:focus{border-color:rgba(124,58,237,.7)}
 <option value="en">🇬🇧 EN</option>
 <option value="es">🇪🇸 ES</option>
 </select>
-<a href="#pricing">Pricing</a>
-<a href="#gen">Générateur</a>
+<a href="#pricing" data-tr="navPricing">Pricing</a>
+<a href="#gen" data-tr="navGen">Générateur</a>
 </div>
 </div>
 </header>
 <div class="wrap">
 <div class="hero">
 <div class="card">
-<div class="badge">⚡ SaaS UGC + Scripts IA</div>
-<h1>Générateur de scripts viraux<br/>en moins de 15 secondes.</h1>
-<p>UGCGrowth te donne des scripts UGC/Ads prêts à tourner, adaptés à ta niche. Commence maintenant avec le générateur gratuit.</p>
+<div class="badge" data-tr="badge">⚡ SaaS UGC + Scripts IA</div>
+<h1 data-tr="hero">Générateur de scripts viraux<br/>en moins de 15 secondes.</h1>
+<p data-tr="heroDesc">UGCGrowth te donne des scripts UGC/Ads prêts à tourner, adaptés à ta niche. Commence maintenant avec le générateur gratuit.</p>
 <div class="ctaRow">
-<button class="btn btnPrimary">🚀 Tester maintenant</button>
-<button class="btn btnGhost">Voir les prix</button>
+<button class="btn btnPrimary" onclick="document.querySelector('#gen').scrollIntoView({behavior:'smooth'})" data-tr="btnStart">🚀 Tester maintenant</button>
+<button class="btn btnGhost" onclick="document.querySelector('#pricing').scrollIntoView({behavior:'smooth'})" data-tr="btnPrice">Voir les prix</button>
 </div>
-<div class="muted">✅ Scripts personnalisés • ✅ Anti-revente • ✅ Sécurisé</div>
+<div class="muted" data-tr="bullets">✅ Scripts personnalisés • ✅ Anti-revente • ✅ Sécurisé</div>
 </div>
 <div class="card" id="threeBox"><canvas id="threeCanvas"></canvas></div>
 </div>
-
 <section id="pricing" class="card">
-<h2>💎 Pricing</h2>
-<p class="muted">Plans flexibles selon tes besoins. Change ou annule à tout moment.</p>
+<h2 data-tr="pricingTitle">💎 Pricing</h2>
+<p class="muted" data-tr="pricingDesc">Plans flexibles selon tes besoins. Change ou annule à tout moment.</p>
 <div class="grid3" style="margin-top:14px">
 <div class="price">
-<h3>Starter</h3>
-<div class="p">Pour tester</div>
+<h3 data-tr="starter">Starter</h3>
+<div class="p" data-tr="starterDesc">Pour tester</div>
 <div class="eur">0€</div>
 <div class="list">
 <div class="li"><span>✓</span> <span>10 créations IA / mois</span></div>
-<div class="li"><span>✓</span> <span>Mode Fun uniquement</span></div>
-<div class="li"><span>✓</span> <span>Watermark visible</span></div>
+<div class="li"><span>✓</span> <span data-tr="f2">Mode Fun uniquement</span></div>
+<div class="li"><span>✓</span> <span data-tr="f3">Watermark visible</span></div>
 </div>
-<button class="btn btnGhost" style="width:100%;margin-top:14px">Commencer</button>
+<button class="btn btnGhost" style="width:100%;margin-top:14px" onclick="document.querySelector('#gen').scrollIntoView({behavior:'smooth'})" data-tr="btnCom">Commencer</button>
 </div>
 <div class="price featured">
-<div style="color:#a855f7;font-size:11px;font-weight:800;margin-bottom:8px">⭐ POPULAIRE</div>
-<h3>Pro</h3>
-<div class="p">Pour créateurs & vendeurs</div>
-<div class="eur">69€ <span style="font-size:16px;font-weight:400;color:var(--muted)">/mois</span></div>
+<div style="color:#a855f7;font-size:11px;font-weight:800;margin-bottom:8px" data-tr="popular">⭐ POPULAIRE</div>
+<h3 data-tr="pro">Pro</h3>
+<div class="p" data-tr="proDesc">Pour créateurs & vendeurs</div>
+<div class="eur">69€ <span style="font-size:16px;font-weight:400;color:var(--muted)" data-tr="perMonth">/mois</span></div>
 <div class="list">
 <div class="li"><span>✓</span> <span>300 créations IA / mois</span></div>
-<div class="li"><span>✓</span> <span>Mode Fun + Business</span></div>
-<div class="li"><span>✓</span> <span>Watermark discret</span></div>
-<div class="li"><span>✓</span> <span>Upload PDF</span></div>
+<div class="li"><span>✓</span> <span data-tr="fp2">Mode Fun + Business</span></div>
+<div class="li"><span>✓</span> <span data-tr="fp3">Watermark discret</span></div>
+<div class="li"><span>✓</span> <span data-tr="fp4">Upload PDF</span></div>
 </div>
-<button class="btn btnPrimary" style="width:100%;margin-top:14px">Passer Pro - 69€/mois</button>
+<button class="btn btnPrimary" style="width:100%;margin-top:14px" data-tr="btnPro">Passer Pro - 69€/mois</button>
 </div>
 <div class="price">
-<h3>Agency</h3>
-<div class="p">Pour agences UGC</div>
-<div class="eur">349€ <span style="font-size:16px;font-weight:400;color:var(--muted)">/mois</span></div>
+<h3 data-tr="agency">Agency</h3>
+<div class="p" data-tr="agencyDesc">Pour agences UGC</div>
+<div class="eur">349€ <span style="font-size:16px;font-weight:400;color:var(--muted)" data-tr="perMonth">/mois</span></div>
 <div class="list">
 <div class="li"><span>✓</span> <span>Créations illimitées</span></div>
-<div class="li"><span>✓</span> <span>Sans watermark</span></div>
-<div class="li"><span>✓</span> <span>API complète</span></div>
-<div class="li"><span>✓</span> <span>Multi-clients</span></div>
+<div class="li"><span>✓</span> <span data-tr="fa2">Sans watermark</span></div>
+<div class="li"><span>✓</span> <span data-tr="fa3">API complète</span></div>
+<div class="li"><span>✓</span> <span data-tr="fa4">Multi-clients</span></div>
 </div>
-<button class="btn btnGhost" style="width:100%;margin-top:14px">Contact Agency</button>
+<button class="btn btnGhost" style="width:100%;margin-top:14px" onclick="window.location.href='mailto:dreamfloww@outlook.fr'" data-tr="btnAg">Contact Agency</button>
 </div>
 </div>
 </section>
-
 <section id="gen" class="card">
-<h2>✨ Générateur de Scripts IA</h2>
+<h2 data-tr="genTitle">✨ Générateur de Scripts IA</h2>
 <div class="modeSelector">
-<div class="modeBtn active">
+<div class="modeBtn active" id="modeFunBtn" onclick="selectMode('fun')">
 <div class="icon">🟢</div>
-<div class="title">Mode Fun</div>
-<div class="desc">Vidéos perso (chien, vlog...)</div>
+<div class="title" data-tr="modeFun">Mode Fun</div>
+<div class="desc" data-tr="modeFunDesc">Vidéos perso (chien, vlog...)</div>
 </div>
-<div class="modeBtn">
+<div class="modeBtn" id="modeBizBtn" onclick="selectMode('biz')">
 <div class="icon">🟣</div>
-<div class="title">Mode Business</div>
-<div class="desc">Scripts vente (marque...)</div>
+<div class="title" data-tr="modeBiz">Mode Business</div>
+<div class="desc" data-tr="modeBizDesc">Scripts vente (marque...)</div>
 </div>
 </div>
 <div class="two">
 <div>
 <div id="formFun">
 <div class="muted">📝 Type de contenu</div>
-<select>
-<option>🎬 Script UGC complet</option>
-<option>🔥 Hook viral (5 versions)</option>
-<option>✨ Prompt Hook optimisé</option>
-<option>🚀 Growth Hack</option>
+<select id="contentType">
+<option value="script">🎬 Script UGC complet</option>
+<option value="hook">🔥 Hook viral (5 versions)</option>
+<option value="prompt">✨ Prompt Hook optimisé</option>
+<option value="hack">🚀 Growth Hack</option>
 </select>
 <div class="muted" style="margin-top:10px">📱 Plateforme</div>
-<select>
-<option>TikTok</option>
-<option>Instagram Reels</option>
-<option>YouTube Shorts</option>
+<select id="funPlatform">
+<option value="tiktok">TikTok</option>
+<option value="instagram-reels">Instagram Reels</option>
+<option value="youtube-shorts">YouTube Shorts</option>
+<option value="facebook-reels">Facebook Reels</option>
+<option value="instagram-stories">Instagram Stories</option>
+<option value="facebook-stories">Facebook Stories</option>
 </select>
-<div class="muted" style="margin-top:10px">🎬 Sujet de ta vidéo</div>
-<input placeholder="Ex: mon chien..."/>
-<div class="muted" style="margin-top:10px">🎨 Style du script</div>
-<select>
-<option>😂 Drôle</option>
-<option>🎥 Storytime</option>
-<option>😭 POV</option>
-<option>🔥 Motivation</option>
-<option>✨ Chill / Vlog</option>
+<div class="muted" style="margin-top:10px" data-tr="funSub">🎬 Sujet de ta vidéo</div>
+<input id="funSubject" placeholder="Ex: mon chien..."/>
+<div class="muted" style="margin-top:10px" data-tr="funType">🎨 Style du script</div>
+<select id="funStyle">
+<option value="funny">😂 Drôle</option>
+<option value="storytime">🎥 Storytime</option>
+<option value="pov">😭 POV / Quand...</option>
+<option value="motivation">🔥 Motivation</option>
+<option value="chill">✨ Chill / Vlog</option>
+</select>
+</div>
+<div id="formBiz" style="display:none">
+<div class="muted">📝 Type de contenu</div>
+<select id="contentTypeBiz">
+<option value="script">🎬 Script UGC complet</option>
+<option value="hook">🔥 Hook viral (5 versions)</option>
+<option value="prompt">✨ Prompt Hook optimisé</option>
+<option value="hack">🚀 Growth Hack</option>
+</select>
+<div class="muted" style="margin-top:10px">📱 Plateforme</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+<button type="button" class="platformBtn" data-platform="tiktok" onclick="selectPlatform('tiktok')">TikTok</button>
+<button type="button" class="platformBtn" data-platform="instagram-reels" onclick="selectPlatform('instagram-reels')">Instagram Reels</button>
+<button type="button" class="platformBtn" data-platform="youtube-shorts" onclick="selectPlatform('youtube-shorts')">YouTube Shorts</button>
+<button type="button" class="platformBtn" data-platform="facebook-reels" onclick="selectPlatform('facebook-reels')">Facebook Reels</button>
+<button type="button" class="platformBtn" data-platform="instagram-stories" onclick="selectPlatform('instagram-stories')">Instagram Stories</button>
+<button type="button" class="platformBtn" data-platform="facebook-stories" onclick="selectPlatform('facebook-stories')">Facebook Stories</button>
+</div>
+<input type="hidden" id="bizPlatformHidden" value="tiktok"/>
+<div class="muted" style="margin-top:10px" data-tr="bizBrand">🏢 Nom de ta marque *</div>
+<input id="bizBrand" placeholder="Ex: HydroSmart..."/>
+<input id="bizProduct" placeholder="Ex: Gourde..." style="margin-top:10px"/>
+<div class="muted" style="margin-top:10px">💼 Style du script</div>
+<select id="bizStyle">
+<option value="emotional">😭 Émotionnel</option>
+<option value="aggressive">⚡ Agressif / Direct</option>
+<option value="luxury">💎 Luxury / Premium</option>
+<option value="comparison">🆚 Comparaison</option>
+<option value="social-proof">✅ Preuve sociale</option>
+<option value="before-after">📈 Avant / Après</option>
 </select>
 </div>
 <div class="ctaRow" style="margin-top:12px">
-<button class="btn btnPrimary" onclick="genDemo()">🚀 Générer</button>
-<button class="btn btnGhost">📋 Copier</button>
-<button class="btn btnGhost">📄 Exporter PDF</button>
+<button class="btn btnPrimary" onclick="generate()" data-tr="btnGen">🚀 Générer</button>
+<button class="btn btnGhost" onclick="copyScript()" data-tr="btnCopy">📋 Copier</button>
+<button class="btn btnGhost" onclick="exportPDF()">📄 Exporter PDF</button>
 </div>
 <div class="summaryToggle">
-<input type="checkbox" checked/>
-<label>Afficher le résumé exécutif (à retirer avant envoi client)</label>
+<input type="checkbox" id="showSummary" checked/>
+<label for="showSummary">Afficher le résumé exécutif (à retirer avant envoi client)</label>
 </div>
 </div>
 <div>
-<div class="muted">Résultat</div>
-<div id="out">🎯 Objectif : créer une vidéo viral prête à être postée
-
-Clique sur "Générer" pour voir le résultat avec :
-✅ Vocabulaire clair (face caméra, smartphone, durée)
-✅ Intention claire au début
-✅ Format consultant structuré
-✅ Scripts actionnables
-✅ Résumé exécutif optionnel</div>
+<div class="muted" data-tr="result">Résultat</div>
+<div id="out" data-tr="outPlace">Ton script apparaîtra ici...</div>
 </div>
 </div>
 </section>
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-// 3D Animation
-const c=document.getElementById('threeCanvas');
-if(c&&window.THREE){
-  const s=new window.THREE.Scene(),r=new window.THREE.WebGLRenderer({canvas:c,antialias:1,alpha:1});
-  r.setClearColor(0,0);
-  const cam=new window.THREE.PerspectiveCamera(55,1,.1,100);
-  cam.position.set(0,.2,3.2);
-  const l=new window.THREE.DirectionalLight(0xffffff,1.4);
-  l.position.set(2,2,2);
-  s.add(l);
-  s.add(new window.THREE.AmbientLight(0xffffff,.55));
-  const geo=new window.THREE.TorusKnotGeometry(.7,.22,160,18);
-  const mat=new window.THREE.MeshStandardMaterial({metalness:.85,roughness:.18,color:new window.THREE.Color(0x7c3aed)});
-  const m=new window.THREE.Mesh(geo,mat);
-  s.add(m);
-  function re(){const w=c.clientWidth;const h=c.clientHeight;r.setSize(w,h,0);cam.aspect=w/h;cam.updateProjectionMatrix()}
-  window.addEventListener("resize",re);
-  re();
-  let t=0;
-  function an(){t+=.01;m.rotation.x+=.008;m.rotation.y+=.012;m.position.y=Math.sin(t)*.08;r.render(s,cam);requestAnimationFrame(an)}
-  an()
-}
-
-function genDemo(){
-document.getElementById('out').textContent = `🎯 Objectif : créer une vidéo viral prête à être postée
-
-🎬 SCRIPT UGC COMPLET - MON CHIEN
-
-🎥 Format : Face caméra (smartphone)
-⏱️ Durée totale : 25 secondes
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📍 SCÈNE 1 - HOOK (0-3s)
-Action : Filmez-vous en train de regarder la caméra, surpris
-Texte à dire : "Regardez ce qui vient de se passer..."
-Musique : Tendance + volume fort
-
-📍 SCÈNE 2 - ACTION PRINCIPALE (3-15s)
-Action : Montrez ce qui se passe avec votre chien
-Détail : Gros plan si c'est petit
-Texte à l'écran : "MON CHIEN"
-Musique : Même track, plus basse
-
-📍 SCÈNE 3 - MOMENT CLÉ (15-22s)
-Action : Votre réaction / le résultat
-Texte à dire : "C'est dingue hein ?"
-Durée : Laissez respirer 2-3 secondes
-
-📍 SCÈNE 4 - CTA (22-25s)
-Action : Filmez-vous direct à caméra
-Texte à dire : "Tag quelqu'un qui doit voir ça ! Part 2 ?"
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📋 RÉSUMÉ EXÉCUTIF (à adapter ou retirer avant envoi)
-🎥 Format : Face caméra (smartphone)
-📱 Plateforme : TikTok
-⏱️ Durée totale : 15-30 secondes
-📈 Résultat attendu : Maximum d'engagement et partages
-
-💡 Comment l'utiliser :
-• Adaptez le texte à votre voix / ton
-• Coupez les parties non pertinentes
-• Renvoyez à votre client/équipe
-• Le résumé peut être retiré avant envoi`;
-}
+const tr={fr:{navPricing:'Pricing',navGen:'Générateur',badge:'⚡ SaaS UGC + Scripts IA',hero:'Générateur de scripts viraux<br/>en 30 secondes.',heroDesc:'UGCGrowth te donne des scripts UGC/Ads prêts à tourner, adaptés à ta niche. Commence maintenant avec le générateur gratuit.',btnStart:'🚀 Tester maintenant',btnPrice:'Voir les prix',bullets:'✅ Scripts personnalisés • ✅ Anti-revente • ✅ Sécurisé',pricingTitle:'💎 Pricing',pricingDesc:'Plans flexibles selon tes besoins. Change ou annule à tout moment.',starter:'Starter',starterDesc:'Pour tester',f2:'Mode Fun uniquement',f3:'Watermark visible',btnCom:'Commencer',popular:'⭐ POPULAIRE',pro:'Pro',proDesc:'Pour créateurs & vendeurs',perMonth:'/mois',fp2:'Mode Fun + Business',fp3:'Watermark discret',fp4:'Upload PDF',btnPro:'Passer Pro - 69€/mois',agency:'Agency',agencyDesc:'Pour agences UGC',fa2:'Sans watermark',fa3:'API complète',fa4:'Multi-clients',btnAg:'Contact Agency',genTitle:'✨ Générateur de Scripts IA',modeFun:'Mode Fun',modeFunDesc:'Vidéos perso (chien, vlog...)',modeBiz:'Mode Business',modeBizDesc:'Scripts vente (marque...)',funSub:'🎬 Sujet de ta vidéo',funType:'🎨 Style du script',bizBrand:'🏢 Nom de ta marque *',btnGen:'🚀 Générer',btnCopy:'📋 Copier',result:'Résultat',outPlace:'Ton script apparaîtra ici...'},en:{navPricing:'Pricing',navGen:'Generator',badge:'⚡ UGC SaaS + AI Scripts',hero:'Viral script generator<br/>in 30 seconds.',heroDesc:'UGCGrowth gives you ready-to-shoot UGC/Ads scripts, tailored to your niche. Start now with the free generator.',btnStart:'🚀 Start now',btnPrice:'See pricing',bullets:'✅ Personalized scripts • ✅ Anti-resale • ✅ Secure',pricingTitle:'💎 Pricing',pricingDesc:'Flexible plans for your needs. Change or cancel anytime.',starter:'Starter',starterDesc:'To test',f2:'Fun Mode only',f3:'Visible watermark',btnCom:'Start',popular:'⭐ POPULAR',pro:'Pro',proDesc:'For creators & sellers',perMonth:'/month',fp2:'Fun + Business Mode',fp3:'Discrete watermark',fp4:'PDF upload',btnPro:'Upgrade Pro - €69/month',agency:'Agency',agencyDesc:'For UGC agencies',fa2:'No watermark',fa3:'Complete API',fa4:'Multi-clients',btnAg:'Contact Agency',genTitle:'✨ AI Script Generator',modeFun:'Fun Mode',modeFunDesc:'Personal videos (dog, vlog...)',modeBiz:'Business Mode',modeBizDesc:'Sales scripts (brand...)',funSub:'🎬 Video subject',funType:'🎨 Script style',bizBrand:'🏢 Brand name *',btnGen:'🚀 Generate',btnCopy:'📋 Copy',result:'Result',outPlace:'Your script will appear here...'},es:{navPricing:'Precios',navGen:'Generador',badge:'⚡ SaaS UGC + Scripts IA',hero:'Generador de scripts virales<br/>en 30 segundos.',heroDesc:'UGCGrowth te da scripts UGC/Ads listos para grabar, adaptados a tu nicho. Empieza ahora con el generador gratuito.',btnStart:'🚀 Probar ahora',btnPrice:'Ver precios',bullets:'✅ Scripts personalizados • ✅ Anti-reventa • ✅ Seguro',pricingTitle:'💎 Precios',pricingDesc:'Planes flexibles según tus necesidades. Cambia o cancela cuando quieras.',starter:'Starter',starterDesc:'Para probar',f2:'Solo Modo Fun',f3:'Marca visible',btnCom:'Comenzar',popular:'⭐ POPULAR',pro:'Pro',proDesc:'Para creadores y vendedores',perMonth:'/mes',fp2:'Modo Fun + Business',fp3:'Marca discreta',fp4:'Subir PDF',btnPro:'Mejorar Pro - 69€/mes',agency:'Agency',agencyDesc:'Para agencias UGC',fa2:'Sin marca',fa3:'API completa',fa4:'Multi-clientes',btnAg:'Contactar Agency',genTitle:'✨ Generador de Scripts IA',modeFun:'Modo Fun',modeFunDesc:'Videos personales (perro, vlog...)',modeBiz:'Modo Business',modeBizDesc:'Scripts ventas (marca...)',funSub:'🎬 Tema del video',funType:'🎨 Estilo del script',bizBrand:'🏢 Nombre de marca *',btnGen:'🚀 Generar',btnCopy:'📋 Copiar',result:'Resultado',outPlace:'Tu script aparecerá aquí...'}};
+let mode='fun',script='',showSummary=true;
+document.getElementById('lang').onchange=e=>{const l=e.target.value;document.querySelectorAll('[data-tr]').forEach(el=>{const k=el.getAttribute('data-tr');if(tr[l][k])el.innerHTML=tr[l][k]})};
+function selectMode(m){mode=m;document.getElementById('modeFunBtn').classList.toggle('active',m==='fun');document.getElementById('modeBizBtn').classList.toggle('active',m==='biz');document.getElementById('formFun').style.display=m==='fun'?'block':'none';document.getElementById('formBiz').style.display=m==='biz'?'block':'none'}
+function selectPlatform(p){document.getElementById('bizPlatformHidden').value=p;document.querySelectorAll('.platformBtn').forEach(btn=>{btn.classList.toggle('active',btn.dataset.platform===p)});}
+async function generate(){
+const out=document.getElementById('out');
+out.textContent='⏳ Génération en cours...';
+const contentType=mode==='fun'?document.getElementById('contentType').value:document.getElementById('contentTypeBiz').value;
+const platform=mode==='fun'?document.getElementById('funPlatform').value:document.getElementById('bizPlatformHidden').value;
+let type,niche,subject;
+if(mode==='fun'){niche=document.getElementById('funSubject').value||'mon sujet';subject=niche;type=contentType;}else{niche=document.getElementById('bizBrand').value||'ma marque';subject=document.getElementById('bizProduct').value||'mon produit';type=contentType;}
+showSummary=document.getElementById('showSummary').checked;
+try{const response=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type,niche,platform,subject,mode,style:mode==='fun'?document.getElementById('funStyle').value:document.getElementById('bizStyle').value})});if(!response.ok)throw new Error('Erreur API');const data=await response.json();script=data.content;let output='';if(mode==='fun'){output=`🎯 Objectif : créer une vidéo viral prête à être postée\n\n`;}else{output=`🎯 Objectif : créer une stratégie vidéo UGC prête à être utilisée ou envoyée à un client\n\n`;}
+output+=script;if(showSummary){output+=`\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📋 RÉSUMÉ EXÉCUTIF (à adapter ou retirer avant envoi)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;if(mode==='fun'){output+=`🎥 Format : Face caméra (smartphone)\n📱 Plateforme : ${platform}\n⏱️ Durée totale : 15-30 secondes\n📈 Résultat attendu : Maximum d'engagement et partages\n`;}else{output+=`🎥 Format : Face caméra (smartphone)\n📱 Plateforme : ${platform}\n⏱️ Durée totale : 20-40 secondes\n📈 Résultat attendu : Clics vers produit / Augmentation CTR\n`;}
+output+=`\n💡 Comment l'utiliser :\n• Adaptez le texte à votre voix / ton\n• Coupez les parties non pertinentes\n• Renvoyez à votre client/équipe\n• Le résumé peut être retiré avant envoi\n`;}
+out.textContent=output;}catch(error){out.textContent='❌ Erreur: '+error.message;}}
+function copyScript(){if(!script)return alert('Génère d\'abord!');navigator.clipboard.writeText(script);alert('✅ Copié!')}
+const c=document.getElementById('threeCanvas');if(c&&THREE){const s=new THREE.Scene(),r=new THREE.WebGLRenderer({canvas:c,antialias:1,alpha:1});r.setClearColor(0,0);const cam=new THREE.PerspectiveCamera(55,1,.1,100);cam.position.set(0,.2,3.2);const l=new THREE.DirectionalLight(0xffffff,1.4);l.position.set(2,2,2);s.add(l);s.add(new THREE.AmbientLight(0xffffff,.55));const geo=new THREE.TorusKnotGeometry(.7,.22,160,18);const mat=new THREE.MeshStandardMaterial({metalness:.85,roughness:.18,color:new THREE.Color(0x7c3aed)});const m=new THREE.Mesh(geo,mat);s.add(m);function re(){const w=c.clientWidth;const h=c.clientHeight;r.setSize(w,h,0);cam.aspect=w/h;cam.updateProjectionMatrix()}window.addEventListener("resize",re);re();let t=0;function an(){t+=.01;m.rotation.x+=.008;m.rotation.y+=.012;m.position.y=Math.sin(t)*.08;r.render(s,cam);requestAnimationFrame(an)}an()}
+function exportPDF(){if(!script)return alert('Génère d\'abord un script!');const {jsPDF}=window.jspdf;const doc=new jsPDF();doc.setFont('Helvetica');doc.setFontSize(16);doc.text('Script UGCGrowth',20,20);doc.setFontSize(11);const lines=doc.splitTextToSize(script,170);doc.text(lines,20,35);doc.save('script_ugcgrowth.pdf')}
+selectPlatform('tiktok');
 </script>
-
 <footer style="background:rgba(0,0,0,.3);border-top:1px solid rgba(255,255,255,.1);padding:24px 16px;margin-top:40px;text-align:center">
 <div class="wrap" style="max-width:1150px;margin:0 auto">
 <div style="font-size:12px;color:rgba(255,255,255,.6);line-height:1.6">
 <p>© 2025 UGCGrowth. Tous droits réservés.</p>
-<p style="margin-top:12px">
-<a style="cursor:pointer;color:#7c3aed;text-decoration:none;margin:0 8px">Conditions Générales</a> • 
-<a style="color:#7c3aed;text-decoration:none;margin:0 8px">Politique de Confidentialité</a> • 
-<a href="/cdn-cgi/l/email-protection#0a6e786f6b676c66657d7d4a657f7e66656561246c78" style="color:#7c3aed;text-decoration:none;margin:0 8px">Contact</a>
-<
-
+</div>
+</div>
+</footer>
+</body>
+</html>

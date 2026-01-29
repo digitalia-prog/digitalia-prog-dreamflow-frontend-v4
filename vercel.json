@@ -1,0 +1,10 @@
+{
+  "buildCommand": "echo 'Static site'",
+  "outputDirectory": ".",
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}

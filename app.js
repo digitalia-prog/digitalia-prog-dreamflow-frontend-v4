@@ -1,4 +1,41 @@
-// Traductions
+/**
+ * ============================================
+ * DREAMFLOW - GÉNÉRATEUR DE SCRIPTS UGC IA
+ * ============================================
+ * 
+ * RÉSUMÉ EXÉCUTIF:
+ * Application SaaS de génération de scripts vidéo UGC (User Generated Content)
+ * pour TikTok, Instagram, YouTube et autres plateformes sociales.
+ * Utilise OpenAI pour générer du contenu optimisé avec vocabulaire 3D,
+ * hooks viraux et stratégies de conversion testées.
+ * 
+ * INTENTION CLAIRE:
+ * - Générer des scripts vidéo UGC en 30 secondes
+ * - Adapter le contenu au style et à la plateforme
+ * - Offrir 10+ styles différents (emotional, aggressive, luxury, etc.)
+ * - Supporter 3 langues (FR, EN, ES)
+ * - Intégrer OpenAI pour génération IA avancée
+ * - Afficher des dashboards avec statistiques
+ * 
+ * VOCABULAIRE 3D (10 STYLES):
+ * 1. EMOTIONAL - Hooks émotionnels et personnels
+ * 2. AGGRESSIVE - Hooks directs et impactants
+ * 3. LUXURY - Hooks exclusivité et prestige
+ * 4. COMPARISON - Avant/Après et transformation
+ * 5. SOCIAL-PROOF - Preuve sociale et expert
+ * 6. BEFORE-AFTER - Transformation visuelle
+ * 7. FUNNY - Humour et relatable
+ * 8. STORYTIME - Narratif et histoire
+ * 9. POV - Point of view et perspective
+ * 10. MOTIVATION - Inspiration et action
+ * 11. CHILL - Relaxe et lifestyle
+ * 
+ * ============================================
+ */
+
+// ============================================
+// TRADUCTIONS (FR, EN, ES)
+// ============================================
 const translations = {
   fr: {
     generating: '⏳ Génération en cours...',
@@ -47,6 +84,9 @@ const translations = {
   }
 };
 
+// ============================================
+// TEMPLATES PRÉDÉFINIS
+// ============================================
 const templates = {
   'ugc-beaute': { contentType: 'ugc', niche: 'beaute', platform: 'instagram-reels', scriptCount: 3, prompt: 'Sérum anti-âge vitamine C' },
   'ugc-tech': { contentType: 'ugc', niche: 'tech', platform: 'tiktok', scriptCount: 5, prompt: 'Écouteurs sans fil à réduction de bruit' },
@@ -55,12 +95,22 @@ const templates = {
   'agence': { contentType: 'agence', niche: 'agence-marketing', platform: 'tiktok', scriptCount: 50, prompt: 'Agence marketing digital UGC' }
 };
 
+// ============================================
+// DURÉES PAR PLATEFORME
+// ============================================
 const platformDurations = {
   'tiktok': '15-60s', 'instagram-reels': '15-90s', 'instagram-stories': '15s',
   'facebook-reels': '15-60s', 'facebook-stories': '15s', 'youtube-shorts': '15-60s',
   'snapchat': '10s', 'linkedin': '30-90s', 'twitter': '30-45s', 'pinterest': '15-30s'
 };
 
+// ============================================
+// FONCTION: CHARGER TEMPLATE
+// ============================================
+/**
+ * Charge un template prédéfini dans les champs du formulaire
+ * @param {string} templateName - Nom du template à charger
+ */
 function loadTemplate(templateName) {
   const t = templates[templateName];
   if (!t) return;
@@ -71,7 +121,14 @@ function loadTemplate(templateName) {
   document.getElementById('prompt').value = t.prompt;
 }
 
-function generate() {
+// ============================================
+// FONCTION: GÉNÉRER (PRINCIPALE)
+// ============================================
+/**
+ * Fonction principale de génération de contenu
+ * Valide les inputs et appelle les générateurs appropriés
+ */
+async function generate() {
   const language = document.getElementById('language').value;
   const contentType = document.getElementById('contentType').value;
   const niche = document.getElementById('niche').value;
@@ -81,39 +138,58 @@ function generate() {
   const result = document.getElementById('result');
   const t = translations[language];
   
+  // Validation du prompt
   if (!prompt) {
     result.innerHTML = '<p style="color:#ff6b6b;">' + t.error_prompt + '</p>';
     result.classList.add('show');
     return;
   }
   
+  // Validation du nombre de scripts
   if (scriptCount < 1 || scriptCount > 1000) {
     result.innerHTML = '<p style="color:#ff6b6b;">' + t.error_count + '</p>';
     result.classList.add('show');
     return;
   }
   
-  
-  // Récupérer le style sélectionné
+  // Sélection du style basé sur le type de contenu
   const funStyle = document.getElementById('funStyle')?.value || 'funny';
   const bizStyle = document.getElementById('bizStyle')?.value || 'emotional';
-  const style = mode === 'fun' ? funStyle : bizStyle;
+  const style = contentType === 'fun' ? funStyle : bizStyle;
   
+  // Afficher le message de génération
   result.innerHTML = '<p style="color:#667eea;">' + t.generating + '</p>';
   result.classList.add('show');
   
-  setTimeout(() => {
+  // Générer le contenu après 1.5 secondes
+  setTimeout(async () => {
     let content = '';
-    if (contentType === "ugc") content = await generateWithOpenAI(niche, platform, prompt, scriptCount, language, style, "ugc");
-    else if (contentType === "hook") content = await generateWithOpenAI(niche, platform, prompt, scriptCount, language, style, "hook");
-    else if (contentType === "script") content = await generateWithOpenAI(niche, platform, prompt, scriptCount, language, style, "script");
-    else if (contentType === 'agence') content = generateAgencyScripts(niche, platform, prompt, scriptCount, language, style);
+    if (contentType === "ugc") {
+      content = await generateWithOpenAI(niche, platform, prompt, scriptCount, language, style, "ugc");
+    } else if (contentType === "hook") {
+      content = await generateWithOpenAI(niche, platform, prompt, scriptCount, language, style, "hook");
+    } else if (contentType === "script") {
+      content = await generateWithOpenAI(niche, platform, prompt, scriptCount, language, style, "script");
+    } else if (contentType === 'agence') {
+      content = generateAgencyScripts(niche, platform, prompt, scriptCount, language, style);
+    }
     result.innerHTML = content;
-  }, 1500);
   }, 1500);
 }
 
-function generateUGC(niche, platform, prompt, count, lang) {
+// ============================================
+// GÉNÉRATEUR: UGC
+// ============================================
+/**
+ * Génère des scripts UGC avec hook, body et CTA
+ * @param {string} niche - Niche du produit
+ * @param {string} platform - Plateforme cible
+ * @param {string} prompt - Description du produit
+ * @param {number} count - Nombre de scripts
+ * @param {string} lang - Langue (fr, en, es)
+ * @param {string} style - Style de hook (vocabulary 3D)
+ */
+function generateUGC(niche, platform, prompt, count, lang, style) {
   const t = translations[lang];
   const duration = platformDurations[platform] || '30s';
   
@@ -130,9 +206,10 @@ function generateUGC(niche, platform, prompt, count, lang) {
   <p><strong>${t.platform}:</strong> ${platform}</p>
   <p><strong>${t.duration}:</strong> ${duration}</p>
   <p><strong>${t.niche}:</strong> ${niche}</p>
+  <p><strong>Style:</strong> ${style}</p>
 </div>
 
-<div style="background:rgba(20,10,40,0.8)3cd;padding:20px;border-radius:10px;margin-bottom:20px;">
+<div style="background:rgba(20,10,40,0.8);padding:20px;border-radius:10px;margin-bottom:20px;">
   <h3>🎬 Script UGC #1</h3>
   <p><strong>🎯 ${t.hook} (0-3s):</strong><br>"${hooks[lang][0]}"</p>
   <p><strong>💬 ${t.body} (3-20s):</strong><br>
@@ -168,24 +245,105 @@ ${count > 2 ? `
   </ul>
 </div>
 
-<p style="margin-top:20px;padding:15px;background:rgba(20,10,40,0.8)3cd;border-radius:10px;">
+<p style="margin-top:20px;padding:15px;background:rgba(20,10,40,0.8);border-radius:10px;">
   <strong>${t.note}:</strong> ${t.connect_api}
 </p>
 `;
 }
 
-function generateHooks(niche, platform, prompt, count, lang) {
-  const hooksDB = {
-    fr: ["Personne n'en parle mais...", "J'ai découvert le secret", "Arrête de faire ça en 2026", "POV: Tu découvres la vérité", "Attendez... QUOI ?!", "Je pensais pas que c'était possible", "Tout le monde se trompe", "C'est révolutionnaire", "Avant vs Après", "Le truc qu'on te cache"],
-    en: ["Nobody talks about this but...", "I discovered the secret", "Stop doing this in 2026", "POV: You discover the truth", "Wait... WHAT?!", "I didn't think it was possible", "Everyone's wrong", "It's revolutionary", "Before vs After", "The thing they hide"],
-    es: ["Nadie habla de esto pero...", "Descubrí el secreto", "Para de hacer esto en 2026", "POV: Descubres la verdad", "Espera... ¿QUÉ?!", "No pensé que fuera posible", "Todos están equivocados", "Es revolucionario", "Antes vs Después", "Lo que te ocultan"]
+// ============================================
+// GÉNÉRATEUR: HOOKS AVEC VOCABULAIRE 3D
+// ============================================
+/**
+ * Génère des hooks viraux avec 11 styles différents (Vocabulaire 3D)
+ * Styles: emotional, aggressive, luxury, comparison, social-proof, 
+ *         before-after, funny, storytime, pov, motivation, chill
+ * @param {string} niche - Niche du produit
+ * @param {string} platform - Plateforme cible
+ * @param {string} prompt - Description du produit
+ * @param {number} count - Nombre de hooks
+ * @param {string} lang - Langue (fr, en, es)
+ * @param {string} style - Style de hook (vocabulary 3D)
+ */
+function generateHooks(niche, platform, prompt, count, lang, style = 'emotional') {
+  // BASE DE DONNÉES DES STYLES - VOCABULAIRE 3D
+  const styleHooksDB = {
+    // STYLE 1: EMOTIONAL - Hooks émotionnels et personnels
+    emotional: {
+      fr: ["J'avais honte de ça...", "Personne ne comprend ce que je vis", "J'ai pleuré pendant 3 jours", "Je pensais que j'étais seul(e)", "Mon plus grand regret"],
+      en: ["I was ashamed of this...", "Nobody understands what I'm going through", "I cried for 3 days", "I thought I was alone", "My biggest regret"],
+      es: ["Me avergonzaba de esto...", "Nadie entiende lo que vivo", "Lloré durante 3 días", "Pensé que estaba solo/a", "Mi mayor arrepentimiento"]
+    },
+    // STYLE 2: AGGRESSIVE - Hooks directs et impactants
+    aggressive: {
+      fr: ["ARRÊTE de faire ça !", "Tu te trompes complètement", "C'est une GROSSE erreur", "Personne ne te dit la vérité", "STOP maintenant"],
+      en: ["STOP doing this!", "You're completely wrong", "This is a BIG mistake", "Nobody tells you the truth", "STOP now"],
+      es: ["¡PARA de hacer eso!", "Estás completamente equivocado", "Es un GRAN error", "Nadie te dice la verdad", "PARA ahora"]
+    },
+    // STYLE 3: LUXURY - Hooks exclusivité et prestige
+    luxury: {
+      fr: ["Le secret des riches", "Ce que l'élite ne veut pas que tu saches", "Accès VIP exclusif", "Réservé aux initiés", "Luxe discret"],
+      en: ["The secret of the rich", "What the elite don't want you to know", "Exclusive VIP access", "Reserved for insiders", "Discreet luxury"],
+      es: ["El secreto de los ricos", "Lo que la élite no quiere que sepas", "Acceso VIP exclusivo", "Reservado para iniciados", "Lujo discreto"]
+    },
+    // STYLE 4: COMPARISON - Avant/Après et transformation
+    comparison: {
+      fr: ["Avant vs Après", "J'étais comme toi avant", "La différence est choquante", "Tu ne vas pas croire la transformation", "Regarde ce changement"],
+      en: ["Before vs After", "I used to be like you", "The difference is shocking", "You won't believe the transformation", "Look at this change"],
+      es: ["Antes vs Después", "Antes era como tú", "La diferencia es impactante", "No creerás la transformación", "Mira este cambio"]
+    },
+    // STYLE 5: SOCIAL-PROOF - Preuve sociale et expert
+    'social-proof': {
+      fr: ["10 000 personnes approuvent", "Résultats prouvés", "Client satisfait témoigne", "Note 5/5 étoiles", "Recommandé par des experts"],
+      en: ["10,000 people approve", "Proven results", "Satisfied customer testifies", "5/5 star rating", "Recommended by experts"],
+      es: ["10,000 personas aprueban", "Resultados probados", "Cliente satisfecho testifica", "Calificación 5/5 estrellas", "Recomendado por expertos"]
+    },
+    // STYLE 6: BEFORE-AFTER - Transformation visuelle
+    'before-after': {
+      fr: ["Ma vie avant/après", "J'ai tout changé en 30 jours", "Transformation totale", "De 0 à résultat", "Le glow up"],
+      en: ["My life before/after", "I changed everything in 30 days", "Total transformation", "From 0 to results", "The glow up"],
+      es: ["Mi vida antes/después", "Cambié todo en 30 días", "Transformación total", "De 0 a resultados", "El glow up"]
+    },
+    // STYLE 7: FUNNY - Humour et relatable
+    funny: {
+      fr: ["Personne : ... Moi :", "Le truc qui m'énerve", "Quand ta mère dit non", "Moi vs la réalité", "C'est relatable ou pas ?"],
+      en: ["Nobody: ... Me:", "The thing that annoys me", "When your mom says no", "Me vs reality", "Is this relatable or not?"],
+      es: ["Nadie: ... Yo:", "Lo que me molesta", "Cuando tu mamá dice no", "Yo vs la realidad", "¿Es relatable o no?"]
+    },
+    // STYLE 8: STORYTIME - Narratif et histoire
+    storytime: {
+      fr: ["Il y a 3 mois...", "Je vais vous raconter", "Histoire vraie", "Vous n'allez pas croire ce qui s'est passé", "Flashback"],
+      en: ["3 months ago...", "I'm going to tell you", "True story", "You won't believe what happened", "Flashback"],
+      es: ["Hace 3 meses...", "Les voy a contar", "Historia real", "No creerás lo que pasó", "Flashback"]
+    },
+    // STYLE 9: POV - Point of view et perspective
+    pov: {
+      fr: ["POV: Tu découvres la vérité", "POV: Quand...", "Imagine que...", "Tu es en train de...", "Ce moment où..."],
+      en: ["POV: You discover the truth", "POV: When...", "Imagine that...", "You're about to...", "That moment when..."],
+      es: ["POV: Descubres la verdad", "POV: Cuando...", "Imagina que...", "Estás a punto de...", "Ese momento cuando..."]
+    },
+    // STYLE 10: MOTIVATION - Inspiration et action
+    motivation: {
+      fr: ["C'est MAINTENANT ou jamais", "Tu mérites mieux", "Arrête de te limiter", "Crois en toi", "Le moment est venu"],
+      en: ["It's NOW or never", "You deserve better", "Stop limiting yourself", "Believe in yourself", "The time has come"],
+      es: ["Es AHORA o nunca", "Mereces más", "Deja de limitarte", "Cree en ti", "Ha llegado el momento"]
+    },
+    // STYLE 11: CHILL - Relaxe et lifestyle
+    chill: {
+      fr: ["Petit vlog du jour", "Ma routine", "Get ready with me", "Chill vibes only", "Journée tranquille"],
+      en: ["Little vlog of the day", "My routine", "Get ready with me", "Chill vibes only", "Peaceful day"],
+      es: ["Pequeño vlog del día", "Mi rutina", "Prepárate conmigo", "Solo buenas vibras", "Día tranquilo"]
+    }
   };
+  
+  // Sélectionner les hooks du style choisi
+  const hooks = styleHooksDB[style]?.[lang] || styleHooksDB.emotional[lang];
   
   let hookList = '';
   const displayCount = Math.min(count, 10);
   for (let i = 0; i < displayCount; i++) {
     hookList += `<div style="background:rgba(30,15,50,0.8);padding:15px;margin-bottom:10px;border-radius:10px;border-left:4px solid #667eea;">
-      <strong>Hook #${i+1}:</strong> ${hooksDB[lang][i]}
+      <strong>Hook #${i+1} (${style}):</strong> ${hooks[i] || 'Hook générique'}
     </div>`;
   }
   
@@ -193,21 +351,29 @@ function generateHooks(niche, platform, prompt, count, lang) {
 <h2 style="color:#667eea;margin-bottom:20px;">🔥 ${count} Hooks ${lang==='fr'?'Viraux':lang==='en'?'Viral':'Virales'}</h2>
 <div style="background:rgba(30,15,50,0.8);padding:20px;border-radius:10px;margin-bottom:20px;">
   <p><strong>${translations[lang].platform}:</strong> ${platform}</p>
+  <p><strong>Style Vocabulary 3D:</strong> ${style}</p>
 </div>
 ${hookList}
-<p style="padding:15px;background:rgba(20,10,40,0.8)3cd;border-radius:10px;margin-top:20px;">
+<p style="padding:15px;background:rgba(20,10,40,0.8);border-radius:10px;margin-top:20px;">
   <strong>${translations[lang].note}:</strong> ${translations[lang].connect_api}
 </p>
 `;
 }
 
-function generateFullScript(niche, platform, prompt, count, lang) {
+// ============================================
+// GÉNÉRATEUR: SCRIPT COMPLET
+// ============================================
+/**
+ * Génère un script complet avec hook, body et CTA
+ */
+function generateFullScript(niche, platform, prompt, count, lang, style) {
   const t = translations[lang];
   return `
 <h2 style="color:#667eea;margin-bottom:20px;">🎬 ${count} Script${count>1?'s':''} Complet${count>1?'s':''}</h2>
 <div style="background:rgba(20,10,40,0.8);border:2px solid #667eea;padding:25px;border-radius:15px;">
   <h3 style="color:#667eea;">📹 Script Vidéo - ${platform.toUpperCase()}</h3>
   <p><strong>${t.duration}:</strong> ${platformDurations[platform]}</p>
+  <p><strong>Style Vocabulary 3D:</strong> ${style}</p>
   <hr style="margin:20px 0;">
   
   <div style="background:rgba(30,15,50,0.8);padding:15px;border-radius:10px;margin:15px 0;">
@@ -215,7 +381,7 @@ function generateFullScript(niche, platform, prompt, count, lang) {
     <p>"${lang==='fr'?'Tu perds de l\'argent si tu ne sais pas ça':lang==='en'?'You\'re losing money if you don\'t know this':'Pierdes dinero si no sabes esto'}"</p>
   </div>
   
-  <div style="background:rgba(20,10,40,0.8)3cd;padding:15px;border-radius:10px;margin:15px 0;">
+  <div style="background:rgba(20,10,40,0.8);padding:15px;border-radius:10px;margin:15px 0;">
     <h4>💬 ${t.body} (3-20s)</h4>
     <p>${lang==='fr'?'Présentation problème + solution':'Problem + solution presentation'}</p>
     <ul style="margin-left:20px;">
@@ -230,13 +396,19 @@ function generateFullScript(niche, platform, prompt, count, lang) {
     <p>"${lang==='fr'?'Lien en bio MAINTENANT':lang==='en'?'Link in bio NOW':'Enlace en bio AHORA'}"</p>
   </div>
 </div>
-<p style="margin-top:20px;padding:15px;background:rgba(20,10,40,0.8)3cd;border-radius:10px;">
+<p style="margin-top:20px;padding:15px;background:rgba(20,10,40,0.8);border-radius:10px;">
   <strong>${t.note}:</strong> ${t.connect_api}
 </p>
 `;
 }
 
-function generateAgencyScripts(niche, platform, prompt, count, lang) {
+// ============================================
+// GÉNÉRATEUR: AGENCY SCRIPTS
+// ============================================
+/**
+ * Génère un package agence avec multiple scripts
+ */
+function generateAgencyScripts(niche, platform, prompt, count, lang, style) {
   const t = translations[lang];
   return `
 <h2 style="color:#667eea;margin-bottom:20px;">🏢 Package Agence: ${count} Scripts</h2>
@@ -244,6 +416,7 @@ function generateAgencyScripts(niche, platform, prompt, count, lang) {
   <h3>${lang==='fr'?'OFFRE AGENCE PREMIUM':lang==='en'?'PREMIUM AGENCY OFFER':'OFERTA AGENCIA PREMIUM'}</h3>
   <p style="font-size:18px;"><strong>${count} scripts ${lang==='fr'?'optimisés':'optimized'}</strong></p>
   <p>${t.platform}: ${platform.toUpperCase()}</p>
+  <p><strong>Vocabulary 3D Style:</strong> ${style}</p>
 </div>
 
 <div style="background:rgba(20,10,40,0.8);border:2px solid #667eea;padding:25px;border-radius:15px;">
@@ -277,13 +450,16 @@ function generateAgencyScripts(niche, platform, prompt, count, lang) {
 `;
 }
 
-// Fonction pour changer de section
+// ============================================
+// UI: AFFICHAGE DES SECTIONS
+// ============================================
+/**
+ * Affiche/cache les sections du dashboard
+ */
 function showSection(sectionName) {
-  // Masquer toutes les sections
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   
-  // Afficher la section demandée
   if (sectionName === 'generator') {
     document.getElementById('generator-section').classList.add('active');
     document.querySelectorAll('.nav-btn')[0].classList.add('active');
@@ -294,9 +470,13 @@ function showSection(sectionName) {
   }
 }
 
-// Initialiser les graphiques
+// ============================================
+// CHARTS: INITIALISER LES GRAPHIQUES
+// ============================================
+/**
+ * Initialise 4 graphiques Chart.js
+ */
 function initCharts() {
-  // Graphique d'évolution
   const ctx1 = document.getElementById('generationsChart');
   if (ctx1 && !ctx1.chart) {
     ctx1.chart = new Chart(ctx1, {
@@ -332,7 +512,6 @@ function initCharts() {
     });
   }
 
-  // Graphique plateformes
   const ctx2 = document.getElementById('platformsChart');
   if (ctx2 && !ctx2.chart) {
     ctx2.chart = new Chart(ctx2, {
@@ -354,7 +533,6 @@ function initCharts() {
     });
   }
 
-  // Graphique niches
   const ctx3 = document.getElementById('nichesChart');
   if (ctx3 && !ctx3.chart) {
     ctx3.chart = new Chart(ctx3, {
@@ -389,7 +567,6 @@ function initCharts() {
     });
   }
 
-  // Graphique types de contenu
   const ctx4 = document.getElementById('contentTypesChart');
   if (ctx4 && !ctx4.chart) {
     ctx4.chart = new Chart(ctx4, {
@@ -412,144 +589,34 @@ function initCharts() {
   }
 }
 
-// Fonction pour changer de section
-function showSection(sectionName) {
-  // Masquer toutes les sections
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  
-  // Afficher la section demandée
-  if (sectionName === 'generator') {
-    document.getElementById('generator-section').classList.add('active');
-    document.querySelectorAll('.nav-btn')[0].classList.add('active');
-  } else if (sectionName === 'dashboard') {
-    document.getElementById('dashboard-section').classList.add('active');
-    document.querySelectorAll('.nav-btn')[1].classList.add('active');
-    initCharts();
+// ============================================
+// OPENAI: APPELS API
+// ============================================
+/**
+ * Appel générique à l'API OpenAI
+ */
+async function callOpenAIAPI(prompt) {
+  try {
+    const response = await fetch('/api/generate-ugc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    
+    if (!response.ok) throw new Error('API call failed');
+    const data = await response.json();
+    return data.content;
+  } catch (error) {
+    console.error('OpenAI API Error:', error);
+    return null;
   }
 }
 
-// Initialiser les graphiques
-function initCharts() {
-  // Graphique d'évolution
-  const ctx1 = document.getElementById('generationsChart');
-  if (ctx1 && !ctx1.chart) {
-    ctx1.chart = new Chart(ctx1, {
-      type: 'line',
-      data: {
-        labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil'],
-        datasets: [{
-          label: 'Scripts générés',
-          data: [65, 89, 120, 151, 182, 205, 247],
-          borderColor: '#a855f7',
-          backgroundColor: 'rgba(168, 85, 247, 0.1)',
-          tension: 0.4,
-          fill: true
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: { labels: { color: '#c084fc' } }
-        },
-        scales: {
-          y: { 
-            ticks: { color: '#c084fc' },
-            grid: { color: 'rgba(138, 43, 226, 0.1)' }
-          },
-          x: { 
-            ticks: { color: '#c084fc' },
-            grid: { color: 'rgba(138, 43, 226, 0.1)' }
-          }
-        }
-      }
-    });
-  }
-
-  // Graphique plateformes
-  const ctx2 = document.getElementById('platformsChart');
-  if (ctx2 && !ctx2.chart) {
-    ctx2.chart = new Chart(ctx2, {
-      type: 'doughnut',
-      data: {
-        labels: ['TikTok', 'Instagram', 'YouTube', 'Facebook', 'Autres'],
-        datasets: [{
-          data: [35, 28, 18, 12, 7],
-          backgroundColor: ['#a855f7', '#ec4899', '#8b5cf6', '#c084fc', '#e9d5ff']
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: { labels: { color: '#c084fc' } }
-        }
-      }
-    });
-  }
-
-  // Graphique niches
-  const ctx3 = document.getElementById('nichesChart');
-  if (ctx3 && !ctx3.chart) {
-    ctx3.chart = new Chart(ctx3, {
-      type: 'bar',
-      data: {
-        labels: ['Beauté', 'Tech', 'Fitness', 'E-commerce', 'Food'],
-        datasets: [{
-          label: 'Générations',
-          data: [245, 198, 167, 143, 128],
-          backgroundColor: 'rgba(168, 85, 247, 0.8)',
-          borderColor: '#a855f7',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: { labels: { color: '#c084fc' } }
-        },
-        scales: {
-          y: { 
-            ticks: { color: '#c084fc' },
-            grid: { color: 'rgba(138, 43, 226, 0.1)' }
-          },
-          x: { 
-            ticks: { color: '#c084fc' },
-            grid: { color: 'rgba(138, 43, 226, 0.1)' }
-          }
-        }
-      }
-    });
-  }
-
-  // Graphique types de contenu
-  const ctx4 = document.getElementById('contentTypesChart');
-  if (ctx4 && !ctx4.chart) {
-    ctx4.chart = new Chart(ctx4, {
-      type: 'pie',
-      data: {
-        labels: ['UGC', 'Hooks', 'Scripts', 'Agence'],
-        datasets: [{
-          data: [42, 28, 18, 12],
-          backgroundColor: ['#a855f7', '#ec4899', '#8b5cf6', '#c084fc']
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: { labels: { color: '#c084fc' } }
-        }
-      }
-    });
-  }
-}
-
-// OpenAI Integration
+/**
+ * Génération avec OpenAI et style vocabulary 3D
+ */
 async function generateWithOpenAI(niche, platform, prompt, count, lang, style, contentType) {
-  const openaiPrompt = `Tu es expert UGC. Crée du contenu ${contentType} unique pour: ${niche} sur ${platform}. Produit: ${prompt}`;
+  const openaiPrompt = `Tu es expert UGC. Crée du contenu ${contentType} unique pour: ${niche} sur ${platform}. Produit: ${prompt}. Style: ${style}. Format: HTML avec styling.`;
 
   try {
     const response = await fetch('/api/generate-ugc', {
@@ -560,33 +627,15 @@ async function generateWithOpenAI(niche, platform, prompt, count, lang, style, c
 
     if (!response.ok) throw new Error('API Error');
     const data = await response.json();
-    return `<h2>🤖 OpenAI Generated</h2><p>${data.content}</p>`;
+    return `<h2 style="color:#667eea;">🤖 OpenAI Generated (${style})</h2><div style="background:rgba(30,15,50,0.8);padding:20px;border-radius:10px;"><p>${data.content}</p></div>`;
   } catch (error) {
     return `<p style="color:red;">❌ Error: ${error.message}</p>`;
   }
 }
 
-// ============================================
-// OPENAI INTEGRATION
-// ============================================
-
-async function callOpenAIAPI(prompt) {
-  try {
-    const response = await fetch('/api/generate-ugc', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
-    });
-    
-    if (!response.ok) throw new Error('API call failed');
-    const data = await response.json();
-    return data.content;
-  } catch (error) {
-    console.error('OpenAI API Error:', error);
-    return null;
-  }
-}
-
+/**
+ * Génération UGC spécifique avec OpenAI
+ */
 async function generateUGCWithOpenAI(niche, platform, prompt, count, lang) {
   const t = translations[lang];
   const duration = platformDurations[platform] || '30s';
@@ -597,49 +646,8 @@ async function generateUGCWithOpenAI(niche, platform, prompt, count, lang) {
     const content = await callOpenAIAPI(openaiPrompt);
     if (!content) throw new Error('No content generated');
     
-    return `<h2 style="color:#667eea;">✨ ${count} ${t.scripts_ge
-async function callOpenAIAPI(prompt) {
-  try ,50,0.8);padding:20px;border-radius:10px;"><p>${content}</p></div>`;
+    return `<h2 style="color:#667eea;">✨ ${count} ${t.scripts_generated}</h2><div style="background:rgba(30,15,50,0.8);padding:20px;border-radius:10px;"><p>${content}</p></div>`;
   } catch (error) {
     return `<p style="color:red;">❌ Error: ${error.message}</p>`;
-  }
-}
-
-// ============================================
-// OPENAI INTEGRATION
-// ============================================
-
-async function callOpenAIAPI(prompt) {
-  try {
-    const response = await fetch('/api/generate-ugc', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
-    });
-    
-    if (!response.ok) throw new Error('API call failed');
-    const data = await response.json();
-    return data.content;
-  } catch (error) {
-    console.error('OpenAI API Error:', error);
-    return null;
-  }
-}
-
-async function generateUGCWithOpenAI(niche, platform, prompt, count, lang) {
-  const t = translations[lang];
-  const duration = platformDurations[platform] || '30s';
-  
-  const openaiPrompt = `Tu es expert UGC. Crée ${count} scripts vidéo pour ${niche} sur ${platform}. Produit: ${prompt}. Format JSON avec: hook, body, cta, tips.`;
-
-  try {
-    const content = await callOpenAIAPI(openaiPrompt);
-    if (!content) throw new Error('No content generated');
-    
-    return `<h2 style="color:#667eea;">✨ ${count} ${t.scripts_ge
-async function callOpenAIAPI(prompt) {
-  try ,50,0.8);padding:20px;border-radius:10px;"><p>${content}</p></div>`;
-  } catch (error) {
-alphacheckpoints.tsjobs    return `<p style="color:red;">❌ Error: ${error.message}</p>`;
   }
 }

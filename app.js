@@ -597,7 +597,7 @@ function initCharts() {
  */
 async function callOpenAIAPI(prompt) {
   try {
-    const response = await fetch('/api/generate-ugc', {
+    const response = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt })
@@ -619,7 +619,7 @@ async function generateWithOpenAI(niche, platform, prompt, count, lang, style, c
   const openaiPrompt = `Tu es expert UGC. Crée du contenu ${contentType} unique pour: ${niche} sur ${platform}. Produit: ${prompt}. Style: ${style}. Format: HTML avec styling.`;
 
   try {
-    const response = await fetch('/api/generate-ugc', {
+    const response = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: openaiPrompt })

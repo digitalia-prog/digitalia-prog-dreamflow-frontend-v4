@@ -1,259 +1,653 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>UGCGrowth — SaaS UGC & Scripts IA</title>
-<style>
-:root{--bg:#070013;--panel:rgba(255,255,255,.06);--border:rgba(255,255,255,.12);--txt:#fff;--muted:rgba(255,255,255,.70);--grad:linear-gradient(135deg,#7c3aed,#3b82f6)}
-*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
-body{background:radial-gradient(1200px 600px at 20% 0%,rgba(124,58,237,.35),transparent 55%),radial-gradient(1200px 600px at 80% 10%,rgba(59,130,246,.28),transparent 55%),var(--bg);color:var(--txt);min-height:100vh}
-header{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:rgba(7,0,19,.55);border-bottom:1px solid rgba(255,255,255,.08)}
-.nav{max-width:1150px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;gap:10px;align-items:center;font-weight:800;letter-spacing:.4px}
-.dot{width:10px;height:10px;border-radius:99px;background:linear-gradient(135deg,#7c3aed,#3b82f6)}
-.nav a{color:var(--muted);text-decoration:none;margin-left:16px;font-weight:600}
-.nav a:hover{color:#fff}
-.wrap{max-width:1150px;margin:0 auto;padding:26px 16px 70px}
-.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:stretch;margin-top:18px;margin-bottom:24px}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:0 14px 45px rgba(0,0,0,.35)}
-.hero h1{font-size:44px;line-height:1.06;margin-bottom:10px}
-.hero p{color:var(--muted);font-size:15.5px;line-height:1.5}
-.ctaRow{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
-.btn{border:0;border-radius:12px;padding:12px 14px;font-weight:800;cursor:pointer}
-.btnPrimary{background:var(--grad);color:white}
-.btnGhost{background:transparent;border:1px solid rgba(255,255,255,.18);color:white}
-.btnPrimary:hover{filter:brightness(1.1)}
-.btnGhost:hover{background:rgba(255,255,255,.06)}
-#threeBox{position:relative;overflow:hidden;padding:0}
-#threeCanvas{display:block;width:100%;height:100%;min-height:340px}
-.badge{display:inline-flex;gap:8px;align-items:center;color:rgba(255,255,255,.85);font-weight:700;background:rgba(124,58,237,.18);border:1px solid rgba(124,58,237,.35);padding:7px 10px;border-radius:999px;margin-bottom:12px}
-section{margin-top:24px}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.price{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px}
-.price.featured{border:2px solid #7c3aed;background:rgba(124,58,237,.08)}
-.price h3{font-size:18px}
-.price .p{color:var(--muted);margin-top:6px;font-size:14px}
-.price .eur{font-size:34px;font-weight:900;margin-top:10px}
-.list{margin-top:12px;display:grid;gap:8px;color:rgba(255,255,255,.85);font-size:14px}
-.li{display:flex;gap:10px;align-items:flex-start}
-.li span{color:#22c55e;font-weight:900}
-input,select{background:rgba(0,0,0,.35);color:#fff;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:12px;outline:none;width:100%}
-input:focus,select:focus{border-color:rgba(124,58,237,.7)}
-.muted{color:var(--muted);font-size:13px;margin-top:8px}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-#out{margin-top:12px;white-space:pre-wrap;line-height:1.45;min-height:230px;background:rgba(0,0,0,.22);padding:18px;border-radius:12px;color:#fff;font-size:13px;max-height:600px;overflow-y:auto}
-.modeSelector{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
-.modeBtn{padding:16px;border-radius:12px;border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.03);cursor:pointer;text-align:center;transition:all .3s}
-.modeBtn:hover{border-color:rgba(124,58,237,.5);background:rgba(124,58,237,.1)}
-.modeBtn.active{border-color:#7c3aed;background:rgba(124,58,237,.15)}
-.modeBtn .icon{font-size:32px;margin-bottom:8px}
-.modeBtn .title{font-weight:800;font-size:16px;margin-bottom:4px}
-.modeBtn .desc{font-size:12px;color:var(--muted)}
-.platformBtn{background:rgba(124,58,237,.2);color:#fff;border:1px solid rgba(124,58,237,.5);border-radius:8px;padding:10px 16px;cursor:pointer;font-weight:600;transition:all .3s;font-size:13px}
-.platformBtn:hover{border-color:rgba(124,58,237,.7);background:rgba(124,58,237,.1)}
-.platformBtn.active{background:#7c3aed;border-color:#7c3aed;color:white}
-.summaryToggle{display:flex;gap:10px;align-items:center;margin-top:12px;padding:10px;background:rgba(124,58,237,.1);border-radius:8px;font-size:12px}
-.summaryToggle input{width:auto;margin:0}
-@media (max-width:900px){.hero{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}.two{grid-template-columns:1fr}.hero h1{font-size:36px}}
-</style>
-</head>
-<body>
-<header>
-<div class="nav">
-<div class="brand"><span class="dot"></span> UGCGrowth</div>
-<div>
-<select id="lang" style="background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.3);border-radius:8px;padding:4px 8px;font-size:13px;color:#fff;cursor:pointer;margin-right:12px">
-<option value="fr">🇫🇷 FR</option>
-<option value="en">🇬🇧 EN</option>
-<option value="es">🇪🇸 ES</option>
-</select>
-<a href="#pricing" data-tr="navPricing">Pricing</a>
-<a href="#gen" data-tr="navGen">Générateur</a>
-</div>
-</div>
-</header>
-<div class="wrap">
-<div class="hero">
-<div class="card">
-<div class="badge" data-tr="badge">⚡ SaaS UGC + Scripts IA</div>
-<h1 data-tr="hero">Générateur de scripts viraux<br/>en moins de 15 secondes.</h1>
-<p data-tr="heroDesc">UGCGrowth te donne des scripts UGC/Ads prêts à tourner, adaptés à ta niche. Commence maintenant avec le générateur gratuit.</p>
-<div class="ctaRow">
-<button class="btn btnPrimary" onclick="document.querySelector('#gen').scrollIntoView({behavior:'smooth'})" data-tr="btnStart">🚀 Tester maintenant</button>
-<button class="btn btnGhost" onclick="document.querySelector('#pricing').scrollIntoView({behavior:'smooth'})" data-tr="btnPrice">Voir les prix</button>
-</div>
-<div class="muted" data-tr="bullets">✅ Scripts personnalisés • ✅ Anti-revente • ✅ Sécurisé</div>
-</div>
-<div class="card" id="threeBox"><canvas id="threeCanvas"></canvas></div>
-</div>
-<section id="pricing" class="card">
-<h2 data-tr="pricingTitle">💎 Pricing</h2>
-<p class="muted" data-tr="pricingDesc">Plans flexibles selon tes besoins. Change ou annule à tout moment.</p>
-<div class="grid3" style="margin-top:14px">
-<div class="price">
-<h3 data-tr="starter">Starter</h3>
-<div class="p" data-tr="starterDesc">Pour tester</div>
-<div class="eur">0€</div>
-<div class="list">
-<div class="li"><span>✓</span> <span>10 créations IA / mois</span></div>
-<div class="li"><span>✓</span> <span data-tr="f2">Mode Fun uniquement</span></div>
-<div class="li"><span>✓</span> <span data-tr="f3">Watermark visible</span></div>
-</div>
-<button class="btn btnGhost" style="width:100%;margin-top:14px" onclick="document.querySelector('#gen').scrollIntoView({behavior:'smooth'})" data-tr="btnCom">Commencer</button>
-</div>
-<div class="price featured">
-<div style="color:#a855f7;font-size:11px;font-weight:800;margin-bottom:8px" data-tr="popular">⭐ POPULAIRE</div>
-<h3 data-tr="pro">Pro</h3>
-<div class="p" data-tr="proDesc">Pour créateurs & vendeurs</div>
-<div class="eur">69€ <span style="font-size:16px;font-weight:400;color:var(--muted)" data-tr="perMonth">/mois</span></div>
-<div class="list">
-<div class="li"><span>✓</span> <span>300 créations IA / mois</span></div>
-<div class="li"><span>✓</span> <span data-tr="fp2">Mode Fun + Business</span></div>
-<div class="li"><span>✓</span> <span data-tr="fp3">Watermark discret</span></div>
-<div class="li"><span>✓</span> <span data-tr="fp4">Upload PDF</span></div>
-</div>
-<button class="btn btnPrimary" style="width:100%;margin-top:14px" data-tr="btnPro">Passer Pro - 69€/mois</button>
-</div>
-<div class="price">
-<h3 data-tr="agency">Agency</h3>
-<div class="p" data-tr="agencyDesc">Pour agences UGC</div>
-<div class="eur">349€ <span style="font-size:16px;font-weight:400;color:var(--muted)" data-tr="perMonth">/mois</span></div>
-<div class="list">
-<div class="li"><span>✓</span> <span>Créations illimitées</span></div>
-<div class="li"><span>✓</span> <span data-tr="fa2">Sans watermark</span></div>
-<div class="li"><span>✓</span> <span data-tr="fa3">API complète</span></div>
-<div class="li"><span>✓</span> <span data-tr="fa4">Multi-clients</span></div>
-</div>
-<button class="btn btnGhost" style="width:100%;margin-top:14px" onclick="window.location.href='mailto:dreamfloww@outlook.fr'" data-tr="btnAg">Contact Agency</button>
-</div>
-</div>
-</section>
-<section id="gen" class="card">
-<h2 data-tr="genTitle">✨ Générateur de Scripts IA</h2>
-<div class="modeSelector">
-<div class="modeBtn active" id="modeFunBtn" onclick="selectMode('fun')">
-<div class="icon">🟢</div>
-<div class="title" data-tr="modeFun">Mode Fun</div>
-<div class="desc" data-tr="modeFunDesc">Vidéos perso (chien, vlog...)</div>
-</div>
-<div class="modeBtn" id="modeBizBtn" onclick="selectMode('biz')">
-<div class="icon">🟣</div>
-<div class="title" data-tr="modeBiz">Mode Business</div>
-<div class="desc" data-tr="modeBizDesc">Scripts vente (marque...)</div>
-</div>
-</div>
-<div class="two">
-<div>
-<div id="formFun">
-<div class="muted">📝 Type de contenu</div>
-<select id="contentType">
-<option value="script">🎬 Script UGC complet</option>
-<option value="hook">🔥 Hook viral (5 versions)</option>
-<option value="prompt">✨ Prompt Hook optimisé</option>
-<option value="hack">🚀 Growth Hack</option>
-</select>
-<div class="muted" style="margin-top:10px">📱 Plateforme</div>
-<select id="funPlatform">
-<option value="tiktok">TikTok</option>
-<option value="instagram-reels">Instagram Reels</option>
-<option value="youtube-shorts">YouTube Shorts</option>
-<option value="facebook-reels">Facebook Reels</option>
-<option value="instagram-stories">Instagram Stories</option>
-<option value="facebook-stories">Facebook Stories</option>
-</select>
-<div class="muted" style="margin-top:10px" data-tr="funSub">🎬 Sujet de ta vidéo</div>
-<input id="funSubject" placeholder="Ex: mon chien..."/>
-<div class="muted" style="margin-top:10px" data-tr="funType">🎨 Style du script</div>
-<select id="funStyle">
-<option value="funny">😂 Drôle</option>
-<option value="storytime">🎥 Storytime</option>
-<option value="pov">😭 POV / Quand...</option>
-<option value="motivation">🔥 Motivation</option>
-<option value="chill">✨ Chill / Vlog</option>
-</select>
-</div>
-<div id="formBiz" style="display:none">
-<div class="muted">📝 Type de contenu</div>
-<select id="contentTypeBiz">
-<option value="script">🎬 Script UGC complet</option>
-<option value="hook">🔥 Hook viral (5 versions)</option>
-<option value="prompt">✨ Prompt Hook optimisé</option>
-<option value="hack">🚀 Growth Hack</option>
-</select>
-<div class="muted" style="margin-top:10px">📱 Plateforme</div>
-<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
-<button type="button" class="platformBtn" data-platform="tiktok" onclick="selectPlatform('tiktok')">TikTok</button>
-<button type="button" class="platformBtn" data-platform="instagram-reels" onclick="selectPlatform('instagram-reels')">Instagram Reels</button>
-<button type="button" class="platformBtn" data-platform="youtube-shorts" onclick="selectPlatform('youtube-shorts')">YouTube Shorts</button>
-<button type="button" class="platformBtn" data-platform="facebook-reels" onclick="selectPlatform('facebook-reels')">Facebook Reels</button>
-<button type="button" class="platformBtn" data-platform="instagram-stories" onclick="selectPlatform('instagram-stories')">Instagram Stories</button>
-<button type="button" class="platformBtn" data-platform="facebook-stories" onclick="selectPlatform('facebook-stories')">Facebook Stories</button>
-</div>
-<input type="hidden" id="bizPlatformHidden" value="tiktok"/>
-<div class="muted" style="margin-top:10px" data-tr="bizBrand">🏢 Nom de ta marque *</div>
-<input id="bizBrand" placeholder="Ex: HydroSmart..."/>
-<input id="bizProduct" placeholder="Ex: Gourde..." style="margin-top:10px"/>
-<div class="muted" style="margin-top:10px">💼 Style du script</div>
-<select id="bizStyle">
-<option value="emotional">😭 Émotionnel</option>
-<option value="aggressive">⚡ Agressif / Direct</option>
-<option value="luxury">💎 Luxury / Premium</option>
-<option value="comparison">🆚 Comparaison</option>
-<option value="social-proof">✅ Preuve sociale</option>
-<option value="before-after">📈 Avant / Après</option>
-</select>
-</div>
-<div class="ctaRow" style="margin-top:12px">
-<button class="btn btnPrimary" onclick="generate()" data-tr="btnGen">🚀 Générer</button>
-<button class="btn btnGhost" onclick="copyScript()" data-tr="btnCopy">📋 Copier</button>
-<button class="btn btnGhost" onclick="exportPDF()">📄 Exporter PDF</button>
-</div>
-<div class="summaryToggle">
-<input type="checkbox" id="showSummary" checked/>
-<label for="showSummary">Afficher le résumé exécutif (à retirer avant envoi client)</label>
-</div>
-</div>
-<div>
-<div class="muted" data-tr="result">Résultat</div>
-<div id="out" data-tr="outPlace">Ton script apparaîtra ici...</div>
-</div>
-</div>
-</section>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script>
-const tr={fr:{navPricing:'Pricing',navGen:'Générateur',badge:'⚡ SaaS UGC + Scripts IA',hero:'Générateur de scripts viraux<br/>en 30 secondes.',heroDesc:'UGCGrowth te donne des scripts UGC/Ads prêts à tourner, adaptés à ta niche. Commence maintenant avec le générateur gratuit.',btnStart:'🚀 Tester maintenant',btnPrice:'Voir les prix',bullets:'✅ Scripts personnalisés • ✅ Anti-revente • ✅ Sécurisé',pricingTitle:'💎 Pricing',pricingDesc:'Plans flexibles selon tes besoins. Change ou annule à tout moment.',starter:'Starter',starterDesc:'Pour tester',f2:'Mode Fun uniquement',f3:'Watermark visible',btnCom:'Commencer',popular:'⭐ POPULAIRE',pro:'Pro',proDesc:'Pour créateurs & vendeurs',perMonth:'/mois',fp2:'Mode Fun + Business',fp3:'Watermark discret',fp4:'Upload PDF',btnPro:'Passer Pro - 69€/mois',agency:'Agency',agencyDesc:'Pour agences UGC',fa2:'Sans watermark',fa3:'API complète',fa4:'Multi-clients',btnAg:'Contact Agency',genTitle:'✨ Générateur de Scripts IA',modeFun:'Mode Fun',modeFunDesc:'Vidéos perso (chien, vlog...)',modeBiz:'Mode Business',modeBizDesc:'Scripts vente (marque...)',funSub:'🎬 Sujet de ta vidéo',funType:'🎨 Style du script',bizBrand:'🏢 Nom de ta marque *',btnGen:'🚀 Générer',btnCopy:'📋 Copier',result:'Résultat',outPlace:'Ton script apparaîtra ici...'},en:{navPricing:'Pricing',navGen:'Generator',badge:'⚡ UGC SaaS + AI Scripts',hero:'Viral script generator<br/>in 30 seconds.',heroDesc:'UGCGrowth gives you ready-to-shoot UGC/Ads scripts, tailored to your niche. Start now with the free generator.',btnStart:'🚀 Start now',btnPrice:'See pricing',bullets:'✅ Personalized scripts • ✅ Anti-resale • ✅ Secure',pricingTitle:'💎 Pricing',pricingDesc:'Flexible plans for your needs. Change or cancel anytime.',starter:'Starter',starterDesc:'To test',f2:'Fun Mode only',f3:'Visible watermark',btnCom:'Start',popular:'⭐ POPULAR',pro:'Pro',proDesc:'For creators & sellers',perMonth:'/month',fp2:'Fun + Business Mode',fp3:'Discrete watermark',fp4:'PDF upload',btnPro:'Upgrade Pro - €69/month',agency:'Agency',agencyDesc:'For UGC agencies',fa2:'No watermark',fa3:'Complete API',fa4:'Multi-clients',btnAg:'Contact Agency',genTitle:'✨ AI Script Generator',modeFun:'Fun Mode',modeFunDesc:'Personal videos (dog, vlog...)',modeBiz:'Business Mode',modeBizDesc:'Sales scripts (brand...)',funSub:'🎬 Video subject',funType:'🎨 Script style',bizBrand:'🏢 Brand name *',btnGen:'🚀 Generate',btnCopy:'📋 Copy',result:'Result',outPlace:'Your script will appear here...'},es:{navPricing:'Precios',navGen:'Generador',badge:'⚡ SaaS UGC + Scripts IA',hero:'Generador de scripts virales<br/>en 30 segundos.',heroDesc:'UGCGrowth te da scripts UGC/Ads listos para grabar, adaptados a tu nicho. Empieza ahora con el generador gratuito.',btnStart:'🚀 Probar ahora',btnPrice:'Ver precios',bullets:'✅ Scripts personalizados • ✅ Anti-reventa • ✅ Seguro',pricingTitle:'💎 Precios',pricingDesc:'Planes flexibles según tus necesidades. Cambia o cancela cuando quieras.',starter:'Starter',starterDesc:'Para probar',f2:'Solo Modo Fun',f3:'Marca visible',btnCom:'Comenzar',popular:'⭐ POPULAR',pro:'Pro',proDesc:'Para creadores y vendedores',perMonth:'/mes',fp2:'Modo Fun + Business',fp3:'Marca discreta',fp4:'Subir PDF',btnPro:'Mejorar Pro - 69€/mes',agency:'Agency',agencyDesc:'Para agencias UGC',fa2:'Sin marca',fa3:'API completa',fa4:'Multi-clientes',btnAg:'Contactar Agency',genTitle:'✨ Generador de Scripts IA',modeFun:'Modo Fun',modeFunDesc:'Videos personales (perro, vlog...)',modeBiz:'Modo Business',modeBizDesc:'Scripts ventas (marca...)',funSub:'🎬 Tema del video',funType:'🎨 Estilo del script',bizBrand:'🏢 Nombre de marca *',btnGen:'🚀 Generar',btnCopy:'📋 Copiar',result:'Resultado',outPlace:'Tu script aparecerá aquí...'}};
-let mode='fun',script='',showSummary=true;
-document.getElementById('lang').onchange=e=>{const l=e.target.value;document.querySelectorAll('[data-tr]').forEach(el=>{const k=el.getAttribute('data-tr');if(tr[l][k])el.innerHTML=tr[l][k]})};
-function selectMode(m){mode=m;document.getElementById('modeFunBtn').classList.toggle('active',m==='fun');document.getElementById('modeBizBtn').classList.toggle('active',m==='biz');document.getElementById('formFun').style.display=m==='fun'?'block':'none';document.getElementById('formBiz').style.display=m==='biz'?'block':'none'}
-function selectPlatform(p){document.getElementById('bizPlatformHidden').value=p;document.querySelectorAll('.platformBtn').forEach(btn=>{btn.classList.toggle('active',btn.dataset.platform===p)});}
-async function generate(){
-const out=document.getElementById('out');
-out.textContent='⏳ Génération en cours...';
-const contentType=mode==='fun'?document.getElementById('contentType').value:document.getElementById('contentTypeBiz').value;
-const platform=mode==='fun'?document.getElementById('funPlatform').value:document.getElementById('bizPlatformHidden').value;
-let type,niche,subject;
-if(mode==='fun'){niche=document.getElementById('funSubject').value||'mon sujet';subject=niche;type=contentType;}else{niche=document.getElementById('bizBrand').value||'ma marque';subject=document.getElementById('bizProduct').value||'mon produit';type=contentType;}
-showSummary=document.getElementById('showSummary').checked;
-try{const response=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type,niche,platform,subject,mode,style:mode==='fun'?document.getElementById('funStyle').value:document.getElementById('bizStyle').value})});if(!response.ok)throw new Error('Erreur API');const data=await response.json();script=data.content;let output='';if(mode==='fun'){output=`🎯 Objectif : créer une vidéo viral prête à être postée\n\n`;}else{output=`🎯 Objectif : créer une stratégie vidéo UGC prête à être utilisée ou envoyée à un client\n\n`;}
-output+=script;if(showSummary){output+=`\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📋 RÉSUMÉ EXÉCUTIF (à adapter ou retirer avant envoi)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;if(mode==='fun'){output+=`🎥 Format : Face caméra (smartphone)\n📱 Plateforme : ${platform}\n⏱️ Durée totale : 15-30 secondes\n📈 Résultat attendu : Maximum d'engagement et partages\n`;}else{output+=`🎥 Format : Face caméra (smartphone)\n📱 Plateforme : ${platform}\n⏱️ Durée totale : 20-40 secondes\n📈 Résultat attendu : Clics vers produit / Augmentation CTR\n`;}
-output+=`\n💡 Comment l'utiliser :\n• Adaptez le texte à votre voix / ton\n• Coupez les parties non pertinentes\n• Renvoyez à votre client/équipe\n• Le résumé peut être retiré avant envoi\n`;}
-out.textContent=output;}catch(error){out.textContent='❌ Erreur: '+error.message;}}
-function copyScript(){if(!script)return alert('Génère d\'abord!');navigator.clipboard.writeText(script);alert('✅ Copié!')}
-const c=document.getElementById('threeCanvas');if(c&&THREE){const s=new THREE.Scene(),r=new THREE.WebGLRenderer({canvas:c,antialias:1,alpha:1});r.setClearColor(0,0);const cam=new THREE.PerspectiveCamera(55,1,.1,100);cam.position.set(0,.2,3.2);const l=new THREE.DirectionalLight(0xffffff,1.4);l.position.set(2,2,2);s.add(l);s.add(new THREE.AmbientLight(0xffffff,.55));const geo=new THREE.TorusKnotGeometry(.7,.22,160,18);const mat=new THREE.MeshStandardMaterial({metalness:.85,roughness:.18,color:new THREE.Color(0x7c3aed)});const m=new THREE.Mesh(geo,mat);s.add(m);function re(){const w=c.clientWidth;const h=c.clientHeight;r.setSize(w,h,0);cam.aspect=w/h;cam.updateProjectionMatrix()}window.addEventListener("resize",re);re();let t=0;function an(){t+=.01;m.rotation.x+=.008;m.rotation.y+=.012;m.position.y=Math.sin(t)*.08;r.render(s,cam);requestAnimationFrame(an)}an()}
-function exportPDF(){if(!script)return alert('Génère d\'abord un script!');const {jsPDF}=window.jspdf;const doc=new jsPDF();doc.setFont('Helvetica');doc.setFontSize(16);doc.text('Script UGCGrowth',20,20);doc.setFontSize(11);const lines=doc.splitTextToSize(script,170);doc.text(lines,20,35);doc.save('script_ugcgrowth.pdf')}
-selectPlatform('tiktok');
-</script>
-<footer style="background:rgba(0,0,0,.3);border-top:1px solid rgba(255,255,255,.1);padding:24px 16px;margin-top:40px;text-align:center">
-<div class="wrap" style="max-width:1150px;margin:0 auto">
-<div style="font-size:12px;color:rgba(255,255,255,.6);line-height:1.6">
-<p>© 2025 UGCGrowth. Tous droits réservés.</p>
-</div>
-</div>
-</footer>
-</body>
-</html>
-/* v2 */
+/**
+ * ============================================
+ * DREAMFLOW - GÉNÉRATEUR DE SCRIPTS UGC IA
+ * ============================================
+ * 
+ * RÉSUMÉ EXÉCUTIF:
+ * Application SaaS de génération de scripts vidéo UGC (User Generated Content)
+ * pour TikTok, Instagram, YouTube et autres plateformes sociales.
+ * Utilise OpenAI pour générer du contenu optimisé avec vocabulaire 3D,
+ * hooks viraux et stratégies de conversion testées.
+ * 
+ * INTENTION CLAIRE:
+ * - Générer des scripts vidéo UGC en 30 secondes
+ * - Adapter le contenu au style et à la plateforme
+ * - Offrir 10+ styles différents (emotional, aggressive, luxury, etc.)
+ * - Supporter 3 langues (FR, EN, ES)
+ * - Intégrer OpenAI pour génération IA avancée
+ * - Afficher des dashboards avec statistiques
+ * 
+ * VOCABULAIRE 3D (10 STYLES):
+ * 1. EMOTIONAL - Hooks émotionnels et personnels
+ * 2. AGGRESSIVE - Hooks directs et impactants
+ * 3. LUXURY - Hooks exclusivité et prestige
+ * 4. COMPARISON - Avant/Après et transformation
+ * 5. SOCIAL-PROOF - Preuve sociale et expert
+ * 6. BEFORE-AFTER - Transformation visuelle
+ * 7. FUNNY - Humour et relatable
+ * 8. STORYTIME - Narratif et histoire
+ * 9. POV - Point of view et perspective
+ * 10. MOTIVATION - Inspiration et action
+ * 11. CHILL - Relaxe et lifestyle
+ * 
+ * ============================================
+ */
 
+// ============================================
+// TRADUCTIONS (FR, EN, ES)
+// ============================================
+const translations = {
+  fr: {
+    generating: '⏳ Génération en cours...',
+    error_prompt: '⚠️ Veuillez entrer une description',
+    error_count: '⚠️ Le nombre doit être entre 1 et 1000',
+    scripts_generated: 'Scripts Générés',
+    duration: 'Durée',
+    hook: 'Hook',
+    body: 'Corps',
+    cta: 'Call-to-Action',
+    tips: 'Conseils Pro',
+    platform: 'Plateforme',
+    niche: 'Niche',
+    note: 'Note',
+    connect_api: 'Connecte l\'API UGCGrowth pour la génération complète !'
+  },
+  en: {
+    generating: '⏳ Generating...',
+    error_prompt: '⚠️ Please enter a description',
+    error_count: '⚠️ Count must be between 1 and 1000',
+    scripts_generated: 'Generated Scripts',
+    duration: 'Duration',
+    hook: 'Hook',
+    body: 'Body',
+    cta: 'Call-to-Action',
+    tips: 'Pro Tips',
+    platform: 'Platform',
+    niche: 'Niche',
+    note: 'Note',
+    connect_api: 'Connect UGCGrowth API for full generation!'
+  },
+  es: {
+    generating: '⏳ Generando...',
+    error_prompt: '⚠️ Por favor ingrese una descripción',
+    error_count: '⚠️ El número debe estar entre 1 y 1000',
+    scripts_generated: 'Scripts Generados',
+    duration: 'Duración',
+    hook: 'Gancho',
+    body: 'Cuerpo',
+    cta: 'Llamada a la Acción',
+    tips: 'Consejos Pro',
+    platform: 'Plataforma',
+    niche: 'Nicho',
+    note: 'Nota',
+    connect_api: '¡Conecta la API de UGCGrowth!'
+  }
+};
+
+// ============================================
+// TEMPLATES PRÉDÉFINIS
+// ============================================
+const templates = {
+  'ugc-beaute': { contentType: 'ugc', niche: 'beaute', platform: 'instagram-reels', scriptCount: 3, prompt: 'Sérum anti-âge vitamine C' },
+  'ugc-tech': { contentType: 'ugc', niche: 'tech', platform: 'tiktok', scriptCount: 5, prompt: 'Écouteurs sans fil à réduction de bruit' },
+  'hook-viral': { contentType: 'hook', niche: 'ecommerce', platform: 'tiktok', scriptCount: 10, prompt: 'Produit innovant' },
+  'script-pub': { contentType: 'script', niche: 'ecommerce', platform: 'facebook-reels', scriptCount: 3, prompt: 'Campagne pub e-commerce' },
+  'agence': { contentType: 'agence', niche: 'agence-marketing', platform: 'tiktok', scriptCount: 50, prompt: 'Agence marketing digital UGC' }
+};
+
+// ============================================
+// DURÉES PAR PLATEFORME
+// ============================================
+const platformDurations = {
+  'tiktok': '15-60s', 'instagram-reels': '15-90s', 'instagram-stories': '15s',
+  'facebook-reels': '15-60s', 'facebook-stories': '15s', 'youtube-shorts': '15-60s',
+  'snapchat': '10s', 'linkedin': '30-90s', 'twitter': '30-45s', 'pinterest': '15-30s'
+};
+
+// ============================================
+// FONCTION: CHARGER TEMPLATE
+// ============================================
+/**
+ * Charge un template prédéfini dans les champs du formulaire
+ * @param {string} templateName - Nom du template à charger
+ */
+function loadTemplate(templateName) {
+  const t = templates[templateName];
+  if (!t) return;
+  document.getElementById('contentType').value = t.contentType;
+  document.getElementById('niche').value = t.niche;
+  document.getElementById('platform').value = t.platform;
+  document.getElementById('scriptCount').value = t.scriptCount;
+  document.getElementById('prompt').value = t.prompt;
+}
+
+// ============================================
+// FONCTION: GÉNÉRER (PRINCIPALE)
+// ============================================
+/**
+ * Fonction principale de génération de contenu
+ * Valide les inputs et appelle les générateurs appropriés
+ */
+async function generate() {
+  const language = document.getElementById('language').value;
+  const contentType = document.getElementById('contentType').value;
+  const niche = document.getElementById('niche').value;
+  const platform = document.getElementById('platform').value;
+  const scriptCount = parseInt(document.getElementById('scriptCount').value);
+  const prompt = document.getElementById('prompt').value;
+  const result = document.getElementById('result');
+  const t = translations[language];
+  
+  // Validation du prompt
+  if (!prompt) {
+    result.innerHTML = '<p style="color:#ff6b6b;">' + t.error_prompt + '</p>';
+    result.classList.add('show');
+    return;
+  }
+  
+  // Validation du nombre de scripts
+  if (scriptCount < 1 || scriptCount > 1000) {
+    result.innerHTML = '<p style="color:#ff6b6b;">' + t.error_count + '</p>';
+    result.classList.add('show');
+    return;
+  }
+  
+  // Sélection du style basé sur le type de contenu
+  const funStyle = document.getElementById('funStyle')?.value || 'funny';
+  const bizStyle = document.getElementById('bizStyle')?.value || 'emotional';
+  const style = contentType === 'fun' ? funStyle : bizStyle;
+  
+  // Afficher le message de génération
+  result.innerHTML = '<p style="color:#667eea;">' + t.generating + '</p>';
+  result.classList.add('show');
+  
+  // Générer le contenu après 1.5 secondes
+  setTimeout(async () => {
+    let content = '';
+    if (contentType === "ugc") {
+      content = await generateWithOpenAI(niche, platform, prompt, scriptCount, language, style, "ugc");
+    } else if (contentType === "hook") {
+      content = await generateWithOpenAI(niche, platform, prompt, scriptCount, language, style, "hook");
+    } else if (contentType === "script") {
+      content = await generateWithOpenAI(niche, platform, prompt, scriptCount, language, style, "script");
+    } else if (contentType === 'agence') {
+      content = generateAgencyScripts(niche, platform, prompt, scriptCount, language, style);
+    }
+    result.innerHTML = content;
+  }, 1500);
+}
+
+// ============================================
+// GÉNÉRATEUR: UGC
+// ============================================
+/**
+ * Génère des scripts UGC avec hook, body et CTA
+ * @param {string} niche - Niche du produit
+ * @param {string} platform - Plateforme cible
+ * @param {string} prompt - Description du produit
+ * @param {number} count - Nombre de scripts
+ * @param {string} lang - Langue (fr, en, es)
+ * @param {string} style - Style de hook (vocabulary 3D)
+ */
+function generateUGC(niche, platform, prompt, count, lang, style) {
+  const t = translations[lang];
+  const duration = platformDurations[platform] || '30s';
+  
+  const hooks = {
+    fr: ["Personne ne m'avait dit que ça ferait ÇA !", "POV: Tu découvres LE produit qui change tout", "J'ai testé 30 jours et..."],
+    en: ["Nobody told me this would do THAT!", "POV: You discover THE game-changing product", "I tested for 30 days and..."],
+    es: ["¡Nadie me dijo que haría ESO!", "POV: Descubres EL producto que lo cambia todo", "Lo probé 30 días y..."]
+  };
+  
+  return `
+<h2 style="color:#667eea;margin-bottom:20px;">✨ ${count} ${t.scripts_generated} UGC</h2>
+
+<div style="background:rgba(30,15,50,0.8);padding:20px;border-radius:10px;margin-bottom:20px;">
+  <p><strong>${t.platform}:</strong> ${platform}</p>
+  <p><strong>${t.duration}:</strong> ${duration}</p>
+  <p><strong>${t.niche}:</strong> ${niche}</p>
+  <p><strong>Style:</strong> ${style}</p>
+</div>
+
+<div style="background:rgba(20,10,40,0.8);padding:20px;border-radius:10px;margin-bottom:20px;">
+  <h3>🎬 Script UGC #1</h3>
+  <p><strong>🎯 ${t.hook} (0-3s):</strong><br>"${hooks[lang][0]}"</p>
+  <p><strong>💬 ${t.body} (3-20s):</strong><br>
+  ${lang==='fr'?'- Montrer le produit en action':'- Show product in action'}<br>
+  ${lang==='fr'?'- Partager ton expérience':'- Share your experience'}<br>
+  ${lang==='fr'?'- Être authentique':'- Be authentic'}</p>
+  <p><strong>🚀 ${t.cta}:</strong><br>"${lang==='fr'?'Lien en bio pour -20% !':lang==='en'?'Link in bio for -20%!':'¡Enlace en bio para -20%!'}"</p>
+</div>
+
+<div style="background:rgba(168,85,247,0.1);padding:20px;border-radius:10px;margin-bottom:20px;">
+  <h3>🎬 Script UGC #2</h3>
+  <p><strong>🎯 ${t.hook}:</strong><br>"${hooks[lang][1]}"</p>
+  <p><strong>💬 ${t.body}:</strong><br>
+  ${lang==='fr'?'- Avant/Après visuel':'- Before/After visual'}<br>
+  ${lang==='fr'?'- Témoignage sincère':'- Honest testimonial'}</p>
+</div>
+
+${count > 2 ? `
+<div style="background:rgba(168,85,247,0.12);padding:20px;border-radius:10px;margin-bottom:20px;">
+  <h3>🎬 Script UGC #3</h3>
+  <p><strong>🎯 ${t.hook}:</strong><br>"${hooks[lang][2]}"</p>
+  <p><strong>💬 ${t.body}:</strong><br>
+  ${lang==='fr'?'- Story-telling personnel':'- Personal storytelling'}</p>
+</div>
+` : ''}
+
+<div style="background:rgba(40,20,60,0.8);padding:20px;border-radius:10px;">
+  <h3>💡 ${t.tips}</h3>
+  <ul style="line-height:2;">
+    <li>✅ ${lang==='fr'?'Sois naturel':'Be natural'}</li>
+    <li>✅ ${lang==='fr'?'Éclairage naturel':'Natural lighting'}</li>
+    <li>✅ ${lang==='fr'?'Ajoute des sous-titres':'Add subtitles'}</li>
+  </ul>
+</div>
+
+<p style="margin-top:20px;padding:15px;background:rgba(20,10,40,0.8);border-radius:10px;">
+  <strong>${t.note}:</strong> ${t.connect_api}
+</p>
+`;
+}
+
+// ============================================
+// GÉNÉRATEUR: HOOKS AVEC VOCABULAIRE 3D
+// ============================================
+/**
+ * Génère des hooks viraux avec 11 styles différents (Vocabulaire 3D)
+ * Styles: emotional, aggressive, luxury, comparison, social-proof, 
+ *         before-after, funny, storytime, pov, motivation, chill
+ * @param {string} niche - Niche du produit
+ * @param {string} platform - Plateforme cible
+ * @param {string} prompt - Description du produit
+ * @param {number} count - Nombre de hooks
+ * @param {string} lang - Langue (fr, en, es)
+ * @param {string} style - Style de hook (vocabulary 3D)
+ */
+function generateHooks(niche, platform, prompt, count, lang, style = 'emotional') {
+  // BASE DE DONNÉES DES STYLES - VOCABULAIRE 3D
+  const styleHooksDB = {
+    // STYLE 1: EMOTIONAL - Hooks émotionnels et personnels
+    emotional: {
+      fr: ["J'avais honte de ça...", "Personne ne comprend ce que je vis", "J'ai pleuré pendant 3 jours", "Je pensais que j'étais seul(e)", "Mon plus grand regret"],
+      en: ["I was ashamed of this...", "Nobody understands what I'm going through", "I cried for 3 days", "I thought I was alone", "My biggest regret"],
+      es: ["Me avergonzaba de esto...", "Nadie entiende lo que vivo", "Lloré durante 3 días", "Pensé que estaba solo/a", "Mi mayor arrepentimiento"]
+    },
+    // STYLE 2: AGGRESSIVE - Hooks directs et impactants
+    aggressive: {
+      fr: ["ARRÊTE de faire ça !", "Tu te trompes complètement", "C'est une GROSSE erreur", "Personne ne te dit la vérité", "STOP maintenant"],
+      en: ["STOP doing this!", "You're completely wrong", "This is a BIG mistake", "Nobody tells you the truth", "STOP now"],
+      es: ["¡PARA de hacer eso!", "Estás completamente equivocado", "Es un GRAN error", "Nadie te dice la verdad", "PARA ahora"]
+    },
+    // STYLE 3: LUXURY - Hooks exclusivité et prestige
+    luxury: {
+      fr: ["Le secret des riches", "Ce que l'élite ne veut pas que tu saches", "Accès VIP exclusif", "Réservé aux initiés", "Luxe discret"],
+      en: ["The secret of the rich", "What the elite don't want you to know", "Exclusive VIP access", "Reserved for insiders", "Discreet luxury"],
+      es: ["El secreto de los ricos", "Lo que la élite no quiere que sepas", "Acceso VIP exclusivo", "Reservado para iniciados", "Lujo discreto"]
+    },
+    // STYLE 4: COMPARISON - Avant/Après et transformation
+    comparison: {
+      fr: ["Avant vs Après", "J'étais comme toi avant", "La différence est choquante", "Tu ne vas pas croire la transformation", "Regarde ce changement"],
+      en: ["Before vs After", "I used to be like you", "The difference is shocking", "You won't believe the transformation", "Look at this change"],
+      es: ["Antes vs Después", "Antes era como tú", "La diferencia es impactante", "No creerás la transformación", "Mira este cambio"]
+    },
+    // STYLE 5: SOCIAL-PROOF - Preuve sociale et expert
+    'social-proof': {
+      fr: ["10 000 personnes approuvent", "Résultats prouvés", "Client satisfait témoigne", "Note 5/5 étoiles", "Recommandé par des experts"],
+      en: ["10,000 people approve", "Proven results", "Satisfied customer testifies", "5/5 star rating", "Recommended by experts"],
+      es: ["10,000 personas aprueban", "Resultados probados", "Cliente satisfecho testifica", "Calificación 5/5 estrellas", "Recomendado por expertos"]
+    },
+    // STYLE 6: BEFORE-AFTER - Transformation visuelle
+    'before-after': {
+      fr: ["Ma vie avant/après", "J'ai tout changé en 30 jours", "Transformation totale", "De 0 à résultat", "Le glow up"],
+      en: ["My life before/after", "I changed everything in 30 days", "Total transformation", "From 0 to results", "The glow up"],
+      es: ["Mi vida antes/después", "Cambié todo en 30 días", "Transformación total", "De 0 a resultados", "El glow up"]
+    },
+    // STYLE 7: FUNNY - Humour et relatable
+    funny: {
+      fr: ["Personne : ... Moi :", "Le truc qui m'énerve", "Quand ta mère dit non", "Moi vs la réalité", "C'est relatable ou pas ?"],
+      en: ["Nobody: ... Me:", "The thing that annoys me", "When your mom says no", "Me vs reality", "Is this relatable or not?"],
+      es: ["Nadie: ... Yo:", "Lo que me molesta", "Cuando tu mamá dice no", "Yo vs la realidad", "¿Es relatable o no?"]
+    },
+    // STYLE 8: STORYTIME - Narratif et histoire
+    storytime: {
+      fr: ["Il y a 3 mois...", "Je vais vous raconter", "Histoire vraie", "Vous n'allez pas croire ce qui s'est passé", "Flashback"],
+      en: ["3 months ago...", "I'm going to tell you", "True story", "You won't believe what happened", "Flashback"],
+      es: ["Hace 3 meses...", "Les voy a contar", "Historia real", "No creerás lo que pasó", "Flashback"]
+    },
+    // STYLE 9: POV - Point of view et perspective
+    pov: {
+      fr: ["POV: Tu découvres la vérité", "POV: Quand...", "Imagine que...", "Tu es en train de...", "Ce moment où..."],
+      en: ["POV: You discover the truth", "POV: When...", "Imagine that...", "You're about to...", "That moment when..."],
+      es: ["POV: Descubres la verdad", "POV: Cuando...", "Imagina que...", "Estás a punto de...", "Ese momento cuando..."]
+    },
+    // STYLE 10: MOTIVATION - Inspiration et action
+    motivation: {
+      fr: ["C'est MAINTENANT ou jamais", "Tu mérites mieux", "Arrête de te limiter", "Crois en toi", "Le moment est venu"],
+      en: ["It's NOW or never", "You deserve better", "Stop limiting yourself", "Believe in yourself", "The time has come"],
+      es: ["Es AHORA o nunca", "Mereces más", "Deja de limitarte", "Cree en ti", "Ha llegado el momento"]
+    },
+    // STYLE 11: CHILL - Relaxe et lifestyle
+    chill: {
+      fr: ["Petit vlog du jour", "Ma routine", "Get ready with me", "Chill vibes only", "Journée tranquille"],
+      en: ["Little vlog of the day", "My routine", "Get ready with me", "Chill vibes only", "Peaceful day"],
+      es: ["Pequeño vlog del día", "Mi rutina", "Prepárate conmigo", "Solo buenas vibras", "Día tranquilo"]
+    }
+  };
+  
+  // Sélectionner les hooks du style choisi
+  const hooks = styleHooksDB[style]?.[lang] || styleHooksDB.emotional[lang];
+  
+  let hookList = '';
+  const displayCount = Math.min(count, 10);
+  for (let i = 0; i < displayCount; i++) {
+    hookList += `<div style="background:rgba(30,15,50,0.8);padding:15px;margin-bottom:10px;border-radius:10px;border-left:4px solid #667eea;">
+      <strong>Hook #${i+1} (${style}):</strong> ${hooks[i] || 'Hook générique'}
+    </div>`;
+  }
+  
+  return `
+<h2 style="color:#667eea;margin-bottom:20px;">🔥 ${count} Hooks ${lang==='fr'?'Viraux':lang==='en'?'Viral':'Virales'}</h2>
+<div style="background:rgba(30,15,50,0.8);padding:20px;border-radius:10px;margin-bottom:20px;">
+  <p><strong>${translations[lang].platform}:</strong> ${platform}</p>
+  <p><strong>Style Vocabulary 3D:</strong> ${style}</p>
+</div>
+${hookList}
+<p style="padding:15px;background:rgba(20,10,40,0.8);border-radius:10px;margin-top:20px;">
+  <strong>${translations[lang].note}:</strong> ${translations[lang].connect_api}
+</p>
+`;
+}
+
+// ============================================
+// GÉNÉRATEUR: SCRIPT COMPLET
+// ============================================
+/**
+ * Génère un script complet avec hook, body et CTA
+ */
+function generateFullScript(niche, platform, prompt, count, lang, style) {
+  const t = translations[lang];
+  return `
+<h2 style="color:#667eea;margin-bottom:20px;">🎬 ${count} Script${count>1?'s':''} Complet${count>1?'s':''}</h2>
+<div style="background:rgba(20,10,40,0.8);border:2px solid #667eea;padding:25px;border-radius:15px;">
+  <h3 style="color:#667eea;">📹 Script Vidéo - ${platform.toUpperCase()}</h3>
+  <p><strong>${t.duration}:</strong> ${platformDurations[platform]}</p>
+  <p><strong>Style Vocabulary 3D:</strong> ${style}</p>
+  <hr style="margin:20px 0;">
+  
+  <div style="background:rgba(30,15,50,0.8);padding:15px;border-radius:10px;margin:15px 0;">
+    <h4 style="color:#667eea;">🎯 ${t.hook} (0-3s)</h4>
+    <p>"${lang==='fr'?'Tu perds de l\'argent si tu ne sais pas ça':lang==='en'?'You\'re losing money if you don\'t know this':'Pierdes dinero si no sabes esto'}"</p>
+  </div>
+  
+  <div style="background:rgba(20,10,40,0.8);padding:15px;border-radius:10px;margin:15px 0;">
+    <h4>💬 ${t.body} (3-20s)</h4>
+    <p>${lang==='fr'?'Présentation problème + solution':'Problem + solution presentation'}</p>
+    <ul style="margin-left:20px;">
+      <li>${lang==='fr'?'Bénéfice #1':'Benefit #1'}</li>
+      <li>${lang==='fr'?'Bénéfice #2':'Benefit #2'}</li>
+      <li>${lang==='fr'?'Preuve sociale':'Social proof'}</li>
+    </ul>
+  </div>
+  
+  <div style="background:#667eea;color:white;padding:15px;border-radius:10px;">
+    <h4>🚀 ${t.cta} (20-30s)</h4>
+    <p>"${lang==='fr'?'Lien en bio MAINTENANT':lang==='en'?'Link in bio NOW':'Enlace en bio AHORA'}"</p>
+  </div>
+</div>
+<p style="margin-top:20px;padding:15px;background:rgba(20,10,40,0.8);border-radius:10px;">
+  <strong>${t.note}:</strong> ${t.connect_api}
+</p>
+`;
+}
+
+// ============================================
+// GÉNÉRATEUR: AGENCY SCRIPTS
+// ============================================
+/**
+ * Génère un package agence avec multiple scripts
+ */
+function generateAgencyScripts(niche, platform, prompt, count, lang, style) {
+  const t = translations[lang];
+  return `
+<h2 style="color:#667eea;margin-bottom:20px;">🏢 Package Agence: ${count} Scripts</h2>
+<div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:30px;border-radius:15px;margin-bottom:20px;">
+  <h3>${lang==='fr'?'OFFRE AGENCE PREMIUM':lang==='en'?'PREMIUM AGENCY OFFER':'OFERTA AGENCIA PREMIUM'}</h3>
+  <p style="font-size:18px;"><strong>${count} scripts ${lang==='fr'?'optimisés':'optimized'}</strong></p>
+  <p>${t.platform}: ${platform.toUpperCase()}</p>
+  <p><strong>Vocabulary 3D Style:</strong> ${style}</p>
+</div>
+
+<div style="background:rgba(20,10,40,0.8);border:2px solid #667eea;padding:25px;border-radius:15px;">
+  <h3 style="color:#667eea;">📦 ${lang==='fr'?'Contenu':'Content'}</h3>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin:20px 0;">
+    <div style="background:rgba(30,15,50,0.8);padding:15px;border-radius:10px;text-align:center;">
+      <h4 style="color:#667eea;font-size:32px;">${Math.floor(count*0.4)}</h4>
+      <p>Scripts UGC</p>
+    </div>
+    <div style="background:rgba(30,15,50,0.8);padding:15px;border-radius:10px;text-align:center;">
+      <h4 style="color:#667eea;font-size:32px;">${Math.floor(count*0.3)}</h4>
+      <p>Hooks</p>
+    </div>
+    <div style="background:rgba(30,15,50,0.8);padding:15px;border-radius:10px;text-align:center;">
+      <h4 style="color:#667eea;font-size:32px;">${Math.floor(count*0.3)}</h4>
+      <p>Scripts Pub</p>
+    </div>
+  </div>
+  
+  <ul style="line-height:2.5;">
+    <li>✅ ${count} scripts professionnels</li>
+    <li>✅ Hooks ${lang==='fr'?'testés':'tested'}</li>
+    <li>✅ Timings ${lang==='fr'?'précis':'precise'}</li>
+    <li>✅ ${lang==='fr'?'Variations A/B':'A/B variations'}</li>
+  </ul>
+</div>
+<p style="margin-top:20px;padding:15px;background:#667eea;color:white;border-radius:10px;text-align:center;">
+  <strong>${lang==='fr'?'Prêt à scaler ?':lang==='en'?'Ready to scale?':'¿Listo para escalar?'}</strong><br>
+  ${t.connect_api}
+</p>
+`;
+}
+
+// ============================================
+// UI: AFFICHAGE DES SECTIONS
+// ============================================
+/**
+ * Affiche/cache les sections du dashboard
+ */
+function showSection(sectionName) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  
+  if (sectionName === 'generator') {
+    document.getElementById('generator-section').classList.add('active');
+    document.querySelectorAll('.nav-btn')[0].classList.add('active');
+  } else if (sectionName === 'dashboard') {
+    document.getElementById('dashboard-section').classList.add('active');
+    document.querySelectorAll('.nav-btn')[1].classList.add('active');
+    initCharts();
+  }
+}
+
+// ============================================
+// CHARTS: INITIALISER LES GRAPHIQUES
+// ============================================
+/**
+ * Initialise 4 graphiques Chart.js
+ */
+function initCharts() {
+  const ctx1 = document.getElementById('generationsChart');
+  if (ctx1 && !ctx1.chart) {
+    ctx1.chart = new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil'],
+        datasets: [{
+          label: 'Scripts générés',
+          data: [65, 89, 120, 151, 182, 205, 247],
+          borderColor: '#a855f7',
+          backgroundColor: 'rgba(168, 85, 247, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { labels: { color: '#c084fc' } }
+        },
+        scales: {
+          y: { 
+            ticks: { color: '#c084fc' },
+            grid: { color: 'rgba(138, 43, 226, 0.1)' }
+          },
+          x: { 
+            ticks: { color: '#c084fc' },
+            grid: { color: 'rgba(138, 43, 226, 0.1)' }
+          }
+        }
+      }
+    });
+  }
+
+  const ctx2 = document.getElementById('platformsChart');
+  if (ctx2 && !ctx2.chart) {
+    ctx2.chart = new Chart(ctx2, {
+      type: 'doughnut',
+      data: {
+        labels: ['TikTok', 'Instagram', 'YouTube', 'Facebook', 'Autres'],
+        datasets: [{
+          data: [35, 28, 18, 12, 7],
+          backgroundColor: ['#a855f7', '#ec4899', '#8b5cf6', '#c084fc', '#e9d5ff']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { labels: { color: '#c084fc' } }
+        }
+      }
+    });
+  }
+
+  const ctx3 = document.getElementById('nichesChart');
+  if (ctx3 && !ctx3.chart) {
+    ctx3.chart = new Chart(ctx3, {
+      type: 'bar',
+      data: {
+        labels: ['Beauté', 'Tech', 'Fitness', 'E-commerce', 'Food'],
+        datasets: [{
+          label: 'Générations',
+          data: [245, 198, 167, 143, 128],
+          backgroundColor: 'rgba(168, 85, 247, 0.8)',
+          borderColor: '#a855f7',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { labels: { color: '#c084fc' } }
+        },
+        scales: {
+          y: { 
+            ticks: { color: '#c084fc' },
+            grid: { color: 'rgba(138, 43, 226, 0.1)' }
+          },
+          x: { 
+            ticks: { color: '#c084fc' },
+            grid: { color: 'rgba(138, 43, 226, 0.1)' }
+          }
+        }
+      }
+    });
+  }
+
+  const ctx4 = document.getElementById('contentTypesChart');
+  if (ctx4 && !ctx4.chart) {
+    ctx4.chart = new Chart(ctx4, {
+      type: 'pie',
+      data: {
+        labels: ['UGC', 'Hooks', 'Scripts', 'Agence'],
+        datasets: [{
+          data: [42, 28, 18, 12],
+          backgroundColor: ['#a855f7', '#ec4899', '#8b5cf6', '#c084fc']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { labels: { color: '#c084fc' } }
+        }
+      }
+    });
+  }
+}
+
+// ============================================
+// OPENAI: APPELS API
+// ============================================
+/**
+ * Appel générique à l'API OpenAI
+ */
+async function callOpenAIAPI(prompt) {
+  try {
+    const response = await fetch('/api/generate-ugc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    
+    if (!response.ok) throw new Error('API call failed');
+    const data = await response.json();
+    return data.content;
+  } catch (error) {
+    console.error('OpenAI API Error:', error);
+    return null;
+  }
+}
+
+/**
+ * Génération avec OpenAI et style vocabulary 3D
+ */
+async function generateWithOpenAI(niche, platform, prompt, count, lang, style, contentType) {
+  const openaiPrompt = `Tu es expert UGC. Crée du contenu ${contentType} unique pour: ${niche} sur ${platform}. Produit: ${prompt}. Style: ${style}. Format: HTML avec styling.`;
+
+  try {
+    const response = await fetch('/api/generate-ugc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: openaiPrompt })
+    });
+
+    if (!response.ok) throw new Error('API Error');
+    const data = await response.json();
+    return `<h2 style="color:#667eea;">🤖 OpenAI Generated (${style})</h2><div style="background:rgba(30,15,50,0.8);padding:20px;border-radius:10px;"><p>${data.content}</p></div>`;
+  } catch (error) {
+    return `<p style="color:red;">❌ Error: ${error.message}</p>`;
+  }
+}
+
+/**
+ * Génération UGC spécifique avec OpenAI
+ */
+async function generateUGCWithOpenAI(niche, platform, prompt, count, lang) {
+  const t = translations[lang];
+  const duration = platformDurations[platform] || '30s';
+  
+  const openaiPrompt = `Tu es expert UGC. Crée ${count} scripts vidéo pour ${niche} sur ${platform}. Produit: ${prompt}. Format JSON avec: hook, body, cta, tips.`;
+
+  try {
+    const content = await callOpenAIAPI(openaiPrompt);
+    if (!content) throw new Error('No content generated');
+    
+    return `<h2 style="color:#667eea;">✨ ${count} ${t.scripts_generated}</h2><div style="background:rgba(30,15,50,0.8);padding:20px;border-radius:10px;"><p>${content}</p></div>`;
+  } catch (error) {
+    return `<p style="color:red;">❌ Error: ${error.message}</p>`;
+  }
+}

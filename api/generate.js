@@ -1,31 +1,49 @@
-const OpenAI = require('openai');
+import OpenAI from "openai";
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
-module.exports = async (req, res) => {
-  const { type, mode, niche, style, lang, platform, subject } = req.body;
-  
-  const prompts = {
-    script: `Crée un SCRIPT UGC complet pour ${platform} en ${lang}. Niche: ${niche}. Style: ${style}. Sujet: ${subject}. Format: Hook (3s) + Body (20s) + CTA. Sois créatif et viral!`,
-    hook: `Génère 5 HOOKS VIRAUX pour ${platform} en ${lang}. Niche: ${niche}. Sujet: ${subject}. Chaque hook < 10 mots. Très accrocheur!`,
-    prompt: `Crée un PROMPT HOOK OPTIMISÉ pour ${platform}. Niche: ${niche}. Sujet: ${subject}. Structure + exemples + formules business.`,
-    hack: `Génère un GROWTH HACK pour ${platform} spécifique à ${niche}. Sujet: ${subject}. Actionnable et unique!`
-  };
-  
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   try {
-    const completion = await client.chat.completions.create({
-      model: 'gpt-4',
-      messages: [{ role: 'user', content: prompts[type] }],
-      max_tokens: 1500
+    const {
+      type,
+      mode,
+      niche,
+      style,
+      lang,
+      platform,
+      subject,
+    } = req.body;
+
+    const prompt = `
+Type: ${type}
+Mode: ${mode}
+Niche: ${niche}
+Style: ${style}
+Langue: ${lang}
+Plateforme: ${platform}
+Sujet: ${subject}
+`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "Tu es un expert en scripts UGC viraux." },
+        { role: "user", content: prompt },
+      ],
     });
-    
-    res.json({
-      content: completion.choices[0].message.content,
-      type
+
+    res.status(200).json({
+      result: completion.choices[0].message.content,
     });
   } catch (error) {
+    console.error("OPENAI ERROR:", error);
     res.status(500).json({ error: error.message });
   }
-};
+}
+

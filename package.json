@@ -1,0 +1,7 @@
+{
+  "name": "dreamflow-frontend-v4",
+  "private": true,
+  "dependencies": {
+    "openai": "^4.0.0"
+  }
+}

@@ -1,7 +1,12 @@
 {
   "name": "dreamflow-frontend-v4",
   "private": true,
+  "scripts": {
+    "build": "echo \"no build needed\"",
+    "start": "node -e \"console.log('no server')\""
+  },
   "dependencies": {
     "openai": "^4.0.0"
   }
 }
+

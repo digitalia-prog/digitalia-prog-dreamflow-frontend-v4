@@ -1,47 +1,6 @@
-<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <title>Dreamflow UGC</title>
-</head>
-<body>
+let output = `
+🎯 Objectif : créer une stratégie vidéo UGC prête à être utilisée ou envoyée à un client
 
-<h1>Dreamflow UGC Generator</h1>
-
-<textarea id="prompt" placeholder="Écris ton prompt ici" style="width:100%;height:100px;"></textarea>
-<br><br>
-<button id="generate">Générer</button>
-
-<pre id="result">—</pre>
-
-<script>
-  document.getElementById("generate").onclick = async () => {
-    const prompt = document.getElementById("prompt").value;
-    const resultBox = document.getElementById("result");
-    resultBox.textContent = "Génération...";
-
-    try {
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        resultBox.textContent = data.error || "Erreur API";
-        return;
-      }
-
-      resultBox.textContent =
-        data.result || data.text || data.script || data.content || "Réponse vide";
-    } catch (e) {
-      resultBox.textContent = "Erreur réseau";
-    }
-  };
-</script>
-
-</body>
-</html>
+${script}
+`;
 

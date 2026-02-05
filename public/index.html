@@ -1,3 +1,41 @@
+<script>
+(function () {
+  const btn = document.getElementById('generate');
+  const output = document.getElementById('output');
+
+  if (!btn || !output) {
+    console.error("❌ Bouton ou output introuvable");
+    return;
+  }
+
+  btn.addEventListener('click', async () => {
+    const textarea = document.getElementById('prompt');
+    const prompt = textarea ? textarea.value : '';
+
+    output.textContent = '⏳ Génération...';
+
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        output.textContent = '❌ Erreur API';
+        return;
+      }
+
+      output.textContent = data.content || '❌ Aucun contenu généré';
+    } catch (e) {
+      output.textContent = '❌ Erreur réseau';
+      console.error(e);
+    }
+  });
+})();
+</script>
 <!doctype html>
 <html lang="fr">
 <head>

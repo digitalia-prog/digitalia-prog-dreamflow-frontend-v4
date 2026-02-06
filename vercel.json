@@ -1,9 +1,8 @@
 {
   "functions": {
-    "api/*.js": { "runtime": "nodejs20.x" }
-  },
-  "buildCommand": "echo \"no build\"",
-  "outputDirectory": "public"
+    "api/**/*.js": {
+      "runtime": "nodejs20.x"
+    }
+  }
 }
-
 

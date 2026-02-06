@@ -1,129 +1,95 @@
-<script>
-(function () {
-  const btn = document.getElementById('generate');
-  const output = document.getElementById('output');
-
-  if (!btn || !output) {
-    console.error("❌ Bouton ou output introuvable");
-    return;
-  }
-
-  btn.addEventListener('click', async () => {
-    const textarea = document.getElementById('prompt');
-    const prompt = textarea ? textarea.value : '';
-
-    output.textContent = '⏳ Génération...';
-
-    try {
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        output.textContent = '❌ Erreur API';
-        return;
-      }
-
-      output.textContent = data.content || '❌ Aucun contenu généré';
-    } catch (e) {
-      output.textContent = '❌ Erreur réseau';
-      console.error(e);
-    }
-  });
-})();
-</script>
 <!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
   <title>Dreamflow UGC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <style>
     body {
       font-family: Arial, sans-serif;
-      background:#0f0f1a;
-      color:#fff;
-      padding:40px;
-    }
-    button {
-      padding:12px 20px;
-      background:#7c3aed;
-      color:white;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-      font-size:16px;
+      background: #0f0f1a;
+      color: #ffffff;
+      padding: 40px;
     }
     textarea {
-      width:100%;
-      height:120px;
-      margin-bottom:12px;
-      border-radius:8px;
-      padding:10px;
-      font-size:14px;
+      width: 100%;
+      height: 120px;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    button {
+      padding: 12px 20px;
+      background: #7c3aed;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
     }
     pre {
-      white-space:pre-wrap;
-      background:#1a1a2e;
-      padding:20px;
-      border-radius:10px;
-      margin-top:20px;
+      white-space: pre-wrap;
+      background: #1a1a2e;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
     }
   </style>
 </head>
 
 <body>
 
-<h1>🚀 Dreamflow UGC</h1>
+  <h1>🚀 Dreamflow UGC</h1>
 
-<textarea id="prompt" placeholder="Décris ton produit / idée..."></textarea>
-<br />
-<button id="generate">Générer</button>
+  <textarea id="prompt" placeholder="Décris ton produit / idée..."></textarea>
+  <br />
+  <button id="generate">Générer</button>
 
-<pre id="output">Ton script apparaîtra ici...</pre>
+  <pre id="output">Ton script apparaîtra ici...</pre>
 
-<script>
-const btn = document.getElementById('generate');
-const out = document.getElementById('output');
+  <script>
+    (function () {
+      const btn = document.getElementById('generate');
+      const out = document.getElementById('output');
 
-btn.addEventListener('click', async () => {
-  const prompt = document.getElementById('prompt').value;
+      if (!btn || !out) {
+        console.error("❌ Bouton ou output introuvable");
+        return;
+      }
 
-  out.textContent = '⏳ Génération...';
+      btn.addEventListener('click', async () => {
+        const promptEl = document.getElementById('prompt');
+        const prompt = promptEl ? promptEl.value : '';
 
-  try {
-    const response = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
-    });
+        out.textContent = '⏳ Génération...';
 
-    const data = await response.json();
+        try {
+          const res = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt })
+          });
 
-    if (!response.ok) {
-      out.textContent = '❌ Erreur API';
-      return;
-    }
+          const data = await res.json();
 
-    const script =
-      data.result ||
-      data.text ||
-      data.script ||
-      data.content ||
-      '❌ Aucun contenu généré';
+          if (!res.ok) {
+            out.textContent = '❌ Erreur API';
+            console.error(data);
+            return;
+          }
 
-    out.textContent = script;
+          out.textContent = data.content || '❌ Aucun contenu généré';
+        } catch (e) {
+          out.textContent = '❌ Erreur réseau';
+          console.error(e);
+        }
+      });
 
-  } catch (err) {
-    out.textContent = '❌ Erreur réseau';
-    console.error(err);
-  }
-});
-</script>
+      console.log("✅ Script front propre chargé");
+    })();
+  </script>
 
 </body>
 </html>

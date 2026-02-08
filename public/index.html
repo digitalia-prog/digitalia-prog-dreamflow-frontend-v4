@@ -4,92 +4,80 @@
   <meta charset="utf-8" />
   <title>UGC Growth</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <style>
-    body { font-family: Arial, sans-serif; background:#0f0f1a; color:#fff; padding:40px; }
-    h1 { margin: 0 0 12px; }
-    p { opacity: .85; margin: 0 0 20px; }
-    textarea { width:100%; height:120px; margin-bottom:12px; border-radius:8px; padding:10px; font-size:14px; }
-    button { padding:12px 20px; background:#7c3aed; color:white; border:none; border-radius:8px; cursor:pointer; font-size:16px; }
-    pre { white-space:pre-wrap; background:#1a1a2e; padding:20px; border-radius:10px; margin-top:20px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f0f1a;
+      color: #fff;
+      padding: 40px;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    button {
+      padding: 12px 20px;
+      background: #7c3aed;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    pre {
+      margin-top: 20px;
+      background: #1a1a2e;
+      padding: 20px;
+      border-radius: 10px;
+      white-space: pre-wrap;
+    }
   </style>
 </head>
+
 <body>
 
-<h1>🚀 UGC Growth</h1>
-<p>Génère une stratégie + script UGC (agence / freelance / CM) prêt à tourner.</p>
+  <h1>🚀 UGC Growth</h1>
+  <p>Stratégie + script UGC pour agences, freelances, CM.</p>
 
-<textarea id="prompt" placeholder='Ex : "sac à main luxe – femmes 18-30 – TikTok – objectif ventes"'></textarea>
-<br />
-<button id="generate">Générer</button>
+  <textarea id="prompt"
+    placeholder='Ex : "Sac à main luxe – femmes 18-30 – TikTok – objectif ventes"'>
+  </textarea>
 
-<pre id="output">Ton script apparaîtra ici...</pre>
+  <button id="generate">Générer</button>
 
-<script>
-(function () {
-  const btn = document.getElementById('generate');
-  const out = document.getElementById('output');
-  const textarea = document.getElementById('prompt');
+  <pre id="output">Ton script apparaîtra ici...</pre>
 
-  btn.addEventListener('click', async () => {
-    const userPrompt = textarea.value.trim();
-    if (!userPrompt) {
-      out.textContent = "❌ Écris une demande d'abord.";
-      return;
-    }
+  <script>
+    const btn = document.getElementById('generate');
+    const textarea = document.getElementById('prompt');
+    const output = document.getElementById('output');
 
-    const prompt = `
-Tu es un expert UGC + Growth Marketing (niveau agence).
-Tu travailles pour des agences marketing, freelances UGC, CM et créateurs.
+    btn.addEventListener('click', async () => {
+      const userPrompt = textarea.value.trim();
 
-OBJECTIF :
-Créer une STRATÉGIE + SCRIPT UGC prêt à tourner, orienté conversion.
+      if (!userPrompt) {
+        output.textContent = "❌ Écris une demande.";
+        return;
+      }
 
-FORMAT OBLIGATOIRE :
-1) 🎯 Angle marketing principal (1 phrase)
-2) 🎣 5 hooks puissants (fort CTR)
-3) 🎬 Script UGC MOT À MOT (30–40s)
-   - Hook (0–3s)
-   - Problème
-   - Solution
-   - Preuve / crédibilité
-   - CTA clair
-4) 🧠 3 variantes de CTA (soft / direct / urgence)
-5) 🎥 Mini plan de tournage smartphone (plans, gestes, textes à l’écran)
+      output.textContent = "⏳ Génération en cours...";
 
-CONTEXTE UTILISATEUR :
-"${userPrompt}"
-
-CONTRAINTES :
-- Ultra concret
-- Orienté performance & conversion
-- Pas de blabla
-- Prêt client
-`.trim();
-
-<script><script>
-const btn = document.getElementById('generate');
-const out = document.getElementById('output');
-
-btn.addEventListener('click', async () => {
-  const textarea = document.getElementById('prompt');
-  const userPrompt = textarea.value;
-
-  const prompt = `
+      const prompt = `
 Tu es un expert UGC + Growth Marketing (niveau élite).
-Tu travailles pour des agences marketing digital, freelances UGC et CM.
+Tu travailles pour des agences marketing, freelances UGC et CM.
 
 OBJECTIF :
 Créer une STRATÉGIE + SCRIPT UGC prêt à tourner et orienté conversion.
 
 FORMAT OBLIGATOIRE :
 1) 🎯 Angle marketing principal
-2) 🎣 5 hooks puissants (fort CTR)
+2) 🎣 5 hooks puissants
 3) 🎬 Script UGC MOT À MOT (30–40s)
-   - Hook
-   - Problème
-   - Solution
-   - Preuve
-   - CTA
 4) 🧠 3 variantes de CTA
 5) 🎥 Mini plan de tournage smartphone
 
@@ -99,30 +87,31 @@ CONTEXTE UTILISATEUR :
 Contraintes :
 - Ultra concret
 - Pas de blabla
-- Prêt client / agence
+- Prêt client
 `.trim();
 
-  out.textContent = '⏳ Génération…';
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt })
+        });
 
-  try {
-    const res = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
+        const data = await res.json();
+
+        if (!res.ok) {
+          output.textContent = "❌ Erreur API";
+          return;
+        }
+
+        output.textContent = data.content || "❌ Aucun contenu généré";
+      } catch (err) {
+        console.error(err);
+        output.textContent = "❌ Erreur réseau";
+      }
     });
+  </script>
 
-    const data = await res.json();
+</body>
+</html>
 
-    if (!res.ok) {
-      out.textContent = '❌ Erreur API';
-      return;
-    }
-
-    out.textContent = data.content || '❌ Aucun contenu généré';
-  } catch (err) {
-    out.textContent = '❌ Erreur réseau';
-    console.error(err);
-  }
-});
-
-</script>

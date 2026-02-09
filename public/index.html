@@ -4,91 +4,230 @@
   <meta charset="utf-8" />
   <title>UGC Growth</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0f0f1a;
-      color: #fff;
-      padding: 40px;
+    body { font-family: Arial, sans-serif; background:#0f0f1a; color:#fff; padding:40px; }
+    h1 { margin: 0 0 8px; }
+    p { opacity:.85; margin: 0 0 18px; }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    .card { background:#141428; border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:18px; }
+    .grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin: 14px 0 12px; }
+    label { font-size:12px; opacity:.9; display:block; margin: 0 0 6px; }
+    select, textarea {
+      width:100%; border-radius:10px; padding:10px; font-size:14px;
+      border:1px solid rgba(255,255,255,.12); background:#0f0f1a; color:#fff;
+      outline:none;
     }
-    textarea {
-      width: 100%;
-      height: 120px;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      margin-bottom: 12px;
-    }
+    textarea { height:120px; resize:vertical; }
+    .row { display:flex; gap:10px; align-items:center; margin-top:12px; flex-wrap:wrap; }
     button {
-      padding: 12px 20px;
-      background: #7c3aed;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
+      padding:12px 18px; background:#7c3aed; color:white; border:none; border-radius:10px;
+      cursor:pointer; font-size:15px; font-weight:700;
     }
+    button.secondary { background:transparent; border:1px solid rgba(255,255,255,.18); font-weight:600; }
+    button:disabled { opacity:.6; cursor:not-allowed; }
+    .hint { font-size:12px; opacity:.75; margin-top:10px; }
     pre {
-      margin-top: 20px;
-      background: #1a1a2e;
-      padding: 20px;
-      border-radius: 10px;
-      white-space: pre-wrap;
+      white-space:pre-wrap; background:#0f0f1a; border:1px solid rgba(255,255,255,.10);
+      padding:16px; border-radius:12px; margin-top:14px; min-height:140px;
+    }
+    .pill {
+      display:inline-flex; gap:8px; align-items:center; font-size:12px;
+      padding:6px 10px; border-radius:999px; background:rgba(124,58,237,.15);
+      border:1px solid rgba(124,58,237,.35); margin-top:10px;
+    }
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 
 <body>
+  <div class="wrap">
+    <h1>🚀 UGC Growth</h1>
+    <p>Génère une <b>stratégie + script UGC</b> (agence / freelance / CM) prêt à tourner et orienté conversion.</p>
 
-  <h1>🚀 UGC Growth</h1>
-  <p>Stratégie + script UGC pour agences, freelances, CM.</p>
+    <div class="card">
+      <div class="grid">
+        <div>
+          <label for="platform">📱 Réseau</label>
+          <select id="platform">
+            <option value="TikTok">TikTok</option>
+            <option value="Instagram Reels">Instagram Reels</option>
+            <option value="YouTube Shorts">YouTube Shorts</option>
+            <option value="Snapchat Spotlight">Snapchat Spotlight</option>
+            <option value="Meta Ads">Meta Ads (FB/IG)</option>
+            <option value="TikTok Ads">TikTok Ads</option>
+          </select>
+        </div>
 
-  <textarea id="prompt"
-    placeholder='Ex : "Sac à main luxe – femmes 18-30 – TikTok – objectif ventes"'>
-  </textarea>
+        <div>
+          <label for="deliverable">📝 Livrable</label>
+          <select id="deliverable">
+            <option value="Script UGC complet">Script UGC complet</option>
+            <option value="Hooks only">Hooks only (10 hooks)</option>
+            <option value="Stratégie UGC + Ads">Stratégie UGC + Ads</option>
+            <option value="Prompt IA agence">Prompt IA agence (copier/coller)</option>
+          </select>
+        </div>
 
-  <button id="generate">Générer</button>
+        <div>
+          <label for="goal">🎯 Objectif</label>
+          <select id="goal">
+            <option value="Ventes">Ventes</option>
+            <option value="Leads">Leads</option>
+            <option value="Notoriété">Notoriété</option>
+            <option value="Engagement">Engagement</option>
+          </select>
+        </div>
+      </div>
 
-  <pre id="output">Ton script apparaîtra ici...</pre>
+      <label for="prompt">🎬 Contexte (produit / niche / cible / offre / objection / angle)</label>
+      <textarea id="prompt" placeholder='Ex : "sac à main luxe – femmes 18-30 – TikTok – prix 39€ – objection: peur qualité – angle: look luxe abordable"'></textarea>
+
+      <div class="row">
+        <button id="generate">🚀 Générer</button>
+        <button id="copy" class="secondary">📋 Copier</button>
+        <span id="status" class="pill">🟣 Prêt</span>
+      </div>
+
+      <div class="hint">Astuce : ajoute une objection (“trop cher”, “peur qualité”, “déjà essayé”) → ça booste la conversion.</div>
+
+      <pre id="output">Ton résultat apparaîtra ici…</pre>
+    </div>
+  </div>
 
   <script>
     const btn = document.getElementById('generate');
-    const textarea = document.getElementById('prompt');
-    const output = document.getElementById('output');
+    const btnCopy = document.getElementById('copy');
+    const out = document.getElementById('output');
+    const statusEl = document.getElementById('status');
 
-    btn.addEventListener('click', async () => {
-      const userPrompt = textarea.value.trim();
+    function setStatus(txt) { statusEl.textContent = txt; }
 
-      if (!userPrompt) {
-        output.textContent = "❌ Écris une demande.";
-        return;
+    function buildPrompt({ userPrompt, platform, deliverable, goal }) {
+      // Ajustements par réseau (vite + efficace)
+      const format = (platform.includes("Ads"))
+        ? "Format Ads (proof + offre + CTA)"
+        : "Format UGC organique (facecam + rythme + punchlines)";
+
+      // Livrables différents
+      if (deliverable === "Hooks only") {
+        return `
+Tu es un expert UGC + Growth Marketing (niveau élite) pour agences et freelances.
+Plateforme: ${platform}
+Objectif: ${goal}
+Format: ${format}
+
+DEMANDE UTILISATEUR:
+"${userPrompt}"
+
+TÂCHE:
+Donne 10 hooks ULTRA MODERNES (fort CTR) adaptés à ${platform}.
+Pour chaque hook:
+- Hook (1 phrase)
+- Intention (curiosité / preuve / bénéfice / FOMO / anti-problème)
+- Variante A/B (2 alternatives)
+Contraintes: pas générique, pas scolaire, punchy, prêt à tourner.
+`.trim();
       }
 
-      output.textContent = "⏳ Génération en cours...";
+      if (deliverable === "Prompt IA agence") {
+        return `
+PROMPT A COPIER-COLLER (AGENCE / FREELANCE UGC)
 
-      const prompt = `
+Tu es un stratège UGC + Growth senior.
+Plateforme: ${platform}
+Objectif: ${goal}
+Format: ${format}
+
+Contexte:
+"${userPrompt}"
+
+Livrable attendu:
+1) Angle marketing principal (1 phrase)
+2) Positionnement + promesse (2 lignes max)
+3) 7 hooks (fort CTR)
+4) Script UGC mot à mot (30–45s) : Hook / Problème / Solution / Preuve / Objection / CTA
+5) 3 variantes de CTA (soft/direct/urgence)
+6) Plan de tournage smartphone (plans + textes écran)
+Contraintes: concret, moderne, orienté conversion, zéro blabla.
+`.trim();
+      }
+
+      if (deliverable === "Stratégie UGC + Ads") {
+        return `
+Tu es un expert UGC + Growth (niveau agence).
+Plateforme: ${platform}
+Objectif: ${goal}
+Format: ${format}
+
+CONTEXTE UTILISATEUR:
+"${userPrompt}"
+
+DONNE (niveau expert, sans blabla):
+1) Angle marketing principal (1 phrase)
+2) 3 angles secondaires (bullet)
+3) 5 hooks "growth" (fort CTR) + intention
+4) Script UGC mot à mot (30–45s) : Hook / Problème / Solution / Preuve / Objection / CTA
+5) Plan Ads: 3 variantes (UGC proof / UGC comparaison / UGC objection)
+6) KPI cible + 2 optimisations concrètes
+7) Plan de tournage smartphone (plans + textes à l’écran)
+Contraintes: prêt client, moderne, conversion.
+`.trim();
+      }
+
+      // Script UGC complet (par défaut)
+      return `
 Tu es un expert UGC + Growth Marketing (niveau élite).
-Tu travailles pour des agences marketing, freelances UGC et CM.
+Tu travailles pour des agences marketing digital, freelances UGC et CM.
+Plateforme: ${platform}
+Objectif: ${goal}
+Format: ${format}
 
 OBJECTIF :
 Créer une STRATÉGIE + SCRIPT UGC prêt à tourner et orienté conversion.
 
 FORMAT OBLIGATOIRE :
-1) 🎯 Angle marketing principal
-2) 🎣 5 hooks puissants
+1) 🎯 Angle marketing principal (1 phrase claire)
+2) 🎣 5 hooks puissants (fort CTR, modernes)
 3) 🎬 Script UGC MOT À MOT (30–40s)
-4) 🧠 3 variantes de CTA
-5) 🎥 Mini plan de tournage smartphone
+   - Hook (0–3s)
+   - Problème
+   - Solution
+   - Preuve / crédibilité
+   - CTA clair
+4) 🧠 3 variantes de CTA (soft / direct / urgence)
+5) 🎥 Mini plan de tournage smartphone (plans, gestes, textes à l’écran)
 
 CONTEXTE UTILISATEUR :
 "${userPrompt}"
 
-Contraintes :
+CONTRAINTES :
 - Ultra concret
+- Orienté performance & conversion
 - Pas de blabla
-- Prêt client
+- Prêt à être envoyé à un client
 `.trim();
+    }
+
+    btn.addEventListener('click', async () => {
+      const textarea = document.getElementById('prompt');
+      const userPrompt = (textarea?.value || '').trim();
+
+      const platform = document.getElementById('platform').value;
+      const deliverable = document.getElementById('deliverable').value;
+      const goal = document.getElementById('goal').value;
+
+      if (!userPrompt) {
+        out.textContent = "❌ Écris une demande dans le champ.";
+        return;
+      }
+
+      const prompt = buildPrompt({ userPrompt, platform, deliverable, goal });
+
+      btn.disabled = true;
+      setStatus("⏳ Génération…");
+      out.textContent = "⏳ Génération…";
 
       try {
         const res = await fetch('/api/generate', {
@@ -99,19 +238,33 @@ Contraintes :
 
         const data = await res.json();
 
-        if (!res.ok) {
-          output.textContent = "❌ Erreur API";
+        if (!res.ok || !data?.success) {
+          out.textContent = "❌ Erreur API";
+          setStatus("🔴 Erreur");
+          btn.disabled = false;
           return;
         }
 
-        output.textContent = data.content || "❌ Aucun contenu généré";
+        out.textContent = data.content || "❌ Aucun contenu généré";
+        setStatus("🟢 OK");
       } catch (err) {
         console.error(err);
-        output.textContent = "❌ Erreur réseau";
+        out.textContent = "❌ Erreur réseau";
+        setStatus("🔴 Réseau");
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    btnCopy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(out.textContent || "");
+        setStatus("✅ Copié");
+      } catch {
+        setStatus("⚠️ Copie impossible");
       }
     });
   </script>
-
 </body>
 </html>
 

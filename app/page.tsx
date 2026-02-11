@@ -1,187 +1,65 @@
-'use client';
-
-import { useMemo, useState } from 'react';
+import Image from "next/image";
 
 export default function Home() {
-  const [platform, setPlatform] = useState('TikTok');
-  const [deliverable, setDeliverable] = useState('Script UGC complet');
-  const [goal, setGoal] = useState('Ventes');
-  const [userPrompt, setUserPrompt] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [output, setOutput] = useState('Ton résultat apparaîtra ici…');
-
-  const finalPrompt = useMemo(() => {
-    return `
-Tu es un expert UGC + Growth Marketing (niveau élite).
-Tu travailles pour des agences marketing digital, freelances UGC et CM.
-
-Plateforme: ${platform}
-Livrable: ${deliverable}
-Objectif: ${goal}
-
-TÂCHE:
-Génère un livrable prêt client, concret, moderne, orienté conversion.
-
-FORMAT (sans blabla):
-1) 🎯 Angle marketing principal (1 phrase)
-2) 🎣 10 hooks ULTRA MODERNES adaptés à ${platform}
-3) 🎬 Script MOT À MOT (30–45s): Hook / Problème / Solution / Preuve / Objection / CTA
-4) 🧠 3 variantes de CTA (soft / direct / urgence)
-5) 🎥 Mini plan tournage smartphone (plans, gestes, textes à l’écran)
-
-CONTEXTE UTILISATEUR:
-"${userPrompt}"
-    `.trim();
-  }, [platform, deliverable, goal, userPrompt]);
-
-  async function onGenerate() {
-    if (!userPrompt.trim()) {
-      setOutput("❌ Écris un contexte (produit / cible / offre / objection / angle).");
-      return;
-    }
-
-    setLoading(true);
-    setOutput('⏳ Génération...');
-
-    try {
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: finalPrompt }),
-      });
-
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        setOutput(`❌ Erreur API (${res.status})\n${data?.error || 'Erreur inconnue'}`);
-        return;
-      }
-
-      setOutput(data?.content || '✅ OK mais contenu vide');
-    } catch (e: any) {
-      setOutput(`❌ Erreur réseau\n${e?.message || String(e)}`);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function onCopy() {
-    await navigator.clipboard.writeText(output);
-  }
-
   return (
-    <main style={{ minHeight: '100vh', padding: 24, background: '#0b0b14', color: '#fff' }}>
-      <div style={{ maxWidth: 980, margin: '0 auto' }}>
-        <h1 style={{ fontSize: 32, marginBottom: 8 }}>🚀 UGC Growth</h1>
-        <p style={{ opacity: 0.85, marginBottom: 18 }}>
-          Dashboard MVP — Générateur UGC / Crochets / Annonces
-        </p>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
-          <div>
-            <label>📱 Réseau</label>
-            <select value={platform} onChange={(e) => setPlatform(e.target.value)} style={selectStyle}>
-              <option>TikTok</option>
-              <option>Instagram Reels</option>
-              <option>YouTube Shorts</option>
-              <option>Meta Ads</option>
-              <option>TikTok Ads</option>
-              <option>LinkedIn</option>
-            </select>
-          </div>
-
-          <div>
-            <label>📦 Livrable</label>
-            <select value={deliverable} onChange={(e) => setDeliverable(e.target.value)} style={selectStyle}>
-              <option>Script UGC complet</option>
-              <option>Hooks uniquement</option>
-              <option>Angles + Hooks</option>
-              <option>Script + plan tournage</option>
-              <option>Annonce (Ads) - Copy + Hook + CTA</option>
-            </select>
-          </div>
-
-          <div>
-            <label>🎯 Objectif</label>
-            <select value={goal} onChange={(e) => setGoal(e.target.value)} style={selectStyle}>
-              <option>Ventes</option>
-              <option>Leads</option>
-              <option>Trafic</option>
-              <option>Abonnés</option>
-              <option>Notoriété</option>
-            </select>
-          </div>
-        </div>
-
-        <label>🧾 Contexte (produit / niche / cible / offre / objection / angle)</label>
-        <textarea
-          value={userPrompt}
-          onChange={(e) => setUserPrompt(e.target.value)}
-          placeholder={`Ex: "sac à main luxe - femmes 18-30 - ${platform} - prix 39€ - objection: peur qualité - angle: look luxe abordable"`}
-          style={textareaStyle}
+    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+        <Image
+          className="dark:invert"
+          src="/next.svg"
+          alt="Next.js logo"
+          width={100}
+          height={20}
+          priority
         />
-
-        <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
-          <button onClick={onGenerate} disabled={loading} style={btnStyle}>
-            {loading ? '⏳ Génération...' : '✨ Générer'}
-          </button>
-          <button onClick={onCopy} style={btn2Style}>📋 Copier</button>
+        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
+          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
+            To get started, edit the page.tsx file.
+          </h1>
+          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
+            Looking for a starting point or more instructions? Head over to{" "}
+            <a
+              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+              className="font-medium text-zinc-950 dark:text-zinc-50"
+            >
+              Templates
+            </a>{" "}
+            or the{" "}
+            <a
+              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+              className="font-medium text-zinc-950 dark:text-zinc-50"
+            >
+              Learning
+            </a>{" "}
+            center.
+          </p>
         </div>
-
-        <pre style={preStyle}>{output}</pre>
-      </div>
-    </main>
+        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
+          <a
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
+            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image
+              className="dark:invert"
+              src="/vercel.svg"
+              alt="Vercel logomark"
+              width={16}
+              height={16}
+            />
+            Deploy Now
+          </a>
+          <a
+            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
+            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Documentation
+          </a>
+        </div>
+      </main>
+    </div>
   );
 }
-
-const selectStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '10px 12px',
-  borderRadius: 10,
-  background: '#141426',
-  color: '#fff',
-  border: '1px solid rgba(255,255,255,.12)',
-  marginTop: 6,
-};
-
-const textareaStyle: React.CSSProperties = {
-  width: '100%',
-  height: 140,
-  marginTop: 8,
-  padding: 12,
-  borderRadius: 12,
-  background: '#141426',
-  color: '#fff',
-  border: '1px solid rgba(255,255,255,.12)',
-  outline: 'none',
-};
-
-const btnStyle: React.CSSProperties = {
-  padding: '12px 16px',
-  borderRadius: 12,
-  border: 'none',
-  cursor: 'pointer',
-  background: '#7c3aed',
-  color: '#fff',
-  fontWeight: 700,
-};
-
-const btn2Style: React.CSSProperties = {
-  padding: '12px 16px',
-  borderRadius: 12,
-  border: '1px solid rgba(255,255,255,.18)',
-  cursor: 'pointer',
-  background: '#141426',
-  color: '#fff',
-  fontWeight: 700,
-};
-
-const preStyle: React.CSSProperties = {
-  whiteSpace: 'pre-wrap',
-  background: '#0f1020',
-  border: '1px solid rgba(255,255,255,.12)',
-  padding: 16,
-  borderRadius: 14,
-  minHeight: 220,
-};
-

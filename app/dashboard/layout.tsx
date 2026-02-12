@@ -1,30 +1,42 @@
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+import type { ReactNode } from "react";
+
+export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen bg-black text-white">
-      {/* SIDEBAR */}
-      <aside className="w-64 bg-gradient-to-b from-purple-700 via-purple-900 to-black p-6">
-        <h2 className="text-2xl font-bold mb-10">UGC Agency Pro</h2>
+    <div className="min-h-screen bg-black text-white">
+      <div className="flex">
+        {/* Sidebar */}
+        <aside className="w-72 border-r border-white/10 bg-gradient-to-b from-purple-700 via-purple-900 to-black p-6">
+          <div className="text-2xl font-extrabold">UGC Agency Pro</div>
+          <div className="mt-1 text-xs text-white/70">International dashboard</div>
 
-        <nav className="space-y-4 text-white/80">
-          <a href="/dashboard/overview" className="block hover:text-white">Overview</a>
-          <a href="/dashboard/social" className="block hover:text-white">Social Platforms</a>
-          <a href="/dashboard/campaigns" className="block hover:text-white">Campaigns</a>
-          <a href="/dashboard/creators" className="block hover:text-white">Creators</a>
-          <a href="/dashboard/ai" className="block hover:text-white">AI Generator</a>
-          <a href="/dashboard/settings" className="block hover:text-white">Settings</a>
-        </nav>
-      </aside>
+          <nav className="mt-8 space-y-2 text-white/80">
+            <a className="block rounded-xl px-3 py-2 hover:bg-white/10" href="/dashboard">
+              Aperçu
+            </a>
+            <a className="block rounded-xl px-3 py-2 hover:bg-white/10" href="/dashboard/social">
+              Plateformes sociales
+            </a>
+            <a className="block rounded-xl px-3 py-2 hover:bg-white/10" href="/dashboard/campaigns">
+              Campagnes
+            </a>
+            <a className="block rounded-xl px-3 py-2 hover:bg-white/10" href="/dashboard/creators">
+              Créateurs
+            </a>
+            <a className="block rounded-xl px-3 py-2 hover:bg-white/10" href="/dashboard/ai">
+              Générateur d&apos;IA
+            </a>
+            <a className="block rounded-xl px-3 py-2 hover:bg-white/10" href="/dashboard/settings">
+              Paramètres
+            </a>
+          </nav>
+        </aside>
 
-      {/* MAIN */}
-      <main className="flex-1 p-10 bg-gradient-to-br from-black via-zinc-900 to-purple-950">
-        {children}
-      </main>
+        {/* Main */}
+        <main className="flex-1 bg-gradient-to-br from-black via-zinc-900 to-purple-950 p-8">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
-
 

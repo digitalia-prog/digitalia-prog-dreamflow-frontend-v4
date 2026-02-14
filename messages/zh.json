@@ -1,0 +1,23 @@
+{
+  "Banner": {
+    "text": "测试版上线 — 3个月优惠"
+  },
+  "Hero": {
+    "title": "国际UGC代理平台",
+    "subtitle": "FR / US / UK / ES / CN / AR — 仪表盘 + 本地化AI脚本。",
+    "ctaDashboard": "进入仪表盘",
+    "ctaPricing": "查看价格"
+  },
+  "Pricing": {
+    "title": "测试版定价",
+    "subtitle": "简单清晰，无隐藏费用。",
+    "freeName": "免费版",
+    "freePrice": "0€",
+    "freeDesc": "每月10条脚本（你的logo水印）+ 基础仪表盘",
+    "proName": "专业版",
+    "proPrice": "59€",
+    "proDesc": "每月500条脚本（本地化 hooks/prompts/hashtags/CTAs）",
+    "note": "按月订阅。随时取消。"
+  }
+}
+

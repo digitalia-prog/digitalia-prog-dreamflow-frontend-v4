@@ -1,0 +1,23 @@
+{
+  "Banner": {
+    "text": "BÊTA LAUNCH — Offre spéciale 3 mois"
+  },
+  "Hero": {
+    "title": "Plateforme UGC pour agences internationales",
+    "subtitle": "FR / US / UK / ES / CN / AR — Dashboard + IA scripts localisés.",
+    "ctaDashboard": "Aller au Dashboard",
+    "ctaPricing": "Voir les offres"
+  },
+  "Pricing": {
+    "title": "Pricing Bêta",
+    "subtitle": "Simple, clair, sans surprise.",
+    "freeName": "Free",
+    "freePrice": "0€",
+    "freeDesc": "10 scripts / mois (watermark ton logo) + dashboard basique",
+    "proName": "Pro",
+    "proPrice": "59€",
+    "proDesc": "500 scripts / mois (hooks, prompts, hashtags, CTAs localisés)",
+    "note": "Paiement mensuel. Annule quand tu veux."
+  }
+}
+

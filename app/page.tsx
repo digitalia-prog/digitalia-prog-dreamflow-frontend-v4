@@ -1,5 +1,5 @@
- const COMPANY_NAME = "DreamFlow";
-const PRODUCT_NAME = "DreamFlow – UGC Growth (Bêta)";
+const COMPANY_NAME = "UGC GROWTH";
+const PRODUCT_NAME = "UGC GROWTH — Bêta";
 export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
@@ -26,8 +26,7 @@ export default function Home() {
           >
             Voir les fonctionnalités
           </a>
-        </div>
-      </div>
+        </div       </div>
     </main>
   );
 }

@@ -1,69 +1,41 @@
-import Link from "next/link";
-
-export const metadata = {
-  title: "Conditions Générales — UGC GROWTH",
-};
-
 export default function TermsPage() {
   return (
-    <main <div className="absolute top-6 right-6 flex gap-2 text-sm">
-  <a href="/?lang=fr" className="px-3 py-1 rounded-full border border-white/20 hover:border-white/40">FR</a>
-  <a href="/?lang=en" className="px-3 py-1 rounded-full border border-white/20 hover:border-white/40">EN</a>
-</div>
- className="min-h-screen bg-black text-white px-6 py-12">
+    <main className="min-h-screen bg-black text-white px-6 py-12">
+
+      {/* Language switch */}
+      <div className="absolute top-6 right-6 flex gap-2 text-sm">
+        <a href="/?lang=fr" className="px-3 py-1 rounded-full border border-white/20 hover:border-white/40">FR</a>
+        <a href="/?lang=en" className="px-3 py-1 rounded-full border border-white/20 hover:border-white/40">EN</a>
+      </div>
+
       <div className="max-w-3xl mx-auto">
-        <Link href="/" className="text-white/70 hover:text-white underline underline-offset-4">
-          ← Retour
-        </Link>
+        <h1 className="text-3xl md:text-4xl font-bold mb-6">
+          Conditions Générales (Bêta)
+        </h1>
 
-        <h1 className="mt-6 text-3xl md:text-4xl font-bold">Conditions Générales (Bêta)</h1>
-
-        <p className="mt-3 text-white/70">
-          UGC GROWTH est proposé en version bêta. Certaines fonctionnalités peuvent évoluer.
+        <p className="text-white/70 mb-6">
+          UGC GROWTH est proposé en version bêta.
         </p>
 
-        <div className="mt-8 space-y-6 text-white/80 leading-relaxed">
-          <sectio                     Accès réservé aux utilisateurs autorisés. Toute utilisation abusive (scraping, multi-comptes,
-              contournement) peut entraîner une suspension.
-            </p>
-          </section>
+        <section className="mb-6">
+          <h2 className="font-semibold text-white mb-2">1) Accès</h2>
+          <p className="text-white/70">
+            Accès limité aux utilisateurs autorisés.
+          </p>
+        </section>
 
-          <section>
-            <h2 className="font-semibold text-white">2) Contenus générés</h2>
-            <p>
-              Les scripts générés sont fournis “tels quels”. L’utilisateur reste responsable de la vérification
-              (conformité, droits, claims, etc.).
-            </p>
-          </section>
-
-          <section>
-            <h2 className="font-semibold text-white">3) Sécurité & anti-scam</h2>
-            <p>
-              Nous mettons en place des protections (limites, logs, alertes). Toute tentative de fraude ou d’attaque
-              est interdite.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="font-semibold text-white">4) Support</h2>
-            <p>Support en mode bêta : prioritaire aux retours et aux bugs bloquants.</p>
-          </section>
-
-          <section>
-            <h2 className="font-semibold text-white">5) Modifications</h2>
-            <p>Les présentes CGU peuvent être mises à jour à tout moment.</p>
-          </section>
-
-          <section>
-            <h2 className="font-semibold text-white">6) Paiement</h2>
-            <p>En bêta : paiement sur devis. Stripe n’est pas obligatoire tant que tu fais du “sur devis”.</p>
-          </section>
-        </div>
+        <section className="mb-6">
+          <h2 className="font-semibold text-white mb-2">2) Responsabilité</h2>
+          <p className="text-white/70">
+            Les scripts générés doivent être relus avant utilisation.
+          </p>
+        </section>
 
         <p className="mt-10 text-xs text-white/50">
-          Dernière mise à jour : {new Date().toLocaleDateString()} — © {new Date().getFullYear()} UGC GROWTH
+          © {new Date().getFullYear()} UGC GROWTH
         </p>
       </div>
+
     </main>
   );
 }

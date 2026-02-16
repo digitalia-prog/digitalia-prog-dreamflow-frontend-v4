@@ -23,10 +23,7 @@ export default function TermsPage() {
         </p>
 
         <div className="mt-8 space-y-6 text-white/80 leading-relaxed">
-          <section>
-            <h2 className="font-semibold text-white">1) Accès & utilisation</h2>
-            <p>
-              Accès réservé aux utilisateurs autorisés. Toute utilisation abusive (scraping, multi-comptes,
+          <sectio                     Accès réservé aux utilisateurs autorisés. Toute utilisation abusive (scraping, multi-comptes,
               contournement) peut entraîner une suspension.
             </p>
           </section>

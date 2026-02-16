@@ -1,15 +1,15 @@
-const COMPANY_NAME = "UGC GROWTH";
-const PRODUCT_NAME = "UGC GROWTH — Bêta";
 export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
       <div className="max-w-3xl text-center">
+        
         <h1 className="text-4xl md:text-6xl font-bold mb-6">
-          UGC Agency Pro
+          UGC GROWTH
         </h1>
 
         <p className="text-lg md:text-xl text-gray-400 mb-8">
-          Gérez vos campagnes, créateurs et clients depuis un seul dashboard.
+          La plateforme simple pour gérer vos campagnes UGC,
+          créateurs et clients depuis un seul dashboard.
         </p>
 
         <div className="flex gap-4 justify-center">
@@ -26,7 +26,10 @@ export default function Home() {
           >
             Voir les fonctionnalités
           </a>
-        </div       </div>
+        </div>
+
+      </div>
     </main>
   );
 }
+

@@ -1,94 +1,156 @@
 import Link from "next/link";
 
-const COMPANY_NAME = "DreamFlow";
-const PRODUCT_NAME = "UGC GROWTH";
-
 export const metadata = {
-  title: `${PRODUCT_NAME} — Dashboard UGC + scripts IA`,
-  description:
-    "Plateforme UGC: dashboard, scripts IA, et liens de workflow (Notion/Sheets/Drive) depuis un seul endroit.",
+  title: "UGC GROWTH",
+  description: "Dashboard UGC + scripts IA + workflow en un seul outil.",
 };
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
-      <div className="max-w-4xl w-full text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/15 text-sm text-white/70 mb-6">
-          <span className="h-2 w-2 rounded-full bg-purple-500" />
-          Bêta privée • accès limité
+    <main className="min-h-screen bg-black text-white">
+      <header className="mx-auto max-w-6xl px-6 py-10 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-purple-600/80" />
+          <div className="leading-tight">
+            <div className="font-semibold">UGC GROWTH</div>
+            <div className="text-xs text-white/60">Beta</div>
+          </div>
         </div>
+        <nav className="flex items-center gap-4 text-sm">
+          <a href="#features" className="text-white/70 hover:text-white">Fonctionnalités</a>
+          <a href="#pricing" className="text-white/70 hover:text-white">Prix bêta</a>
+          <Link href="/terms" className="text-white/70 hover:text-white">CGU</Link>
+        </nav>
+      </header>
 
-        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">
-          {PRODUCT_NAME}
-        </h1>
-
-        <p className="mt-5 text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
-          Centralise tes campagnes UGC, créateurs, clients et scripts IA depuis un seul dashboard.
-        </p>
-
-        <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
-            href="/dashboard"
-            className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl font-semibold"
-          >
-            Accéder au Dashboard
-          </Link>
-
-          <a
-            href="#features"
-            className="border border-white/20 hover:border-white/35 px-6 py-3 rounded-xl font-semibold text-white/90"
-          >
-            Voir les fonctionnalités
-          </a>
-        </div>
-
-        <section id="features" className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <div className="font-semibold mb-1">Scripts IA</div>
-            <div className="text-white/70 text-sm">
-              Hooks, scripts, CTA, variantes par réseau + localisation.
-            </div>
+      <section className="mx-auto max-w-6xl px-6 py-16">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-10 md:p-14">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2 text-xs text-white/70">
+            <span className="h-2 w-2 rounded-full bg-purple-500" />
+            Version bêta — accès sur devis
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <div className="font-semibold mb-1">Dashboard UGC</div>
-            <div className="text-white/70 text-sm">
-              Vue campagnes, créateurs, livrables et organisation agence.
-            </div>
-          </div>
+          <h1 className="mt-6 text-4xl md:text-6xl font-bold tracking-tight">
+            UGC GROWTH
+          </h1>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <div className="font-semibold mb-1">Workflow</div>
-            <div className="text-white/70 text-sm">
-              Branche tes liens Notion, Google Sheets et Drive/Dropbox dans les paramètres.
-            </div>
-          </div>
-        </section>
+          <p className="mt-4 max-w-2xl text-white/70 md:text-lg">
+            La plateforme simple pour gérer vos campagnes UGC, créateurs et clients depuis un seul dashboard.
+            Génération de scripts + organisation workflow.
+          </p>
 
-        <section className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-6 text-left">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <div>
-              <div className="text-sm text-white/60">Offre bêta</div>
-              <div className="text-xl font-bold">{PRODUCT_NAME} — Prix bêta</div>
-              <div className="text-white/70 text-sm mt-1">
-                Bêta = accès anticipé + set up workflow + démo. Paiement sur devis (pour l’instant).
-              </div>
-            </div>
-
+          <div className="mt-8 flex flex-wrap gap-4">
             <Link
-              href="/terms"
-              className="text-sm text-white/80 hover:text-white underline underline-offset-4"
+              href="/dashboard"
+              className="rounded-xl bg-purple-600 px-6 py-3 font-semibold hover:bg-purple-700"
             >
-              Voir les Conditions Générales
+              Accéder au Dashboard
             </Link>
+            <a
+              href="#features"
+              className="rounded-xl border border-white/20 px-6 py-3 font-semibold text-white/80 hover:text-white hover:border-white/40"
+            >
+              Voir les fonctionnalités
+            </a>
           </div>
-        </section>
 
-        <footer className="mt-10 text-center text-xs text-white/50">
-          © {new Date().getFullYear()} {COMPANY_NAME} • {PRODUCT_NAME}
-        </footer>
-      </div>
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            <Stat title="Scripts IA" value="10 scripts / 5 min" />
+            <Stat title="Workflow" value="Notion • Sheets • Drive" />
+            <Stat title="Gain de temps" value="2–6h / semaine" />
+          </div>
+        </div>
+      </section>
+
+      <section id="features" className="mx-auto max-w-6xl px-6 py-10">
+        <h2 className="text-2xl md:text-3xl font-bold">Fonctionnalités clés</h2>
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <Card title="Campagnes">
+            Suivi, pipeline, livrables et reporting client.
+          </Card>
+          <Card title="Créateurs / UGC">
+            Casting, scoring et suivi livrables.
+          </Card>
+          <Card title="Scripts IA">
+            Hooks, scripts, CTA et angles par niche.
+          </Card>
+        </div>
+      </section>
+
+      <section id="pricing" className="mx-auto max-w-6xl px-6 py-12">
+        <h2 className="text-2xl md:text-3xl font-bold">Prix bêta</h2>
+        <p className="mt-2 text-white/70">En bêta : on vend sur devis (Stripe non obligatoire).</p>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <PriceCard title="Starter" price="Sur devis" note="Freelance / CM / créateurs UGC">
+            <li>Dashboard</li>
+            <li>Scripts IA</li>
+            <li>Liens workflow</li>
+          </PriceCard>
+
+          <PriceCard title="Pro" price="Sur devis" note="Petites équipes">
+            <li>Tout Starter</li>
+            <li>Templates + process</li>
+            <li>Support prioritaire bêta</li>
+          </PriceCard>
+
+          <PriceCard title="Agency" price="Sur devis" note="Agences">
+            <li>Tout Pro</li>
+            <li>Multi-clients</li>
+            <li>Onboarding + setup workflow</li>
+          </PriceCard>
+        </div>
+      </section>
+
+      <footer className="mx-auto max-w-6xl px-6 py-10 text-sm text-white/60">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-6">
+          <div>© {new Date().getFullYear()} UGC GROWTH</div>
+          <div className="flex items-center gap-4">
+            <Link href="/terms" className="hover:text-white">Conditions générales</Link>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
 
+function Stat({ title, value }: { title: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+      <div className="text-sm text-white/60">{title}</div>
+      <div className="mt-2 text-lg font-semibold">{value}</div>
+    </div>
+  );
+}
+
+function Card({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+      <div className="font-semibold">{title}</div>
+      <div className="mt-2 text-white/70">{children}</div>
+    </div>
+  );
+}
+
+function PriceCard({
+  title,
+  price,
+  note,
+  children,
+}: {
+  title: string;
+  price: string;
+  note: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+      <div className="flex items-baseline justify-between">
+        <div className="text-lg font-semibold">{title}</div>
+        <div className="text-purple-300 font-semibold">{price}</div>
+      </div>
+      <div className="mt-2 text-sm text-white/60">{note}</div>
+      <ul className="mt-4 space-y-2 text-white/75 list-disc pl-5">{children}</ul>
+    </div>
+  );
+}

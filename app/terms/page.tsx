@@ -6,7 +6,11 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-black text-white px-6 py-12">
+    <main <div className="absolute top-6 right-6 flex gap-2 text-sm">
+  <a href="/?lang=fr" className="px-3 py-1 rounded-full border border-white/20 hover:border-white/40">FR</a>
+  <a href="/?lang=en" className="px-3 py-1 rounded-full border border-white/20 hover:border-white/40">EN</a>
+</div>
+ className="min-h-screen bg-black text-white px-6 py-12">
       <div className="max-w-3xl mx-auto">
         <Link href="/" className="text-white/70 hover:text-white underline underline-offset-4">
           ← Retour

@@ -1,37 +1,44 @@
-import Link from "next/link";
+"use client"
+
+import { useState } from "react"
 
 export default function AiPage() {
+  const [result, setResult] = useState("")
+
+  async function generate() {
+    const res = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userType: "agency",
+        platform: "TikTok",
+        objective: "Vente",
+        offer: "Coaching UGC",
+        audience: "E-commerçants",
+        angle: "ROI rapide",
+        hookType: "Question choc",
+        tone: "Direct"
+      })
+    })
+
+    const data = await res.json()
+    setResult(data.prompt)
+  }
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Générateur IA</h1>
-        <Link href="/dashboard" className="text-white/70 hover:text-white">
-          ← Retour au dashboard
-        </Link>
-      </div>
+    <main className="min-h-screen bg-black text-white p-10">
+      <h1 className="text-3xl font-bold mb-6">Script Engine Test</h1>
+      <button
+        onClick={generate}
+        className="px-4 py-2 bg-purple-600 rounded"
+      >
+        Générer
+      </button>
 
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-        <p className="text-white/70">
-          Ici on remettra “les fonctions” comme ton ancien UGC Growth (réseau, objectif, livrable, contexte…).
-          Pour l’instant page stable + prête à brancher l’API.
-        </p>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-            <p className="font-semibold">Mode</p>
-            <p className="mt-2 text-sm text-white/70">UGC / Ads / Hook / Script complet</p>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-            <p className="font-semibold">Entrées</p>
-            <p className="mt-2 text-sm text-white/70">Réseau, offre, objection, angle, prix…</p>
-          </div>
-        </div>
-
-        <button className="mt-6 rounded-xl bg-violet-600/80 px-5 py-3 font-semibold hover:bg-violet-600">
-          Générer (bientôt)
-        </button>
-      </div>
-    </div>
-  );
+      <pre className="mt-6 whitespace-pre-wrap">
+        {result}
+      </pre>
+    </main>
+  )
 }
 

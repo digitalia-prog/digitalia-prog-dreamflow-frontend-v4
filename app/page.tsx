@@ -1,156 +1,215 @@
-import Link from "next/link";
+mkdir -p app/dashboard/ai
 
-export const metadata = {
-  title: "UGC GROWTH",
-  description: "Dashboard UGC + scripts IA + workflow en un seul outil.",
-};
+cat > app/dashboard/ai/page.tsx <<'EOF'
+"use client";
 
-export default function Home() {
-  return (
-    <main className="min-h-screen bg-black text-white">
-      <header className="mx-auto max-w-6xl px-6 py-10 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-purple-600/80" />
-          <div className="leading-tight">
-            <div className="font-semibold">UGC GROWTH</div>
-            <div className="text-xs text-white/60">Beta</div>
-          </div>
-        </div>
-        <nav className="flex items-center gap-4 text-sm">
-          <a href="#features" className="text-white/70 hover:text-white">Fonctionnalités</a>
-          <a href="#pricing" className="text-white/70 hover:text-white">Prix bêta</a>
-          <Link href="/terms" className="text-white/70 hover:text-white">CGU</Link>
-        </nav>
-      </header>
+import { useMemo, useState } from "react";
 
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-10 md:p-14">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2 text-xs text-white/70">
-            <span className="h-2 w-2 rounded-full bg-purple-500" />
-            Version bêta — accès sur devis
-          </div>
+type Lang = "fr" | "en" | "es" | "ar";
+type Mode = "UGC" | "HOOK" | "SCRIPT" | "ADS";
 
-          <h1 className="mt-6 text-4xl md:text-6xl font-bold tracking-tight">
-            UGC GROWTH
-          </h1>
+const PLATFORMS = [
+  "TikTok",
+  "Instagram Reels",
+  "YouTube Shorts",
+  "Facebook Ads",
+  "Snapchat",
+  "Pinterest",
+  "LinkedIn",
+  "X (Twitter)",
+  "Google Ads",
+  "Landing page",
+  "Email",
+  "VSL",
+] as const;
 
-          <p className="mt-4 max-w-2xl text-white/70 md:text-lg">
-            La plateforme simple pour gérer vos campagnes UGC, créateurs et clients depuis un seul dashboard.
-            Génération de scripts + organisation workflow.
-          </p>
+const HOOK_TYPES = [
+  "Question",
+  "Choc / polémique",
+  "Stat / preuve",
+  "Story",
+  "Avant/Après",
+  "Erreur fréquente",
+  "Mythe vs réalité",
+] as const;
 
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Link
-              href="/dashboard"
-              className="rounded-xl bg-purple-600 px-6 py-3 font-semibold hover:bg-purple-700"
-            >
-              Accéder au Dashboard
-            </Link>
-            <a
-              href="#features"
-              className="rounded-xl border border-white/20 px-6 py-3 font-semibold text-white/80 hover:text-white hover:border-white/40"
-            >
-              Voir les fonctionnalités
-            </a>
-          </div>
+const DURATIONS = ["15s", "30s", "45s", "60s"] as const;
 
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
-            <Stat title="Scripts IA" value="10 scripts / 5 min" />
-            <Stat title="Workflow" value="Notion • Sheets • Drive" />
-            <Stat title="Gain de temps" value="2–6h / semaine" />
-          </div>
-        </div>
-      </section>
+const TONES = [
+  "Performance (direct)",
+  "UGC naturel (simple)",
+  "Premium",
+  "Storytelling",
+  "Funny",
+  "Autorité / expert",
+] as const;
 
-      <section id="features" className="mx-auto max-w-6xl px-6 py-10">
-        <h2 className="text-2xl md:text-3xl font-bold">Fonctionnalités clés</h2>
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          <Card title="Campagnes">
-            Suivi, pipeline, livrables et reporting client.
-          </Card>
-          <Card title="Créateurs / UGC">
-            Casting, scoring et suivi livrables.
-          </Card>
-          <Card title="Scripts IA">
-            Hooks, scripts, CTA et angles par niche.
-          </Card>
-        </div>
-      </section>
+const OBJECTIVES = ["Vente", "Lead", "Notoriété", "Conversion", "App install"] as const;
 
-      <section id="pricing" className="mx-auto max-w-6xl px-6 py-12">
-        <h2 className="text-2xl md:text-3xl font-bold">Prix bêta</h2>
-        <p className="mt-2 text-white/70">En bêta : on vend sur devis (Stripe non obligatoire).</p>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          <PriceCard title="Starter" price="Sur devis" note="Freelance / CM / créateurs UGC">
-            <li>Dashboard</li>
-            <li>Scripts IA</li>
-            <li>Liens workflow</li>
-          </PriceCard>
-
-          <PriceCard title="Pro" price="Sur devis" note="Petites équipes">
-            <li>Tout Starter</li>
-            <li>Templates + process</li>
-            <li>Support prioritaire bêta</li>
-          </PriceCard>
-
-          <PriceCard title="Agency" price="Sur devis" note="Agences">
-            <li>Tout Pro</li>
-            <li>Multi-clients</li>
-            <li>Onboarding + setup workflow</li>
-          </PriceCard>
-        </div>
-      </section>
-
-      <footer className="mx-auto max-w-6xl px-6 py-10 text-sm text-white/60">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-6">
-          <div>© {new Date().getFullYear()} UGC GROWTH</div>
-          <div className="flex items-center gap-4">
-            <Link href="/terms" className="hover:text-white">Conditions générales</Link>
-          </div>
-        </div>
-      </footer>
-    </main>
-  );
+function cn(...v: (string | false | null | undefined)[]) {
+  return v.filter(Boolean).join(" ");
 }
 
-function Stat({ title, value }: { title: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-      <div className="text-sm text-white/60">{title}</div>
-      <div className="mt-2 text-lg font-semibold">{value}</div>
-    </div>
-  );
+async function copyText(text: string) {
+  await navigator.clipboard.writeText(text);
 }
 
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-      <div className="font-semibold">{title}</div>
-      <div className="mt-2 text-white/70">{children}</div>
-    </div>
-  );
-}
+export default function AiPage() {
+  const [mode, setMode] = useState<Mode>("UGC");
+  const [language, setLanguage] = useState<Lang>("fr");
+  const [platform, setPlatform] = useState<string>("TikTok");
 
-function PriceCard({
-  title,
-  price,
-  note,
-  children,
-}: {
-  title: string;
-  price: string;
-  note: string;
-  children: React.ReactNode;
-}) {
+  const [objective, setObjective] = useState<string>("Vente");
+  const [audience, setAudience] = useState<string>("");
+  const [offer, setOffer] = useState<string>("");
+  const [price, setPrice] = useState<string>("");
+  const [angle, setAngle] = useState<string>("");
+  const [hookType, setHookType] = useState<string>("Question");
+  const [duration, setDuration] = useState<string>("30s");
+  const [tone, setTone] = useState<string>("UGC naturel (simple)");
+  const [context, setContext] = useState<string>("");
+
+  const [loading, setLoading] = useState(false);
+  const [raw, setRaw] = useState<string>("");
+  const [parsed, setParsed] = useState<any>(null);
+  const [error, setError] = useState<string>("");
+
+  const title = useMemo(() => {
+    if (mode === "UGC") return "Générateur UGC — complet";
+    if (mode === "HOOK") return "Générateur de Hooks";
+    if (mode === "SCRIPT") return "Générateur de Script";
+    return "Générateur Ads Concepts";
+  }, [mode]);
+
+  async function onGenerate() {
+    setLoading(true);
+    setError("");
+    setRaw("");
+    setParsed(null);
+
+    try {
+      const r = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode,
+          platform,
+          language,
+          objective,
+          audience,
+          offer,
+          price,
+          angle,
+          hookType,
+          duration,
+          tone,
+          context,
+        }),
+      });
+
+      const data = await r.json();
+      if (!r.ok) throw new Error(data?.details || data?.error || "Erreur API");
+
+      setRaw(data.raw || "");
+      setParsed(data.parsed ?? null);
+    } catch (e: any) {
+      setError(String(e?.message ?? e));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const inputClass =
+    "w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-purple-600/60";
+
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-      <div className="flex items-baseline justify-between">
-        <div className="text-lg font-semibold">{title}</div>
-        <div className="text-purple-300 font-semibold">{price}</div>
-      </div>
-      <div className="mt-2 text-sm text-white/60">{note}</div>
-      <ul className="mt-4 space-y-2 text-white/75 list-disc pl-5">{children}</ul>
-    </div>
-  );
-}
+    <main className="min-h-screen bg-black text-white px-6 py-10">
+      <div className="mx-auto max-w-6xl">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold">{title}</h1>
+            <p className="mt-2 text-white/70">
+              Choisis réseau + mode + paramètres → génération hooks / scripts / angles / CTA.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {(["UGC", "HOOK", "SCRIPT", "ADS"] as Mode[]).map((m) => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                className={cn(
+                  "rounded-full px-4 py-2 text-sm border",
+                  mode === m
+                    ? "bg-purple-600 border-purple-500"
+                    : "border-white/15 bg-white/5 hover:bg-white/10"
+                )}
+              >
+                {m === "UGC" ? "UGC (tout)" : m === "HOOK" ? "Hooks" : m === "SCRIPT" ? "Script" : "Ads"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Lang + platform */}
+        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <label className="text-sm text-white/70">Langue</label>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(["fr", "en", "es", "ar"] as Lang[]).map((l) => (
+                <button
+                  key={l}
+                  onClick={() => setLanguage(l)}
+                  className={cn(
+                    "rounded-full px-4 py-2 text-sm border",
+                    language === l
+                      ? "bg-purple-600 border-purple-500"
+                      : "border-white/15 bg-white/5 hover:bg-white/10"
+                  )}
+                >
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
+            <p className="mt-3 text-xs text-white/50">
+              (On ajoutera FR/UK/US/AR/ES en UI landing après — ici c’est la langue de génération.)
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <label className="text-sm text-white/70">Réseau / support</label>
+            <select className={cn(inputClass, "mt-2")} value={platform} onChange={(e) => setPlatform(e.target.value)}>
+              {PLATFORMS.map((p) => (
+                <option key={p} value={p} className="bg-black">
+                  {p}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <label className="text-sm text-white/70">Objectif</label>
+            <select className={cn(inputClass, "mt-2")} value={objective} onChange={(e) => setObjective(e.target.value)}>
+              {OBJECTIVES.map((o) => (
+                <option key={o} value={o} className="bg-black">
+                  {o}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Inputs */}
+        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <label className="text-sm text-white/70">Offre</label>
+            <input className={cn(inputClass, "mt-2")} value={offer} onChange={(e) => setOffer(e.target.value)} placeholder="Ex: Lissage brésilien premium, routine skincare, formation..." />
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <label className="text-sm text-white/70">Prix</label>
+            <input className={cn(inputClass, "mt-2")} value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Ex: 49€, 97€/mois, sur devis..." />
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-
+

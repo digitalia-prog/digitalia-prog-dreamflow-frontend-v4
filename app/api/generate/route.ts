@@ -1,93 +1,81 @@
-import { NextResponse } from "next/server";
-import { buildEnginePrompt, EngineInput } from "@/lib/scriptEngine";
+import { buildEnginePrompts, EngineInput } from "@/lib/scriptEngine";
 
-type Req = EngineInput;
+export const runtime = "nodejs";
+
+type ApiOk = { raw: string; parsed: any | null };
+type ApiErr = { error: string; details?: string };
+
+function safeJsonParse(text: string) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as Partial<Req>;
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return Response.json<ApiErr>(
+        { error: "Missing OPENAI_API_KEY in environment variables." },
+        { status: 500 }
+      );
+    }
 
-    // validation minimale
-    const required: (keyof Req)[] = [
-      "mode",
-      "lang",
-      "platform",
-      "objective",
-      "audience",
-      "offer",
-      "angle",
-      "objection",
-      "hookType",
-      "tone",
-      "duration",
-      "framework",
-    ];
-
+    const body = (await req.json()) as Partial<EngineInput>;
+    const required = ["mode","lang","platform","objective","audience","offer","angle","objection","hookType","tone","duration"] as const;
     for (const k of required) {
       if (!body[k]) {
-        return NextResponse.json(
-          { error: `Missing field: ${String(k)}` },
+        return Response.json<ApiErr>(
+          { error: "Missing field", details: String(k) },
           { status: 400 }
         );
       }
     }
 
-    const engineInput = body as Req;
-    const built = buildEnginePrompt(engineInput);
+    const input = body as EngineInput;
+    const { system, user } = buildEnginePrompts(input);
 
-    // ⚠️ Pour l’instant on renvoie un résultat "simulé" (sans OpenAI)
-    // Ensuite on branchera OpenAI proprement (clé dans Vercel env).
-    const simulated = simulateScript(engineInput);
-
-    return NextResponse.json({
-      title: built.title,
-      meta: built.meta,
-      prompt: built.prompt, // ton “propriétaire” = ce prompt structuré
-      output: simulated,    // résultat lisible direct
+    // Responses API (simple via fetch)
+    const r = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-4.1-mini",
+        input: [
+          { role: "system", content: system },
+          { role: "user", content: user },
+        ],
+        temperature: 0.7,
+      }),
     });
+
+    const data = await r.json();
+
+    if (!r.ok) {
+      return Response.json<ApiErr>(
+        { error: "OpenAI API error", details: JSON.stringify(data) },
+        { status: 500 }
+      );
+    }
+
+    // On récupère le texte de sortie
+    const raw =
+      data?.output?.[0]?.content?.[0]?.text ??
+      data?.output_text ??
+      "";
+
+    const parsed = safeJsonParse(raw);
+
+    return Response.json<ApiOk>({ raw, parsed });
   } catch (e: any) {
-    return NextResponse.json(
+    return Response.json<ApiErr>(
       { error: "Server error", details: String(e?.message ?? e) },
       { status: 500 }
     );
   }
-}
-
-// Génération locale (placeholder) : on branchera OpenAI après
-function simulateScript(input: Req) {
-  const v1 = [
-    `HOOK: [${input.hookType}]`,
-    `ATTENTION: Si tu veux ${input.objective.toLowerCase()}, écoute bien.`,
-    `INTEREST: ${input.offer}`,
-    `DESIRE: Angle: ${input.angle} — Objection: ${input.objection}`,
-    `ACTION: Commente "GO" / clique / DM selon objectif.`,
-  ].join("\n\n");
-
-  const v2 = [
-    `PROBLÈME: ${input.objection}`,
-    `AGITATION: Tu perds du temps / argent sans méthode.`,
-    `SOLUTION: ${input.offer}`,
-    `ANGLE: ${input.angle}`,
-    `CTA: Passe à l’action maintenant.`,
-  ].join("\n\n");
-
-  return {
-    variantA: v1,
-    variantB: v2,
-    hooks: [
-      "Hook alternatif 1",
-      "Hook alternatif 2",
-      "Hook alternatif 3",
-    ],
-    ctas: [
-      "CTA alternatif 1",
-      "CTA alternatif 2",
-      "CTA alternatif 3",
-    ],
-    notes: [
-      "Rythme rapide, cuts toutes les 1-2s.",
-      "Sous-titres dynamiques.",
-      "Pattern interrupt visuel au hook.",
-    ],
-  };
 }

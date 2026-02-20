@@ -1,0 +1,116 @@
+"use client";
+
+import { useState } from "react";
+
+export default function AiPage() {
+  const [offer, setOffer] = useState("");
+  const [audience, setAudience] = useState("");
+  const [problem, setProblem] = useState("");
+  const [solution, setSolution] = useState("");
+  const [hak, setHak] = useState("");
+  const [output, setOutput] = useState("");
+
+  function generate() {
+    const hooks = [
+      "STOP ✋ — personne ne t’explique ça correctement.",
+      "Si tu fais encore ça… tu perds des vues.",
+      "Le vrai problème n’est pas ce que tu crois.",
+      "Personne ne parle de cette technique.",
+      "Je vais te montrer un hack que 90% ignorent.",
+    ];
+
+    const hook = hak.trim() || hooks[Math.floor(Math.random() * hooks.length)];
+
+    setOutput(`
+HOOK: ${hook}
+
+STORY: Imagine ${audience || "ton audience"} qui fait cette erreur chaque jour…
+
+PROBLÈME: ${problem || "ils n'obtiennent pas de résultats"}
+
+SOLUTION: ${solution || "une méthode simple et rapide"}
+
+OFFRE: ${offer || "ton produit / service"}
+
+CTA: DM "GO" / lien bio / commente "INFO"
+
+🔥 STRUCTURE VIRALE:
+1️⃣ Hook agressif
+2️⃣ Story courte
+3️⃣ Pattern interrupt
+4️⃣ Solution claire
+5️⃣ CTA direct
+    `);
+  }
+
+  return (
+    <div className="space-y-6">
+
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+        <h1 className="text-2xl font-semibold text-white">
+          Script Engine — IA Viral
+        </h1>
+        <p className="text-sm text-white/60 mt-2">
+          Remplis les champs puis clique sur Générer Script.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-4">
+
+        <input
+          value={offer}
+          onChange={(e) => setOffer(e.target.value)}
+          placeholder="Offre"
+          className="w-full rounded-xl border border-white/10 bg-black/20 p-2"
+        />
+
+        <input
+          value={audience}
+          onChange={(e) => setAudience(e.target.value)}
+          placeholder="Audience"
+          className="w-full rounded-xl border border-white/10 bg-black/20 p-2"
+        />
+
+        <input
+          value={problem}
+          onChange={(e) => setProblem(e.target.value)}
+          placeholder="Problème"
+          className="w-full rounded-xl border border-white/10 bg-black/20 p-2"
+        />
+
+        <input
+          value={solution}
+          onChange={(e) => setSolution(e.target.value)}
+          placeholder="Solution"
+          className="w-full rounded-xl border border-white/10 bg-black/20 p-2"
+        />
+
+        <input
+          value={hak}
+          onChange={(e) => setHak(e.target.value)}
+          placeholder="HAK (optionnel)"
+          className="w-full rounded-xl border border-white/10 bg-black/20 p-2"
+        />
+
+        <button
+          onClick={generate}
+          className="w-full rounded-xl bg-violet-600 px-4 py-3 font-semibold hover:bg-violet-700"
+        >
+          Générer Script
+        </button>
+
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+        <h2 className="text-sm font-semibold text-white/80 mb-3">
+          Script généré
+        </h2>
+
+        <pre className="whitespace-pre-wrap text-sm text-white/85">
+          {output || "Ton script apparaîtra ici..."}
+        </pre>
+      </div>
+
+    </div>
+  );
+}

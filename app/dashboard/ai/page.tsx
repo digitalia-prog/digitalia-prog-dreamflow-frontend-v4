@@ -2,6 +2,14 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 
+/**
+ * Script Engine (Agency / Creator / IA Viral)
+ * - Multi-lang: FR / EN (auto-detect from URL prefix /fr or /en)
+ * - Auto-save via localStorage (per mode)
+ * - Platforms list
+ * - HAK field + HAK hook type
+ */
+
 type Mode = "AGENCY" | "CREATOR" | "VIRAL";
 type HookType = "Question" | "Shock" | "Story" | "Contrarian" | "HAK" | "Direct";
 type Platform =
@@ -30,7 +38,7 @@ type FormState = {
   proof: string;
   cta: string;
 
-  hak: string; // NEW
+  hak: string;
 };
 
 const DEFAULT_STATE: FormState = {
@@ -60,16 +68,18 @@ function getLocaleFromPath(): "fr" | "en" {
 
 const I18N = {
   fr: {
-    title: "Script Engine (IA Viral)",
+    title: "Script Engine",
     subtitle: "Remplis 2–3 champs → clique “Générer Script”. (Auto-save ✅)",
     mode: "Mode",
     modeAgency: "Agence",
     modeCreator: "Créateur",
     modeViral: "IA Viral",
+    params: "Paramètres",
     platform: "Plateforme",
     hookType: "Type de Hook",
     duration: "Durée",
     tone: "Ton",
+    content: "Contenu",
     offer: "Offre",
     audience: "Audience",
     problem: "Problème",
@@ -88,22 +98,24 @@ const I18N = {
       audience: "Ex: créateurs débutants / agences…",
       problem: "Ex: pas de clients / pas de vues…",
       solution: "Ex: méthode / produit / routine…",
-      proof: "Ex: +20 clients en 30 jours / avis…",
+      proof: "Ex: +20 clients en 30 jours / avis / chiffres…",
       cta: 'Ex: DM "GO" / lien bio / commente "INFO"',
       hak: "Ex: 3 erreurs que tout le monde fait / technique secrète / twist…",
     },
   },
   en: {
-    title: "Script Engine (Viral AI)",
+    title: "Script Engine",
     subtitle: 'Fill 2–3 fields → click “Generate Script”. (Auto-save ✅)',
     mode: "Mode",
     modeAgency: "Agency",
     modeCreator: "Creator",
     modeViral: "Viral AI",
+    params: "Settings",
     platform: "Platform",
     hookType: "Hook Type",
     duration: "Duration",
     tone: "Tone",
+    content: "Content",
     offer: "Offer",
     audience: "Audience",
     problem: "Problem",
@@ -122,7 +134,7 @@ const I18N = {
       audience: "Ex: beginner creators / agencies…",
       problem: "Ex: no clients / no views…",
       solution: "Ex: method / product / routine…",
-      proof: "Ex: +20 clients in 30 days / reviews…",
+      proof: "Ex: +20 clients in 30 days / reviews / numbers…",
       cta: 'Ex: DM "GO" / link in bio / comment "INFO"',
       hak: "Ex: 3 mistakes everyone makes / secret technique / twist…",
     },
@@ -130,14 +142,14 @@ const I18N = {
 };
 
 function storageKey(locale: "fr" | "en", mode: Mode) {
-  return `ugc_script_engine_v3:${locale}:${mode}`;
+  return `ugc_script_engine_v4:${locale}:${mode}`;
 }
 
 function rand<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function viralHook(s: FormState) {
+function buildViralHook(s: FormState) {
   const custom = s.hak.trim();
   if (custom) return `HAK: ${custom}`;
 
@@ -149,7 +161,6 @@ function viralHook(s: FormState) {
     "Je vais te montrer un hack que 90% ignorent.",
     "La plupart des gens font ça… et c’est pour ça qu’ils échouent.",
   ];
-
   return rand(hooks);
 }
 
@@ -158,12 +169,17 @@ function generateScript(s: FormState, locale: "fr" | "en") {
 
   const offer = s.offer.trim() || (locale === "fr" ? "ton produit / service" : "your offer");
   const audience = s.audience.trim() || (locale === "fr" ? "ton audience" : "your audience");
-  const problem = s.problem.trim() || (locale === "fr" ? "ils n’ont pas de résultats" : "they have no results");
+  const problem = s.problem.trim() || (locale === "fr" ? "ils n'obtiennent pas de résultats" : "they have no results");
   const solution = s.solution.trim() || (locale === "fr" ? "une méthode simple en 3 étapes" : "a simple 3-step method");
   const proof = s.proof.trim() || (locale === "fr" ? "preuves, avis, chiffres" : "proof, reviews, numbers");
-  const cta = s.cta.trim() || (locale === "fr" ? 'DM "GO" / lien bio' : 'DM "GO" / link in bio');
+  const cta = s.cta.trim() || (locale === "fr" ? 'DM "GO" / lien bio / commente "INFO"' : 'DM "GO" / link in bio / comment "INFO"');
 
-  const hookLine = s.mode === "VIRAL" ? viralHook(s) : "Hook: ...";
+  const hookLine =
+    s.mode === "VIRAL"
+      ? buildViralHook(s)
+      : s.hak.trim()
+        ? `Hook: ${s.hak.trim()}`
+        : "Hook: ...";
 
   const lines: string[] = [];
 
@@ -179,13 +195,16 @@ function generateScript(s: FormState, locale: "fr" | "en") {
   lines.push(`${locale === "fr" ? "OFFRE" : "OFFER"}: ${offer}`);
   lines.push(`${locale === "fr" ? "PREUVE" : "PROOF"}: ${proof}`);
   lines.push(`CTA: ${cta}`);
-  lines.push("");
-  lines.push(locale === "fr" ? "🔥 STRUCTURE VIRALE:" : "🔥 VIRAL STRUCTURE:");
-  lines.push(locale === "fr" ? "1) Hook agressif" : "1) Aggressive hook");
-  lines.push(locale === "fr" ? "2) Story courte" : "2) Short story");
-  lines.push(locale === "fr" ? "3) Pattern interrupt" : "3) Pattern interrupt");
-  lines.push(locale === "fr" ? "4) Preuve rapide" : "4) Fast proof");
-  lines.push(locale === "fr" ? "5) CTA direct" : "5) Direct CTA");
+
+  if (s.mode === "VIRAL") {
+    lines.push("");
+    lines.push(locale === "fr" ? "🔥 STRUCTURE VIRALE:" : "🔥 VIRAL STRUCTURE:");
+    lines.push(locale === "fr" ? "1) Hook agressif" : "1) Aggressive hook");
+    lines.push(locale === "fr" ? "2) Story courte" : "2) Short story");
+    lines.push(locale === "fr" ? "3) Pattern interrupt" : "3) Pattern interrupt");
+    lines.push(locale === "fr" ? "4) Preuve rapide" : "4) Fast proof");
+    lines.push(locale === "fr" ? "5) CTA direct" : "5) Direct CTA");
+  }
 
   return lines.join("\n");
 }
@@ -195,10 +214,9 @@ export default function AiPage() {
   const t = I18N[locale];
 
   const [state, setState] = useState<FormState>(DEFAULT_STATE);
-  const [output, setOutput] = useState("");
-  const [copyStatus, setCopyStatus] = useState("");
+  const [output, setOutput] = useState<string>("");
+  const [copyStatus, setCopyStatus] = useState<string>("");
 
-  // Load per mode
   useEffect(() => {
     try {
       const raw = localStorage.getItem(storageKey(locale, state.mode));
@@ -210,7 +228,6 @@ export default function AiPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale, state.mode]);
 
-  // Auto-save
   useEffect(() => {
     try {
       localStorage.setItem(storageKey(locale, state.mode), JSON.stringify(state));
@@ -225,7 +242,7 @@ export default function AiPage() {
 
   const onCopy = async () => {
     try {
-      await navigator.clipboard.writeText(output);
+      await navigator.clipboard.writeText(output || "");
       setCopyStatus(t.copied);
       setTimeout(() => setCopyStatus(""), 1200);
     } catch {}
@@ -324,7 +341,9 @@ export default function AiPage() {
             </div>
           </div>
 
-          <div className="mt-6 grid gap-4">
+          <div className="mt-6 text-sm font-semibold text-white/80">{t.content}</div>
+
+          <div className="mt-3 grid gap-4">
             <Field label={t.offer} value={state.offer} onChange={(v) => onChange("offer", v)} placeholder={t.placeholders.offer} />
             <Field label={t.audience} value={state.audience} onChange={(v) => onChange("audience", v)} placeholder={t.placeholders.audience} />
             <Field label={t.problem} value={state.problem} onChange={(v) => onChange("problem", v)} placeholder={t.placeholders.problem} />
@@ -346,6 +365,7 @@ export default function AiPage() {
               className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold hover:bg-white/10 md:w-auto"
               onClick={onCopy}
               disabled={!output}
+              title={!output ? "Génère d’abord un script" : ""}
             >
               {t.copy} {copyStatus ? `• ${copyStatus}` : ""}
             </button>
@@ -395,4 +415,5 @@ function Field({
         placeholder={placeholder}
       />
     </div>
-  ); 
+  );
+}

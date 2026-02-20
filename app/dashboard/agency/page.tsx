@@ -11,7 +11,10 @@ export default function AgencyPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         {["Brief", "En production", "Publié"].map((col) => (
-          <div key={col} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div
+            key={col}
+            className="rounded-2xl border border-white/10 bg-white/5 p-4"
+          >
             <div className="text-sm font-semibold">{col}</div>
             <div className="mt-3 h-[220px] rounded-xl border border-white/10 bg-black/20" />
           </div>
@@ -19,4 +22,4 @@ export default function AgencyPage() {
       </div>
     </div>
   );
-}=
+}

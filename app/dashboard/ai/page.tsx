@@ -1,3 +1,34 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+
+type Platform = "TikTok" | "Instagram Reels" | "YouTube Shorts" | "UGC Ads";
+type HookType = "Question" | "Shock" | "Relatable" | "Stats" | "Story";
+
+type Draft = {
+  platform: Platform;
+  hookType: HookType;
+  offer: string;
+  audience: string;
+  pain: string;
+  solution: string;
+  proof: string;
+  cta: string;
+  tone: "Direct" | "Friendly" | "Luxury" | "Funny";
+  duration: "15s" | "30s" | "45s";
+};
+
+const STORAGE_KEY = "ugc_growth_ai_draft_v1";
+
+const defaultDraft: Draft = {
+  platform: "TikTok",
+  hookType: "Relatable",
+  offer: "Ton produit / service (ex: formation UGC, app, boutique…)",
+  audience: "Pour qui ? (ex: agences, créateurs, femmes 18-30…)",
+  pain: "Le problème principal (ex: pas de vues, pas de clients…)",
+  solution: "Ta solution (ex: méthode, produit, routine…)",
+  proof: "Preuve (résultats, avis, chiffres, avant/après…)",
+  cta: "CTA (ex: DM 'GO' / lien bio / commente 'INFO')",
   tone: "Friendly",
   duration: "30s",
 };
@@ -5,7 +36,6 @@
 export default function AiPage() {
   const [draft, setDraft] = useState<Draft>(defaultDraft);
 
-  // Load saved draft
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -13,7 +43,6 @@ export default function AiPage() {
     } catch {}
   }, []);
 
-  // Auto-save draft
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
@@ -75,7 +104,6 @@ export default function AiPage() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-3">
-        {/* LEFT: inputs */}
         <div className="xl:col-span-2 space-y-4">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
             <div className="text-sm font-semibold mb-4">Paramètres</div>
@@ -163,7 +191,6 @@ export default function AiPage() {
           </div>
         </div>
 
-        {/* RIGHT: output */}
         <div className="space-y-4">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
             <div className="flex items-center justify-between">
@@ -217,34 +244,4 @@ function Field({
       />
     </label>
   );
-}"use client";
-
-import { useEffect, useMemo, useState } from "react";
-
-type Platform = "TikTok" | "Instagram Reels" | "YouTube Shorts" | "UGC Ads";
-type HookType = "Question" | "Shock" | "Relatable" | "Stats" | "Story";
-
-type Draft = {
-  platform: Platform;
-  hookType: HookType;
-  offer: string;
-  audience: string;
-  pain: string;
-  solution: string;
-  proof: string;
-  cta: string;
-  tone: "Direct" | "Friendly" | "Luxury" | "Funny";
-  duration: "15s" | "30s" | "45s";
-};
-
-const STORAGE_KEY = "ugc_growth_ai_draft_v1";
-
-const defaultDraft: Draft = {
-  platform: "TikTok",
-  hookType: "Relatable",
-  offer: "Ton produit / service (ex: formation UGC, app, boutique…)",
-  audience: "Pour qui ? (ex: agences, créateurs, femmes 18-30…)",
-  pain: "Le problème principal (ex: pas de vues, pas de clients…)",
-  solution: "Ta solution (ex: méthode, produit, routine…)",
-  proof: "Preuve (résultats, avis, chiffres, avant/après…)",
-  cta: "CTA (ex:
+}

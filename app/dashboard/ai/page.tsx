@@ -57,7 +57,7 @@ export default function AiPage() {
   const [loading, setLoading] = useState(false);
   const [raw, setRaw] = useState<string>("");
   const [parsed, setParsed] = useState<any | null>(null);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string>("");export default function AiPage({ defaultMode = "AGENCY" }: { defaultMode?: "AGENCY" | "CREATOR" })
 
   const title = useMemo(() => {
     return mode === "AGENCY" ? "Script Engine — Agency" : "Script Engine — Creator";
@@ -78,7 +78,8 @@ export default function AiPage() {
           lang,
           platform,
           objective,
-          audience,
+        const [mode, setMode] = useState<Mode>(defaultMode);
+
           offer,
           price,
           angle,

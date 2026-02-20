@@ -1,87 +1,84 @@
-import { buildEnginePrompts, EngineInput } from "@/lib/scriptEngine";
+import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-function safeJsonParse(text: string) {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
-}
+type Body = {
+  mode: string;
+  lang: string;
+  platform: string;
+  hookType: string;
+  duration: string;
+  tone: string;
+  offer?: string;
+  audience?: string;
+  problem?: string;
+  solution?: string;
+  proof?: string;
+  cta?: string;
+  hak?: string;
+};
 
 export async function POST(req: Request) {
   try {
     const apiKey = process.env.OPENAI_API_KEY;
+
     if (!apiKey) {
-      return Response.json(
-        { error: "Missing OPENAI_API_KEY in environment variables." },
+      return NextResponse.json(
+        { error: "OPENAI_API_KEY manquante" },
         { status: 500 }
       );
     }
 
-    const body = (await req.json()) as Partial<EngineInput>;
-    const required = [
-      "mode",
-      "lang",
-      "platform",
-      "objective",
-      "audience",
-      "offer",
-      "angle",
-      "objection",
-      "hookType",
-      "tone",
-      "duration",
-    ] as const;
+    const body = (await req.json()) as Body;
 
-    for (const k of required) {
-      if (!body[k]) {
-        return Response.json(
-        { error: "Missing field", details: String(k) },
-        { status: 400 }
-        );
-      }
-    }
+    const prompt = `
+Tu es un expert script TikTok/Reels.
 
-    const input = body as EngineInput;
-    const { system, user } = buildEnginePrompts(input);
+Crée un script viral structuré :
 
-    const r = await fetch("https://api.openai.com/v1/responses", {
+HOOK:
+STORY:
+PROBLÈME:
+TWIST:
+SOLUTION:
+PREUVE:
+CTA:
+
+Infos:
+Mode: ${body.mode}
+Plateforme: ${body.platform}
+Hook: ${body.hookType}
+Durée: ${body.duration}
+Ton: ${body.tone}
+Offre: ${body.offer}
+Audience: ${body.audience}
+Problème: ${body.problem}
+Solution: ${body.solution}
+Preuve: ${body.proof}
+CTA: ${body.cta}
+HAK: ${body.hak}
+`;
+
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4.1-mini",
-        input: [
-          { role: "system", content: system },
-          { role: "user", content: user },
-        ],
-        temperature: 0.7,
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
       }),
     });
 
-    const data = await r.json();
+    const data = await res.json();
 
-    if (!r.ok) {
-      return Response.json(
-        { error: "OpenAI API error", details: JSON.stringify(data) },
-        { status: 500 }
-      );
-    }
+    const output =
+      data?.choices?.[0]?.message?.content || "Erreur génération";
 
-    const raw =
-      data?.output?.[0]?.content?.[0]?.text ??
-      data?.output_text ??
-      "";
-
-    const parsed = safeJsonParse(raw);
-
-    return Response.json({ raw, parsed });
+    return NextResponse.json({ output });
   } catch (e: any) {
-    return Response.json(
+    return NextResponse.json(
       { error: "Server error", details: String(e?.message ?? e) },
       { status: 500 }
     );

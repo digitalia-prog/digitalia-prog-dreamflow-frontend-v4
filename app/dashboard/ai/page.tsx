@@ -2,33 +2,27 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 
-/**
- * Script Engine (Agency / Creator / IA Viral)
- * - Multi-lang: FR / EN (auto-detect from URL prefix /fr or /en)
- * - Auto-save via localStorage (per mode)
- * - Platforms list
- * - HAK field + HAK hook type
- */
-
 type Mode = "AGENCY" | "CREATOR" | "VIRAL";
-type HookType = "Question" | "Shock" | "Story" | "Contrarian" | "HAK" | "Direct";
+type Lang = "fr" | "en";
+
 type Platform =
   | "TikTok"
   | "Instagram Reels"
   | "YouTube Shorts"
   | "Snapchat Spotlight"
-  | "Facebook Reels"
-  | "LinkedIn"
-  | "X (Twitter)"
+  | "Facebook Ads"
   | "Pinterest";
 
+type HookType = "Question" | "Shock" | "Story" | "Contrarian" | "HAK";
+type Duration = "15s" | "30s" | "45s" | "60s";
 type Tone = "Friendly" | "Luxury" | "Humor" | "Authority" | "Calm" | "Hype";
 
 type FormState = {
   mode: Mode;
+  lang: Lang;
   platform: Platform;
   hookType: HookType;
-  duration: "15s" | "30s" | "45s" | "60s";
+  duration: Duration;
   tone: Tone;
 
   offer: string;
@@ -37,64 +31,73 @@ type FormState = {
   solution: string;
   proof: string;
   cta: string;
-
   hak: string;
 };
 
-const DEFAULT_STATE: FormState = {
-  mode: "VIRAL",
-  platform: "TikTok",
-  hookType: "HAK",
-  duration: "30s",
-  tone: "Hype",
-
-  offer: "",
-  audience: "",
-  problem: "",
-  solution: "",
-  proof: "",
-  cta: "",
-
-  hak: "",
+type ApiOk = {
+  output: string;
+  raw?: string;
+  parsed?: any;
 };
 
-function getLocaleFromPath(): "fr" | "en" {
+type ApiErr = {
+  error: string;
+  details?: string;
+};
+
+const PLATFORMS: Platform[] = [
+  "TikTok",
+  "Instagram Reels",
+  "YouTube Shorts",
+  "Snapchat Spotlight",
+  "Facebook Ads",
+  "Pinterest",
+];
+
+const HOOKS: HookType[] = ["Question", "Shock", "Story", "Contrarian", "HAK"];
+const DURATIONS: Duration[] = ["15s", "30s", "45s", "60s"];
+const TONES: Tone[] = ["Friendly", "Luxury", "Humor", "Authority", "Calm", "Hype"];
+
+function getLangFromUrl(): Lang {
   if (typeof window === "undefined") return "fr";
   const p = window.location.pathname;
-  if (p.startsWith("/en/") || p === "/en") return "en";
-  if (p.startsWith("/fr/") || p === "/fr") return "fr";
+  const qs = new URLSearchParams(window.location.search);
+  const qLang = qs.get("lang");
+  if (qLang === "en") return "en";
+  if (p.startsWith("/en")) return "en";
   return "fr";
 }
 
-const I18N = {
+function storageKey(lang: Lang) {
+  return `ugc_growth_script_engine_v1:${lang}`;
+}
+
+const i18n = {
   fr: {
     title: "Script Engine",
-    subtitle: "Remplis 2–3 champs → clique “Générer Script”. (Auto-save ✅)",
+    subtitle: "Remplis 2–3 champs → clique “Générer”. (Auto-save ✅)",
     mode: "Mode",
-    modeAgency: "Agence",
-    modeCreator: "Créateur",
-    modeViral: "IA Viral",
-    params: "Paramètres",
+    agency: "Agency",
+    creator: "Creator",
+    viral: "Viral IA",
+    lang: "Langue",
     platform: "Plateforme",
-    hookType: "Type de Hook",
+    hookType: "Type de hook",
     duration: "Durée",
     tone: "Ton",
-    content: "Contenu",
     offer: "Offre",
     audience: "Audience",
     problem: "Problème",
     solution: "Solution",
     proof: "Preuve",
     cta: "CTA",
-    hak: "HAK (angle viral / hack / twist)",
-    generate: "Générer Script",
-    copy: "Copier",
+    hak: "HAK (twist / hack viral)",
+    generate: "Générer",
     reset: "Reset",
-    generated: "Script généré",
-    clickGenerate: "Clique sur “Générer Script” pour voir le résultat ici.",
-    copied: "Copié ✅",
+    generated: "Résultat",
+    clickGenerate: "Clique “Générer” pour voir le script ici.",
     placeholders: {
-      offer: "Ex: Formation UGC / App / Boutique…",
+      offer: "Ex: Formation UGC / SaaS / Produit…",
       audience: "Ex: créateurs débutants / agences…",
       problem: "Ex: pas de clients / pas de vues…",
       solution: "Ex: méthode / produit / routine…",
@@ -105,288 +108,338 @@ const I18N = {
   },
   en: {
     title: "Script Engine",
-    subtitle: 'Fill 2–3 fields → click “Generate Script”. (Auto-save ✅)',
+    subtitle: "Fill 2–3 fields → click “Generate”. (Auto-save ✅)",
     mode: "Mode",
-    modeAgency: "Agency",
-    modeCreator: "Creator",
-    modeViral: "Viral AI",
-    params: "Settings",
+    agency: "Agency",
+    creator: "Creator",
+    viral: "Viral AI",
+    lang: "Language",
     platform: "Platform",
-    hookType: "Hook Type",
+    hookType: "Hook type",
     duration: "Duration",
     tone: "Tone",
-    content: "Content",
     offer: "Offer",
     audience: "Audience",
     problem: "Problem",
     solution: "Solution",
     proof: "Proof",
     cta: "CTA",
-    hak: "HAK (viral angle / hack / twist)",
-    generate: "Generate Script",
-    copy: "Copy",
+    hak: "HAK (viral twist / hack)",
+    generate: "Generate",
     reset: "Reset",
-    generated: "Generated script",
-    clickGenerate: 'Click “Generate Script” to see the result here.',
-    copied: "Copied ✅",
+    generated: "Output",
+    clickGenerate: "Click “Generate” to see the script here.",
     placeholders: {
-      offer: "Ex: UGC course / App / Store…",
-      audience: "Ex: beginner creators / agencies…",
-      problem: "Ex: no clients / no views…",
-      solution: "Ex: method / product / routine…",
-      proof: "Ex: +20 clients in 30 days / reviews / numbers…",
-      cta: 'Ex: DM "GO" / link in bio / comment "INFO"',
-      hak: "Ex: 3 mistakes everyone makes / secret technique / twist…",
+      offer: "e.g. UGC course / SaaS / product…",
+      audience: "e.g. beginner creators / agencies…",
+      problem: "e.g. no clients / no views…",
+      solution: "e.g. method / product / routine…",
+      proof: "e.g. +20 clients in 30 days / reviews / numbers…",
+      cta: 'e.g. DM "GO" / link in bio / comment "INFO"',
+      hak: "e.g. 3 mistakes everyone makes / secret technique / twist…",
     },
   },
 };
 
-function storageKey(locale: "fr" | "en", mode: Mode) {
-  return `ugc_script_engine_v4:${locale}:${mode}`;
-}
+function buildLocalScript(s: FormState): string {
+  const lang = s.lang;
+  const title = lang === "fr" ? "SCRIPT (bêta)" : "SCRIPT (beta)";
 
-function rand<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
+  const hook =
+    s.hookType === "HAK"
+      ? (s.hak?.trim()
+          ? `HAK: ${s.hak.trim()}`
+          : lang === "fr"
+          ? "HAK: le twist que personne ne te dit."
+          : "HAK: the twist nobody tells you.")
+      : `${s.hookType}: ${
+          lang === "fr"
+            ? "accroche forte dès la 1ère seconde."
+            : "strong hook in the first second."
+        }`;
 
-function buildViralHook(s: FormState) {
-  const custom = s.hak.trim();
-  if (custom) return `HAK: ${custom}`;
+  const lines = [
+    `${title} — ${s.platform} — ${s.duration} — ${s.tone}`,
+    "",
+    hook,
+    "",
+    lang === "fr" ? `OFFRE: ${s.offer}` : `OFFER: ${s.offer}`,
+    lang === "fr" ? `AUDIENCE: ${s.audience}` : `AUDIENCE: ${s.audience}`,
+    "",
+    lang === "fr" ? `PROBLÈME: ${s.problem}` : `PROBLEM: ${s.problem}`,
+    lang === "fr" ? `SOLUTION: ${s.solution}` : `SOLUTION: ${s.solution}`,
+    s.proof ? (lang === "fr" ? `PREUVE: ${s.proof}` : `PROOF: ${s.proof}`) : "",
+    "",
+    lang === "fr"
+      ? "STRUCTURE (simple):"
+      : "STRUCTURE (simple):",
+    lang === "fr"
+      ? "1) Hook + promesse"
+      : "1) Hook + promise",
+    lang === "fr"
+      ? "2) Problème (1 phrase) + agitation (1 phrase)"
+      : "2) Problem (1 line) + agitation (1 line)",
+    lang === "fr"
+      ? "3) Solution + preuve"
+      : "3) Solution + proof",
+    lang === "fr"
+      ? `4) CTA: ${s.cta}`
+      : `4) CTA: ${s.cta}`,
+    "",
+    lang === "fr"
+      ? "NOTES MONTAGE: cuts toutes les 1–2s, sous-titres, pattern interrupt au hook."
+      : "EDIT NOTES: cuts every 1–2s, captions, pattern interrupt at the hook.",
+  ]
+    .filter(Boolean)
+    .join("\n");
 
-  const hooks = [
-    "STOP ✋ — personne ne t’explique ça correctement.",
-    "Si tu fais encore ça… tu perds des vues.",
-    "Le vrai problème n’est pas ce que tu crois.",
-    "Personne ne parle de cette technique.",
-    "Je vais te montrer un hack que 90% ignorent.",
-    "La plupart des gens font ça… et c’est pour ça qu’ils échouent.",
-  ];
-  return rand(hooks);
-}
-
-function generateScript(s: FormState, locale: "fr" | "en") {
-  const t = I18N[locale];
-
-  const offer = s.offer.trim() || (locale === "fr" ? "ton produit / service" : "your offer");
-  const audience = s.audience.trim() || (locale === "fr" ? "ton audience" : "your audience");
-  const problem = s.problem.trim() || (locale === "fr" ? "ils n'obtiennent pas de résultats" : "they have no results");
-  const solution = s.solution.trim() || (locale === "fr" ? "une méthode simple en 3 étapes" : "a simple 3-step method");
-  const proof = s.proof.trim() || (locale === "fr" ? "preuves, avis, chiffres" : "proof, reviews, numbers");
-  const cta = s.cta.trim() || (locale === "fr" ? 'DM "GO" / lien bio / commente "INFO"' : 'DM "GO" / link in bio / comment "INFO"');
-
-  const hookLine =
-    s.mode === "VIRAL"
-      ? buildViralHook(s)
-      : s.hak.trim()
-        ? `Hook: ${s.hak.trim()}`
-        : "Hook: ...";
-
-  const lines: string[] = [];
-
-  lines.push(`🎬 ${t.platform}: ${s.platform} • ${s.duration} • ${t.tone}: ${s.tone}`);
-  lines.push(`⚡ ${t.mode}: ${s.mode === "AGENCY" ? t.modeAgency : s.mode === "CREATOR" ? t.modeCreator : t.modeViral}`);
-  lines.push("");
-  lines.push(`HOOK: ${hookLine}`);
-  lines.push("");
-  lines.push(`${locale === "fr" ? "STORY" : "STORY"}: ${locale === "fr" ? `Imagine ${audience}…` : `Imagine ${audience}…`}`);
-  lines.push(`${locale === "fr" ? "PROBLÈME" : "PROBLEM"}: ${problem}`);
-  lines.push(`${locale === "fr" ? "TWIST" : "TWIST"}: ${locale === "fr" ? "Et pourtant la solution est plus simple que tu crois." : "But the solution is simpler than you think."}`);
-  lines.push(`${locale === "fr" ? "SOLUTION" : "SOLUTION"}: ${solution}`);
-  lines.push(`${locale === "fr" ? "OFFRE" : "OFFER"}: ${offer}`);
-  lines.push(`${locale === "fr" ? "PREUVE" : "PROOF"}: ${proof}`);
-  lines.push(`CTA: ${cta}`);
-
-  if (s.mode === "VIRAL") {
-    lines.push("");
-    lines.push(locale === "fr" ? "🔥 STRUCTURE VIRALE:" : "🔥 VIRAL STRUCTURE:");
-    lines.push(locale === "fr" ? "1) Hook agressif" : "1) Aggressive hook");
-    lines.push(locale === "fr" ? "2) Story courte" : "2) Short story");
-    lines.push(locale === "fr" ? "3) Pattern interrupt" : "3) Pattern interrupt");
-    lines.push(locale === "fr" ? "4) Preuve rapide" : "4) Fast proof");
-    lines.push(locale === "fr" ? "5) CTA direct" : "5) Direct CTA");
-  }
-
-  return lines.join("\n");
+  return lines;
 }
 
 export default function AiPage() {
-  const locale = useMemo(() => getLocaleFromPath(), []);
-  const t = I18N[locale];
+  const initialLang = useMemo(() => getLangFromUrl(), []);
+  const [state, setState] = useState<FormState>(() => {
+    const base: FormState = {
+      mode: "VIRAL",
+      lang: initialLang,
+      platform: "TikTok",
+      hookType: "HAK",
+      duration: "30s",
+      tone: "Humor",
+      offer: "",
+      audience: "",
+      problem: "",
+      solution: "",
+      proof: "",
+      cta: "",
+      hak: "",
+    };
 
-  const [state, setState] = useState<FormState>(DEFAULT_STATE);
-  const [output, setOutput] = useState<string>("");
-  const [copyStatus, setCopyStatus] = useState<string>("");
+    if (typeof window === "undefined") return base;
+    try {
+      const saved = window.localStorage.getItem(storageKey(initialLang));
+      if (!saved) return base;
+      return { ...base, ...JSON.parse(saved) };
+    } catch {
+      return base;
+    }
+  });
 
+  const t = i18n[state.lang];
+
+  const [loading, setLoading] = useState(false);
+  const [output, setOutput] = useState("");
+  const [error, setError] = useState("");
+
+  // autosave
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(storageKey(locale, state.mode));
-      if (raw) {
-        const parsed = JSON.parse(raw) as Partial<FormState>;
-        setState((prev) => ({ ...prev, ...parsed, mode: prev.mode }));
-      }
+      window.localStorage.setItem(storageKey(state.lang), JSON.stringify(state));
     } catch {}
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale, state.mode]);
+  }, [state]);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(storageKey(locale, state.mode), JSON.stringify(state));
-    } catch {}
-  }, [locale, state]);
+  function onChange<K extends keyof FormState>(key: K, value: FormState[K]) {
+    setState((s) => ({ ...s, [key]: value }));
+  }
 
-  const onChange = <K extends keyof FormState>(key: K, value: FormState[K]) => {
-    setState((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const onGenerate = () => setOutput(generateScript(state, locale));
-
-  const onCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(output || "");
-      setCopyStatus(t.copied);
-      setTimeout(() => setCopyStatus(""), 1200);
-    } catch {}
-  };
-
-  const onReset = () => {
-    setState((prev) => ({ ...DEFAULT_STATE, mode: prev.mode }));
+  function onReset() {
+    setState((s) => ({
+      ...s,
+      mode: "VIRAL",
+      platform: "TikTok",
+      hookType: "HAK",
+      duration: "30s",
+      tone: "Humor",
+      offer: "",
+      audience: "",
+      problem: "",
+      solution: "",
+      proof: "",
+      cta: "",
+      hak: "",
+    }));
     setOutput("");
-  };
+    setError("");
+  }
+
+  async function onGenerate() {
+    setLoading(true);
+    setError("");
+
+    try {
+      const r = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(state),
+      });
+
+      const data = (await r.json()) as ApiOk | ApiErr;
+
+      if (!r.ok) {
+        const err = data as ApiErr;
+        throw new Error(err.details || err.error || "Erreur API");
+      }
+
+      const ok = data as ApiOk;
+      setOutput(ok.output || ok.raw || "");
+      if (!ok.output && !ok.raw) setOutput(buildLocalScript(state));
+    } catch (e: any) {
+      setError(String(e?.message ?? e));
+      // fallback local
+      setOutput(buildLocalScript(state));
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-        <div className="text-2xl font-semibold">{t.title}</div>
-        <div className="mt-1 text-sm text-white/60">{t.subtitle}</div>
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-3">
-        <div className="xl:col-span-2 rounded-2xl border border-white/10 bg-white/5 p-5">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="text-sm text-white/70">{t.mode}</label>
-              <select
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2"
-                value={state.mode}
-                onChange={(e) => onChange("mode", e.target.value as Mode)}
-              >
-                <option value="AGENCY">{t.modeAgency}</option>
-                <option value="CREATOR">{t.modeCreator}</option>
-                <option value="VIRAL">{t.modeViral}</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="text-sm text-white/70">{t.platform}</label>
-              <select
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2"
-                value={state.platform}
-                onChange={(e) => onChange("platform", e.target.value as Platform)}
-              >
-                <option value="TikTok">TikTok</option>
-                <option value="Instagram Reels">Instagram Reels</option>
-                <option value="YouTube Shorts">YouTube Shorts</option>
-                <option value="Snapchat Spotlight">Snapchat Spotlight</option>
-                <option value="Facebook Reels">Facebook Reels</option>
-                <option value="LinkedIn">LinkedIn</option>
-                <option value="X (Twitter)">X (Twitter)</option>
-                <option value="Pinterest">Pinterest</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="text-sm text-white/70">{t.hookType}</label>
-              <select
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2"
-                value={state.hookType}
-                onChange={(e) => onChange("hookType", e.target.value as HookType)}
-              >
-                <option value="Question">Question</option>
-                <option value="Shock">Shock</option>
-                <option value="Story">Story</option>
-                <option value="Contrarian">Contrarian</option>
-                <option value="HAK">HAK</option>
-                <option value="Direct">Direct</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="text-sm text-white/70">{t.duration}</label>
-              <select
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2"
-                value={state.duration}
-                onChange={(e) => onChange("duration", e.target.value as FormState["duration"])}
-              >
-                <option value="15s">15s</option>
-                <option value="30s">30s</option>
-                <option value="45s">45s</option>
-                <option value="60s">60s</option>
-              </select>
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="text-sm text-white/70">{t.tone}</label>
-              <select
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2"
-                value={state.tone}
-                onChange={(e) => onChange("tone", e.target.value as Tone)}
-              >
-                <option value="Friendly">Friendly</option>
-                <option value="Luxury">Luxury</option>
-                <option value="Humor">Humor</option>
-                <option value="Authority">Authority</option>
-                <option value="Calm">Calm</option>
-                <option value="Hype">Hype</option>
-              </select>
-            </div>
+    <div className="min-h-screen bg-[#07060A] text-white">
+      <div className="mx-auto max-w-5xl px-6 py-8 space-y-6">
+        <div className="flex items-start gap-4">
+          <div className="flex-1">
+            <div className="text-2xl font-bold">{t.title}</div>
+            <div className="mt-1 text-sm text-white/60">{t.subtitle}</div>
           </div>
 
-          <div className="mt-6 text-sm font-semibold text-white/80">{t.content}</div>
-
-          <div className="mt-3 grid gap-4">
-            <Field label={t.offer} value={state.offer} onChange={(v) => onChange("offer", v)} placeholder={t.placeholders.offer} />
-            <Field label={t.audience} value={state.audience} onChange={(v) => onChange("audience", v)} placeholder={t.placeholders.audience} />
-            <Field label={t.problem} value={state.problem} onChange={(v) => onChange("problem", v)} placeholder={t.placeholders.problem} />
-            <Field label={t.solution} value={state.solution} onChange={(v) => onChange("solution", v)} placeholder={t.placeholders.solution} />
-            <Field label={t.proof} value={state.proof} onChange={(v) => onChange("proof", v)} placeholder={t.placeholders.proof} />
-            <Field label={t.hak} value={state.hak} onChange={(v) => onChange("hak", v)} placeholder={t.placeholders.hak} />
-            <Field label={t.cta} value={state.cta} onChange={(v) => onChange("cta", v)} placeholder={t.placeholders.cta} />
-          </div>
-
-          <div className="mt-6 flex flex-col gap-3 md:flex-row">
+          <div className="flex items-center gap-2 text-xs">
             <button
-              className="w-full rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold hover:bg-violet-700 md:w-auto"
-              onClick={onGenerate}
+              onClick={() => onChange("lang", "fr")}
+              className={`px-3 py-1 rounded-full border ${
+                state.lang === "fr" ? "border-violet-400/60 bg-violet-600/10" : "border-white/15"
+              }`}
             >
-              {t.generate}
+              FR
             </button>
-
             <button
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold hover:bg-white/10 md:w-auto"
-              onClick={onCopy}
-              disabled={!output}
-              title={!output ? "Génère d’abord un script" : ""}
+              onClick={() => onChange("lang", "en")}
+              className={`px-3 py-1 rounded-full border ${
+                state.lang === "en" ? "border-violet-400/60 bg-violet-600/10" : "border-white/15"
+              }`}
             >
-              {t.copy} {copyStatus ? `• ${copyStatus}` : ""}
+              EN
             </button>
-
-            <button
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold hover:bg-white/10 md:w-auto"
-              onClick={onReset}
-            >
-              {t.reset}
-            </button>
-
-            <div className="ml-auto flex items-center text-xs text-white/60">Auto-save ✅</div>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-          <div className="text-sm font-semibold text-white/80">{t.generated}</div>
-          <div className="mt-3 rounded-xl border border-white/10 bg-black/30 p-4">
-            <pre className="whitespace-pre-wrap text-sm text-white/85">
-              {output ? output : t.clickGenerate}
-            </pre>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 space-y-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Select
+                label={t.mode}
+                value={state.mode}
+                onChange={(v) => onChange("mode", v as Mode)}
+                options={[
+                  { label: t.agency, value: "AGENCY" },
+                  { label: t.creator, value: "CREATOR" },
+                  { label: t.viral, value: "VIRAL" },
+                ]}
+              />
+
+              <Select
+                label={t.platform}
+                value={state.platform}
+                onChange={(v) => onChange("platform", v as Platform)}
+                options={PLATFORMS.map((p) => ({ label: p, value: p }))}
+              />
+
+              <Select
+                label={t.hookType}
+                value={state.hookType}
+                onChange={(v) => onChange("hookType", v as HookType)}
+                options={HOOKS.map((h) => ({ label: h, value: h }))}
+              />
+
+              <Select
+                label={t.duration}
+                value={state.duration}
+                onChange={(v) => onChange("duration", v as Duration)}
+                options={DURATIONS.map((d) => ({ label: d, value: d }))}
+              />
+
+              <Select
+                label={t.tone}
+                value={state.tone}
+                onChange={(v) => onChange("tone", v as Tone)}
+                options={TONES.map((x) => ({ label: x, value: x }))}
+              />
+            </div>
+
+            <div className="grid gap-3">
+              <Field
+                label={t.offer}
+                value={state.offer}
+                onChange={(v) => onChange("offer", v)}
+                placeholder={t.placeholders.offer}
+              />
+              <Field
+                label={t.audience}
+                value={state.audience}
+                onChange={(v) => onChange("audience", v)}
+                placeholder={t.placeholders.audience}
+              />
+              <Field
+                label={t.problem}
+                value={state.problem}
+                onChange={(v) => onChange("problem", v)}
+                placeholder={t.placeholders.problem}
+              />
+              <Field
+                label={t.solution}
+                value={state.solution}
+                onChange={(v) => onChange("solution", v)}
+                placeholder={t.placeholders.solution}
+              />
+              <Field
+                label={t.proof}
+                value={state.proof}
+                onChange={(v) => onChange("proof", v)}
+                placeholder={t.placeholders.proof}
+              />
+              <Field
+                label={t.cta}
+                value={state.cta}
+                onChange={(v) => onChange("cta", v)}
+                placeholder={t.placeholders.cta}
+              />
+              <Field
+                label={t.hak}
+                value={state.hak}
+                onChange={(v) => onChange("hak", v)}
+                placeholder={t.placeholders.hak}
+              />
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                onClick={onGenerate}
+                disabled={loading}
+                className={`rounded-xl px-4 py-2 text-sm font-semibold ${
+                  loading ? "bg-white/10" : "bg-violet-600 hover:bg-violet-500"
+                }`}
+              >
+                {loading ? "..." : t.generate}
+              </button>
+
+              <button
+                onClick={onReset}
+                className="rounded-xl px-4 py-2 text-sm font-semibold bg-white/5 hover:bg-white/10 border border-white/10"
+              >
+                {t.reset}
+              </button>
+
+              <div className="ml-auto text-xs text-white/60">Auto-save ✅</div>
+            </div>
+
+            {error ? <div className="text-sm text-red-400">{error}</div> : null}
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <div className="text-sm font-semibold text-white/80">{t.generated}</div>
+            <div className="mt-3 rounded-xl border border-white/10 bg-black/30 p-4">
+              <pre className="whitespace-pre-wrap text-sm text-white/85">
+                {output ? output : t.clickGenerate}
+              </pre>
+            </div>
           </div>
         </div>
       </div>
@@ -409,11 +462,40 @@ function Field({
     <div>
       <label className="text-sm text-white/70">{label}</label>
       <input
-        className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2"
+        className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 outline-none focus:border-violet-400/50"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
       />
+    </div>
+  );
+}
+
+function Select({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { label: string; value: string }[];
+}) {
+  return (
+    <div>
+      <label className="text-sm text-white/70">{label}</label>
+      <select
+        className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 outline-none focus:border-violet-400/50"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }

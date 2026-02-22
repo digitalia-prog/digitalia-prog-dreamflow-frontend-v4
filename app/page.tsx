@@ -2,66 +2,57 @@ import Link from "next/link";
 
 export const metadata = {
   title: "UGC GROWTH",
-  description: "Dashboard UGC + Script Engine IA + workflow en un seul outil.",
+  description: "Dashboard UGC + Script Engine IA + workflow.",
 };
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white">
-      {/* Header */}
+
+      {/* HEADER */}
       <header className="mx-auto max-w-6xl px-6 py-10 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-purple-600/80" />
-          <div className="leading-tight">
+          <div>
             <div className="font-semibold">UGC GROWTH</div>
             <div className="text-xs text-white/60">Beta</div>
           </div>
         </div>
 
         <nav className="hidden md:flex items-center gap-4 text-sm">
-          <a href="#features" className="text-white/70 hover:text-white">
-            Fonctionnalités
-          </a>
-          <a href="#pricing" className="text-white/70 hover:text-white">
-            Prix
-          </a>
-          <a href="#faq" className="text-white/70 hover:text-white">
-            FAQ
-          </a>
-          <a href="#feedback" className="text-white/70 hover:text-white">
-            Feedback
-          </a>
-          <Link href="/terms" className="text-white/70 hover:text-white">
-            CGU
-          </Link>
+          <a href="#features" className="text-white/70 hover:text-white">Fonctionnalités</a>
+          <a href="#pricing" className="text-white/70 hover:text-white">Prix</a>
+          <a href="#faq" className="text-white/70 hover:text-white">FAQ</a>
+          <a href="#feedback" className="text-white/70 hover:text-white">Feedback</a>
+          <Link href="/terms" className="text-white/70 hover:text-white">CGU</Link>
         </nav>
 
-        {/* Lang quick links (site multilang) */}
+        {/* LANGUES */}
         <div className="flex items-center gap-2 text-xs">
-          <a className="rounded-full border border-white/15 px-3 py-1 text-white/70 hover:text-white hover:border-white/30" href="/?lang=fr">
-            FR
-          </a>
-          <a className="rounded-full border border-white/15 px-3 py-1 text-white/70 hover:text-white hover:border-white/30" href="/?lang=en">
-            EN
-          </a>
+          <span className="rounded-full border border-white/15 px-3 py-1 text-white/70">FR</span>
+          <span className="rounded-full border border-white/15 px-3 py-1 text-white/70">EN</span>
+          <span className="rounded-full border border-white/15 px-3 py-1 text-white/70">AR</span>
+          <span className="rounded-full border border-white/15 px-3 py-1 text-white/70">ES</span>
+          <span className="rounded-full border border-white/15 px-3 py-1 text-white/70">中文</span>
         </div>
       </header>
 
-      {/* Hero */}
+      {/* HERO */}
       <section className="mx-auto max-w-6xl px-6 pb-16">
         <div className="rounded-3xl border border-white/10 bg-white/5 p-10 md:p-14">
+
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm text-white/80">
             <span className="h-2 w-2 rounded-full bg-purple-500" />
-            Beta — 7 jours gratuit pour tests (API limitée)
+            Beta — accès test contrôlé (rate limit anti-abus)
           </div>
 
           <h1 className="mt-6 text-4xl md:text-6xl font-bold tracking-tight">
-            Le dashboard UGC <span className="text-purple-300">qui génère</span> et organise.
+            Scripts IA qui convertissent.
           </h1>
 
           <p className="mt-4 max-w-2xl text-white/70 md:text-lg">
-            Centralise campagnes, créateurs, briefs, et utilise le <b>Script Engine IA</b> (Viral / HAK) pour produire des scripts
-            structurés rapidement — sans “site factice”.
+            Dashboard UGC + Script Engine IA pour créateurs et agences.
+            Workflow clair, génération rapide, résultat professionnel.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
@@ -78,91 +69,64 @@ export default function Home() {
             >
               Voir les offres
             </a>
-
-            <Link
-              href="/terms"
-              className="rounded-xl border border-white/20 px-6 py-3 font-semibold text-white/80 hover:bg-white/5"
-            >
-              Conditions (CGU)
-            </Link>
           </div>
 
           <div className="mt-10 grid gap-4 md:grid-cols-3">
-            <MiniCard title="Script Engine (IA Viral + HAK)">
-              Hooks + story + objections + preuves + CTA. Format clair, prêt à tourner.
+            <MiniCard title="Script Engine IA">
+              Hooks, storytelling, émotion, branding et CTA.
             </MiniCard>
-            <MiniCard title="Workflow agence & créateur">
-              Pipeline simple : briefs, creators, scripts, validations, publications.
+            <MiniCard title="Creator & Agency">
+              Deux modes adaptés selon ton workflow.
             </MiniCard>
-            <MiniCard title="Multi-langue">
-              FR/EN (et extensible) pour servir agences et créateurs internationaux.
+            <MiniCard title="Multi-langues">
+              FR / EN / AR / ES / 中文.
             </MiniCard>
           </div>
+
         </div>
       </section>
 
-      {/* Features */}
+      {/* FEATURES */}
       <section id="features" className="mx-auto max-w-6xl px-6 py-14">
-        <div className="flex items-end justify-between gap-6 flex-wrap">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold">Fonctionnalités clés</h2>
-            <p className="mt-2 text-white/65 max-w-2xl">
-              L’objectif : une démo propre, claire, qui marche — pas un “MVP vide”.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          <Feature title="Scripts structurés & actionnables">
-            Output lisible (HOOK / STORY / PROBLÈME / SOLUTION / PREUVE / CTA), prêt à poster.
-          </Feature>
-          <Feature title="Viral mode + HAK">
-            Ajoute un “hack / twist / angle viral” sans tout réécrire.
-          </Feature>
-          <Feature title="Organisation UGC">
-            Campagnes, créateurs, assets, notes, publication : une base clean.
-          </Feature>
-          <Feature title="Autosave">
-            Tu remplis 2–3 champs, tu génères, et tout reste sauvegardé.
-          </Feature>
-          <Feature title="API en production">
-            Génération réelle via API (pas de “fake output”).
-          </Feature>
-          <Feature title="Bêta contrôlée">
-            Accès test 7 jours, quotas API limités pour éviter les abus.
-          </Feature>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section id="pricing" className="mx-auto max-w-6xl px-6 py-14">
-        <h2 className="text-2xl md:text-3xl font-bold">Prix (bêta)</h2>
-        <p className="mt-2 text-white/65 max-w-2xl">
-          En bêta : on teste avec agences & créateurs, <b>7 jours gratuits</b> + API limitée. Ensuite abonnement.
-        </p>
+        <h2 className="text-2xl md:text-3xl font-bold">Fonctionnalités clés</h2>
 
         <div className="mt-8 grid gap-6 md:grid-cols-3">
-          <PriceCard title="Test bêta" price="0€ / 7 jours" note="API limitée — idéal pour démonstration">
-            <li>Accès dashboard</li>
-            <li>Script Engine (quotas)</li>
-            <li>Feedback prioritaire</li>
+          <Feature title="Scripts structurés">
+            HOOK / STORY / PROBLÈME / SOLUTION / PREUVE / CTA.
+          </Feature>
+
+          <Feature title="Mode Viral + HAK">
+            Ajoute des angles psychologiques et émotionnels.
+          </Feature>
+
+          <Feature title="Rate limit intelligent">
+            Protection anti-abus pour garder la qualité du service.
+          </Feature>
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section id="pricing" className="mx-auto max-w-6xl px-6 py-14">
+        <h2 className="text-2xl md:text-3xl font-bold">Prix bêta</h2>
+
+        <div className="mt-8 grid gap-6 md:grid-cols-3">
+          <PriceCard title="Bêta test" price="0€ / 7 jours" note="Accès test contrôlé">
+            <li>Dashboard complet</li>
+            <li>Script Engine IA</li>
+            <li>Usage encadré</li>
           </PriceCard>
 
-          <PriceCard title="Creator" price="À partir de 99€" note="Pour créateurs qui postent beaucoup">
-            <li>Plus de générations / mois</li>
-            <li>Templates scripts</li>
-            <li>Export facile</li>
+          <PriceCard title="Creator" price="99€ / mois" note="Pour créateurs actifs">
+            <li>Scripts avancés</li>
+            <li>Templates optimisés</li>
+            <li>Workflow simple</li>
           </PriceCard>
 
-          <PriceCard title="Agency" price="À partir de 299€" note="Pour équipes & gestion multi-clients">
-            <li>Workspace agence</li>
-            <li>Pipeline UGC + scripts</li>
+          <PriceCard title="Agency" price="299€ / mois" note="Pour équipes & clients">
+            <li>Multi-clients</li>
+            <li>Organisation complète</li>
             <li>Support prioritaire</li>
           </PriceCard>
-        </div>
-
-        <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5 text-white/70 text-sm">
-          Note : tu peux ajuster les prix après test (selon coûts API & valeur perçue).
         </div>
       </section>
 
@@ -171,65 +135,44 @@ export default function Home() {
         <h2 className="text-2xl md:text-3xl font-bold">FAQ</h2>
 
         <div className="mt-8 grid gap-6 md:grid-cols-2">
-          <Faq q="C’est quoi “API limitée” ?">
-            Pendant 7 jours, tu as un quota de générations (pour éviter qu’un test vide ton crédit API).
+          <Faq q="La bêta est gratuite ?">
+            Oui, accès test 7 jours avec usage encadré.
           </Faq>
-          <Faq q="Le script engine remplace un scripteur ?">
-            Il fait 80% (structure + vitesse). Un humain reste top pour humour, branding fin, nuances extrêmes.
-          </Faq>
-          <Faq q="Multi-langue : ça marche comment ?">
-            Le site peut afficher FR/EN (et plus). Les scripts peuvent être générés dans la langue choisie.
-          </Faq>
-          <Faq q="Je peux présenter ça à une agence demain ?">
-            Oui : dashboard clair + génération réelle + promesse simple = démo crédible.
+
+          <Faq q="Ça remplace un scripteur ?">
+            Pour 80% des scripts performance oui. L’humain reste utile pour branding très fin.
           </Faq>
         </div>
       </section>
 
-      {/* Feedback */}
+      {/* FEEDBACK */}
       <section id="feedback" className="mx-auto max-w-6xl px-6 py-14">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-8 md:p-10">
-          <h2 className="text-2xl md:text-3xl font-bold">Feedback please 🙏</h2>
-          <p className="mt-2 text-white/70 max-w-2xl">
-            La bêta sert à optimiser le produit. Si tu testes avec une agence / un créateur, note ce qui manque,
-            ce qui te fait gagner du temps, et ce qui doit devenir “premium”.
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+          <h2 className="text-2xl font-bold">Feedback</h2>
+          <p className="mt-2 text-white/70">
+            Aide-nous à améliorer UGC GROWTH pendant la bêta.
           </p>
 
-          <div className="mt-6 flex flex-wrap gap-4">
+          <div className="mt-6 flex gap-4">
             <a
-              className="rounded-xl bg-white/10 border border-white/15 px-6 py-3 font-semibold hover:bg-white/15"
-              href="mailto:feedback@ugcgrowth.com?subject=UGC%20GROWTH%20Feedback"
-            >
-              Envoyer un feedback par email
-            </a>
-            <Link
-              href="/dashboard"
+              href="mailto:feedback@ugcgrowth.com"
               className="rounded-xl bg-purple-600 px-6 py-3 font-semibold hover:bg-purple-700"
             >
-              Retour au dashboard
-            </Link>
+              Envoyer un feedback
+            </a>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="mx-auto max-w-6xl px-6 py-10 text-sm text-white/50">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>© {new Date().getFullYear()} UGC GROWTH</div>
-          <div className="flex items-center gap-4">
-            <Link href="/terms" className="hover:text-white">
-              CGU
-            </Link>
-            <a href="#feedback" className="hover:text-white">
-              Feedback
-            </a>
-          </div>
-        </div>
+        © {new Date().getFullYear()} UGC GROWTH
       </footer>
+
     </main>
   );
 }
 
+/* COMPONENTS */
 function MiniCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-black/20 p-5">

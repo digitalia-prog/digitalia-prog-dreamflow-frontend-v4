@@ -86,6 +86,43 @@ export default function Home() {
         </div>
       </section>
 
+      {/* POUR QUI */}
+      <section className="mx-auto max-w-6xl px-6 py-14">
+        <h2 className="text-2xl md:text-3xl font-bold text-center">
+          Conçu pour ceux qui veulent scaler leur contenu
+        </h2>
+
+        <p className="mt-3 text-center text-white/65 max-w-2xl mx-auto">
+          Que tu sois créateur ou agence, UGC GROWTH s’adapte à ton workflow.
+        </p>
+
+        <div className="mt-10 grid gap-6 md:grid-cols-2">
+
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+            <div className="text-sm text-purple-300 font-semibold">CREATOR MODE</div>
+            <h3 className="mt-2 text-xl font-bold">Pour les créateurs</h3>
+            <ul className="mt-4 space-y-2 text-white/75 list-disc pl-5">
+              <li>Générer des scripts viraux rapidement</li>
+              <li>Hooks émotionnels & storytelling puissant</li>
+              <li>Moins de réflexion, plus de contenu</li>
+              <li>Workflow simple et rapide</li>
+            </ul>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
+            <div className="text-sm text-purple-300 font-semibold">AGENCY MODE</div>
+            <h3 className="mt-2 text-xl font-bold">Pour les agences</h3>
+            <ul className="mt-4 space-y-2 text-white/75 list-disc pl-5">
+              <li>Produire des scripts à grande échelle</li>
+              <li>Standardiser la qualité</li>
+              <li>Gérer plusieurs clients</li>
+              <li>Accélérer la production UGC</li>
+            </ul>
+          </div>
+
+        </div>
+      </section>
+
       {/* FEATURES */}
       <section id="features" className="mx-auto max-w-6xl px-6 py-14">
         <h2 className="text-2xl md:text-3xl font-bold">Fonctionnalités clés</h2>
@@ -96,11 +133,11 @@ export default function Home() {
           </Feature>
 
           <Feature title="Mode Viral + HAK">
-            Ajoute des angles psychologiques et émotionnels.
+            Angles psychologiques et émotionnels intégrés.
           </Feature>
 
           <Feature title="Rate limit intelligent">
-            Protection anti-abus pour garder la qualité du service.
+            Protection anti-abus pour maintenir la qualité.
           </Feature>
         </div>
       </section>
@@ -140,7 +177,7 @@ export default function Home() {
           </Faq>
 
           <Faq q="Ça remplace un scripteur ?">
-            Pour 80% des scripts performance oui. L’humain reste utile pour branding très fin.
+            Pour 80% des scripts performance oui. L’humain reste utile pour le branding fin.
           </Faq>
         </div>
       </section>
@@ -153,7 +190,7 @@ export default function Home() {
             Aide-nous à améliorer UGC GROWTH pendant la bêta.
           </p>
 
-          <div className="mt-6 flex gap-4">
+          <div className="mt-6">
             <a
               href="mailto:feedback@ugcgrowth.com"
               className="rounded-xl bg-purple-600 px-6 py-3 font-semibold hover:bg-purple-700"

@@ -5,9 +5,6 @@ export default function CreatorPage() {
         Creator Dashboard
       </h1>
 
-      <p className="mt-2 text-sm text-white/70">
-        Page vide et propre. Tu pourras ajouter tes outils créateurs ici.
-      </p>
-    </div>
-  );
-}
+      <p className="text-white/70">
+  Espace créateur actif. Gérez vos scripts, contenus et performances depuis ce tableau de bord.
+</p>

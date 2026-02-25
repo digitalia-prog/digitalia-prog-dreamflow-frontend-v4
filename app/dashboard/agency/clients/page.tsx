@@ -68,8 +68,13 @@ export default function ClientsPage() {
   const [activeIndex, setActiveIndex] = useState(0);
   const active = clients[activeIndex];
 
-  const clamp = (v: number, min: number, max: number) =>
-    Math.min(max, Math.max(min, v));
+  const statusPill = (status: ClientCard["status"]) => {
+    if (status === "Actif")
+      return "bg-emerald-500/20 text-emerald-200 border-emerald-400/25";
+    if (status === "En onboarding")
+      return "bg-amber-500/20 text-amber-200 border-amber-400/25";
+    return "bg-white/10 text-white/70 border-white/10";
+  };
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
@@ -78,10 +83,10 @@ export default function ClientsPage() {
         <div>
           <div className="text-xs text-white/50">UGC Growth • SaaS</div>
           <h1 className="mt-1 text-2xl md:text-3xl font-semibold tracking-tight">
-            Agency Dashboard — Clients
+            Clients agence
           </h1>
           <p className="mt-2 text-white/60 max-w-2xl">
-            Vue “deck 3D” premium : clique pour mettre un client au premier plan.
+            Deck premium : cartes derrière en preview, carte active en full détails (couleur + relief).
           </p>
         </div>
 
@@ -102,7 +107,7 @@ export default function ClientsPage() {
       </div>
 
       <div className="mt-10 grid gap-8 md:grid-cols-2">
-        {/* LEFT: Deck 3D */}
+        {/* LEFT: Deck */}
         <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
           <div className="flex items-center justify-between">
             <div className="text-sm font-semibold text-white/90">Deck clients</div>
@@ -112,36 +117,29 @@ export default function ClientsPage() {
           </div>
 
           <div className="relative mt-6 h-[420px] md:h-[520px]">
-            {/* Glow background */}
-            <div className="pointer-events-none absolute -inset-10 opacity-40 blur-3xl">
-              <div className="h-full w-full rounded-full bg-purple-600/20" />
+            {/* background glow */}
+            <div className="pointer-events-none absolute -inset-14 opacity-70 blur-3xl">
+              <div className="h-full w-full rounded-full bg-purple-600/25" />
             </div>
 
             {/* 3D stage */}
             <div
               className="relative h-full"
-              style={{
-                perspective: "1200px",
-                transformStyle: "preserve-3d",
-              }}
+              style={{ perspective: "1200px", transformStyle: "preserve-3d" }}
             >
               {clients.map((c, i) => {
                 const offset = i - activeIndex;
 
-                // show only active + next 4 cards
-                if (offset < 0 || offset > 4) return null;
+                // IMPORTANT: only show active + 2 previews (clean, no mess)
+                if (offset < 0 || offset > 2) return null;
 
                 const isActive = i === activeIndex;
 
-                // 3D transforms
-                const translateY = offset * 30;
+                const translateY = offset * 28;
                 const translateX = offset * 14;
                 const scale = 1 - offset * 0.05;
                 const rotateX = offset * 3;
-                const rotateZ = offset * 1.5;
-
-                // keep opacity clean (no too transparent)
-                const opacity = clamp(1 - offset * 0.18, 0.35, 1);
+                const rotateZ = offset * 1.2;
 
                 return (
                   <button
@@ -156,24 +154,33 @@ export default function ClientsPage() {
                         rotateX(${rotateX}deg)
                         rotateZ(${rotateZ}deg)
                       `,
-                      opacity,
                       zIndex: 100 - offset,
                       transition:
-                        "transform 480ms cubic-bezier(.2,.9,.2,1), opacity 480ms cubic-bezier(.2,.9,.2,1)",
+                        "transform 520ms cubic-bezier(.2,.9,.2,1)",
                       transformOrigin: "center top",
                     }}
                   >
+                    {/* Card shell */}
                     <div
                       className={[
-                        "rounded-3xl border p-6 shadow-2xl backdrop-blur-xl",
-                        // IMPORTANT: opaque background => no text bleeding through
+                        "rounded-3xl border p-6 shadow-2xl overflow-hidden backdrop-blur-xl",
+                        // opaque base => no bleed-through
                         "bg-black/90",
                         isActive
-                          ? "border-purple-400/40"
+                          ? "border-purple-400/50 shadow-[0_0_0_1px_rgba(168,85,247,0.35),0_30px_80px_rgba(0,0,0,0.55)]"
                           : "border-white/10 hover:border-white/20",
                       ].join(" ")}
                     >
-                      <div className="flex items-start justify-between gap-4">
+                      {/* Color layer for active card */}
+                      {isActive && (
+                        <div className="pointer-events-none absolute inset-0">
+                          <div className="absolute -top-24 -left-24 h-56 w-56 rounded-full bg-purple-500/25 blur-3xl" />
+                          <div className="absolute -bottom-24 -right-24 h-56 w-56 rounded-full bg-fuchsia-500/15 blur-3xl" />
+                          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-fuchsia-500/10" />
+                        </div>
+                      )}
+
+                      <div className="relative flex items-start justify-between gap-4">
                         <div>
                           <div className="text-lg font-semibold text-white/95">
                             {c.name}
@@ -184,18 +191,13 @@ export default function ClientsPage() {
                         </div>
 
                         <div className="flex flex-col items-end gap-2">
-                          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/80">
+                          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/85">
                             {c.plan}
                           </span>
-
                           <span
                             className={[
                               "rounded-full px-3 py-1 text-xs border",
-                              c.status === "Actif"
-                                ? "bg-emerald-500/15 text-emerald-200 border-emerald-400/20"
-                                : c.status === "En onboarding"
-                                ? "bg-amber-500/15 text-amber-200 border-amber-400/20"
-                                : "bg-white/10 text-white/70 border-white/10",
+                              statusPill(c.status),
                             ].join(" ")}
                           >
                             {c.status}
@@ -203,28 +205,50 @@ export default function ClientsPage() {
                         </div>
                       </div>
 
-                      <div className="mt-5 grid grid-cols-2 gap-3">
-                        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                          <div className="text-xs text-white/50">KPI</div>
-                          <div className="mt-1 text-sm font-semibold text-white/90">
-                            {c.kpi}
+                      {/* PREVIEW ONLY for cards behind */}
+                      {!isActive && (
+                        <div className="relative mt-4">
+                          <div className="text-sm text-white/75 line-clamp-2">
+                            {c.note}
+                          </div>
+                          <div className="mt-3 flex items-center gap-2">
+                            <span className="h-2 w-2 rounded-full bg-white/30" />
+                            <span className="text-xs text-white/50">
+                              Preview
+                            </span>
                           </div>
                         </div>
-                        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                          <div className="text-xs text-white/50">Note</div>
-                          <div className="mt-1 text-sm text-white/80">{c.note}</div>
-                        </div>
-                      </div>
+                      )}
 
-                      <div className="mt-5 flex items-center justify-between">
-                        <div className="text-xs text-white/50">
-                          Clique une carte pour l’activer
+                      {/* FULL DETAILS only for active card */}
+                      {isActive && (
+                        <div className="relative mt-5 grid grid-cols-2 gap-3">
+                          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                            <div className="text-xs text-white/50">KPI</div>
+                            <div className="mt-1 text-sm font-semibold text-white/90">
+                              {c.kpi}
+                            </div>
+                          </div>
+                          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                            <div className="text-xs text-white/50">Note</div>
+                            <div className="mt-1 text-sm text-white/80">
+                              {c.note}
+                            </div>
+                          </div>
+
+                          <div className="col-span-2 mt-1 flex items-center justify-between">
+                            <div className="text-xs text-white/50">
+                              Clique une carte pour l’activer
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="h-2 w-2 rounded-full bg-purple-400" />
+                              <span className="text-xs text-white/70">
+                                Premium deck
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-purple-400" />
-                          <span className="text-xs text-white/70">3D deck</span>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </button>
                 );
@@ -254,20 +278,22 @@ export default function ClientsPage() {
           </div>
         </div>
 
-        {/* RIGHT: Details */}
+        {/* RIGHT: Details panel */}
         <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
           <div className="text-sm font-semibold text-white/90">Détails client</div>
 
-          <div className="mt-5 rounded-3xl border border-white/10 bg-black/70 p-6 backdrop-blur-xl">
+          <div className="mt-5 rounded-3xl border border-white/10 bg-black/75 p-6 backdrop-blur-xl shadow-[0_25px_70px_rgba(0,0,0,0.45)]">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="text-xl font-semibold text-white/95">
                   {active.name}
                 </div>
-                <div className="mt-1 text-sm text-white/60">{active.industry}</div>
+                <div className="mt-1 text-sm text-white/60">
+                  {active.industry}
+                </div>
               </div>
 
-              <span className="rounded-full border border-purple-400/20 bg-purple-500/15 px-3 py-1 text-xs text-purple-200">
+              <span className="rounded-full border border-purple-400/25 bg-purple-500/15 px-3 py-1 text-xs text-purple-200">
                 Protection anti-abus active
               </span>
             </div>
@@ -327,7 +353,7 @@ export default function ClientsPage() {
           </div>
 
           <div className="mt-6 text-xs text-white/50">
-            Cette page est “demo-ready” (tu brancheras les vrais clients plus tard).
+            Demo-ready maintenant, branchable au cloud ensuite.
           </div>
         </div>
       </div>

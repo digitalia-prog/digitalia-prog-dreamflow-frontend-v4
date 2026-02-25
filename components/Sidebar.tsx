@@ -50,9 +50,9 @@ export default function Sidebar() {
           );
         })}
       </nav>
-
+{ label: "Clients", href: "/dashboard/agency/clients" },
       <div className="p-4 mt-6">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+      label:  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
           <div className="text-xs text-white/60">This week</div>
           <div className="mt-1 text-lg font-semibold">Hook testing sprint</div>
           <div className="mt-1 text-sm text-white/60">
@@ -63,3 +63,4 @@ export default function Sidebar() {
     </aside>
   );
 }
+

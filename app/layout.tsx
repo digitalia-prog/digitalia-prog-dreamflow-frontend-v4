@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
-import "../globals.css";
+import "./globals.css"
 
 import LanguageSwitcher from "../components/LanguageSwitcher";
 

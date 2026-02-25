@@ -1,19 +1,17 @@
-import {getRequestConfig} from "next-intl/server";
+import { getRequestConfig } from "next-intl/server";
+import { defaultLocale, locales, type Locale } from "../i18n";
 
-export const locales = ["fr", "en", "ar", "zh"] as const;
-export type Locale = (typeof locales)[number];
-export const defaultLocale: Locale = "fr";
-
-export default getRequestConfig(async ({requestLocale}) => {
+export default getRequestConfig(async ({ requestLocale }) => {
+  // next-intl te donne parfois une Promise => on await
   const requested = await requestLocale;
 
   const locale: Locale =
-    locales.includes(requested as Locale)
+    requested && locales.includes(requested as Locale)
       ? (requested as Locale)
       : defaultLocale;
 
   return {
     locale,
-    messages: (await import(`../messages/${locale}.json`)).default
+    messages: (await import(`../messages/${locale}.json`)).default,
   };
 });

@@ -1,45 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import {usePathname} from "next/navigation";
-import {locales, type Locale} from "../../i18n";
+import { usePathname } from "next/navigation";
+import { locales, type Locale } from "../../i18n";
 
 const labels: Record<Locale, string> = {
   fr: "FR",
   en: "EN",
-  "en-GB": "UK",
   ar: "AR",
-  zh: "ZH",
-  es: "ES"
+  zh: "中文",
 };
 
 export default function LanguageSwitcher() {
-  const pathname = usePathname();
-  const parts = pathname.split("/");
-  const current = (parts[1] || "fr") as Locale;
+  const pathname = usePathname() || "/";
 
+  // Switch simple via query (?lang=xx).
+  // Si tu veux le switch "vrai" (cookie + middleware), dis-moi après.
   return (
-    <div className="flex gap-2">
-      {locales.map((loc) => {
-        const newPath = ["", loc, ...parts.slice(2)].join("/") || `/${loc}`;
-        const active = loc === current;
-
-        return (
-          <Link
-            key={loc}
-            href={newPath}
-            className={
-              "rounded-full px-3 py-1 text-sm border " +
-              (active
-                ? "bg-white text-black border-white"
-                : "text-white/80 border-white/20 hover:border-white/50")
-            }
-          >
-            {labels[loc]}
-          </Link>
-        );
-      })}
+    <div className="flex items-center gap-2">
+      {locales.map((l) => (
+        <Link
+          key={l}
+          href={`${pathname}?lang=${l}`}
+          className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/80 hover:bg-white/10"
+        >
+          {labels[l]}
+        </Link>
+      ))}
     </div>
   );
 }
-

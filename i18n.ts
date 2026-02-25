@@ -1,9 +1,6 @@
-export const locales = ["fr", "en", "en-GB", "ar", "zh", "es"] as const;
-export type Locale = (typeof locales)[number];
+import {getRequestConfig} from 'next-intl/server';
 
-export const defaultLocale: Locale = "fr";
-
-export function getDirection(locale: Locale) {
-  return locale === "ar" ? "rtl" : "ltr";
-}
-
+export default getRequestConfig(async () => ({
+  locale: 'fr',
+  messages: (await import('./messages/fr.json')).default
+}));

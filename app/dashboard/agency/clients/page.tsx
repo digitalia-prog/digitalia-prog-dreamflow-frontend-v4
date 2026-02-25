@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
 
 type ClientCard = {
   id: string;
@@ -66,7 +67,12 @@ export default function ClientsPage() {
   );
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const active = clients[activeIndex];
+
+  const clamp = (n: number, min: number, max: number) =>
+    Math.min(max, Math.max(min, n));
+
+  const prev = () => setActiveIndex((v) => Math.max(0, v - 1));
+  const next = () => setActiveIndex((v) => Math.min(clients.length - 1, v + 1));
 
   const statusPill = (status: ClientCard["status"]) => {
     if (status === "Actif")
@@ -76,6 +82,9 @@ export default function ClientsPage() {
     return "bg-white/10 text-white/70 border-white/10";
   };
 
+  // Apple-like spring
+  const spring = { type: "spring", stiffness: 260, damping: 26, mass: 0.75 };
+
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
       {/* Header */}
@@ -83,10 +92,10 @@ export default function ClientsPage() {
         <div>
           <div className="text-xs text-white/50">UGC Growth • SaaS</div>
           <h1 className="mt-1 text-2xl md:text-3xl font-semibold tracking-tight">
-            Clients agence
+            Clients agence — Coverflow 3D
           </h1>
           <p className="mt-2 text-white/60 max-w-2xl">
-            Deck premium : cartes derrière en preview, carte active en full détails (couleur + relief).
+            Effet “wow” : deck en perspective, profondeur, rotation, et carte active au premier plan.
           </p>
         </div>
 
@@ -106,9 +115,10 @@ export default function ClientsPage() {
         </div>
       </div>
 
+      {/* Layout */}
       <div className="mt-10 grid gap-8 md:grid-cols-2">
-        {/* LEFT: Deck */}
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+        {/* LEFT: WOW coverflow */}
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-5 overflow-hidden">
           <div className="flex items-center justify-between">
             <div className="text-sm font-semibold text-white/90">Deck clients</div>
             <div className="text-xs text-white/50">
@@ -116,151 +126,161 @@ export default function ClientsPage() {
             </div>
           </div>
 
-          <div className="relative mt-6 h-[420px] md:h-[520px]">
-            {/* background glow */}
-            <div className="pointer-events-none absolute -inset-14 opacity-70 blur-3xl">
-              <div className="h-full w-full rounded-full bg-purple-600/25" />
+          <div className="relative mt-6 h-[460px] md:h-[560px]">
+            {/* Clean background light like your reference */}
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-purple-500/10 via-white/0 to-fuchsia-500/10" />
+              <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-purple-500/20 blur-3xl" />
+              <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-fuchsia-500/15 blur-3xl" />
             </div>
 
-            {/* 3D stage */}
+            {/* Stage */}
             <div
               className="relative h-full"
-              style={{ perspective: "1200px", transformStyle: "preserve-3d" }}
+              style={{
+                perspective: "1400px",
+                transformStyle: "preserve-3d",
+              }}
             >
               {clients.map((c, i) => {
                 const offset = i - activeIndex;
 
-                // IMPORTANT: only show active + 2 previews (clean, no mess)
-                if (offset < 0 || offset > 2) return null;
+                // Show more cards like your video
+                if (offset < -2 || offset > 6) return null;
 
-                const isActive = i === activeIndex;
+                const isActive = offset === 0;
 
-                const translateY = offset * 28;
-                const translateX = offset * 14;
-                const scale = 1 - offset * 0.05;
-                const rotateX = offset * 3;
-                const rotateZ = offset * 1.2;
+                // --- WOW coverflow math ---
+                // cards go to the right & back with depth, plus rotation Y
+                const x = offset * 150; // horizontal spacing
+                const y = offset * 18; // slight diagonal
+                const z = -Math.abs(offset) * 160; // depth (back)
+                const rotateY = offset * -22; // side tilt
+                const rotateX = 6; // global tilt
+                const scale = isActive ? 1.02 : 0.92;
+
+                // Keep readable: NOT opacity, but brightness
+                const brightness = clamp(1 - Math.abs(offset) * 0.08, 0.65, 1);
 
                 return (
-                  <button
+                  <motion.button
                     key={c.id}
                     onClick={() => setActiveIndex(i)}
-                    className="absolute left-0 top-0 w-full text-left"
+                    className="absolute left-1/2 top-10 w-[330px] md:w-[380px] -translate-x-1/2 text-left"
                     style={{
-                      transform: `
-                        translateY(${translateY}px)
-                        translateX(${translateX}px)
-                        scale(${scale})
-                        rotateX(${rotateX}deg)
-                        rotateZ(${rotateZ}deg)
-                      `,
-                      zIndex: 100 - offset,
-                      transition:
-                        "transform 520ms cubic-bezier(.2,.9,.2,1)",
-                      transformOrigin: "center top",
+                      zIndex: 200 - Math.abs(offset),
+                      transformStyle: "preserve-3d",
+                      filter: `brightness(${brightness})`,
                     }}
+                    initial={false}
+                    animate={{
+                      x,
+                      y,
+                      scale,
+                      rotateY,
+                      rotateX,
+                      translateZ: z,
+                    }}
+                    transition={spring}
+                    whileHover={isActive ? { y: y - 6, scale: 1.04 } : undefined}
                   >
-                    {/* Card shell */}
                     <div
                       className={[
-                        "rounded-3xl border p-6 shadow-2xl overflow-hidden backdrop-blur-xl",
-                        // opaque base => no bleed-through
-                        "bg-black/90",
+                        "relative rounded-3xl border shadow-2xl overflow-hidden",
+                        "backdrop-blur-xl",
+                        // more "light" card like your reference
+                        "bg-white/10",
                         isActive
-                          ? "border-purple-400/50 shadow-[0_0_0_1px_rgba(168,85,247,0.35),0_30px_80px_rgba(0,0,0,0.55)]"
+                          ? "border-purple-400/60 shadow-[0_0_0_1px_rgba(168,85,247,0.45),0_40px_120px_rgba(0,0,0,0.45)]"
                           : "border-white/10 hover:border-white/20",
                       ].join(" ")}
+                      style={{
+                        // subtle glass shine
+                        backgroundImage:
+                          "radial-gradient(1200px 400px at 20% 10%, rgba(255,255,255,0.14), transparent 55%), radial-gradient(900px 380px at 90% 80%, rgba(168,85,247,0.16), transparent 55%)",
+                      }}
                     >
-                      {/* Color layer for active card */}
-                      {isActive && (
-                        <div className="pointer-events-none absolute inset-0">
-                          <div className="absolute -top-24 -left-24 h-56 w-56 rounded-full bg-purple-500/25 blur-3xl" />
-                          <div className="absolute -bottom-24 -right-24 h-56 w-56 rounded-full bg-fuchsia-500/15 blur-3xl" />
-                          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-fuchsia-500/10" />
-                        </div>
-                      )}
-
-                      <div className="relative flex items-start justify-between gap-4">
-                        <div>
-                          <div className="text-lg font-semibold text-white/95">
-                            {c.name}
+                      {/* Top header */}
+                      <div className="p-5">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div className="text-xl font-semibold text-white/95">
+                              {c.name}
+                            </div>
+                            <div className="text-sm text-white/70">{c.industry}</div>
                           </div>
-                          <div className="mt-1 text-sm text-white/60">
-                            {c.industry}
-                          </div>
-                        </div>
 
-                        <div className="flex flex-col items-end gap-2">
-                          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/85">
-                            {c.plan}
-                          </span>
-                          <span
-                            className={[
-                              "rounded-full px-3 py-1 text-xs border",
-                              statusPill(c.status),
-                            ].join(" ")}
-                          >
-                            {c.status}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* PREVIEW ONLY for cards behind */}
-                      {!isActive && (
-                        <div className="relative mt-4">
-                          <div className="text-sm text-white/75 line-clamp-2">
-                            {c.note}
-                          </div>
-                          <div className="mt-3 flex items-center gap-2">
-                            <span className="h-2 w-2 rounded-full bg-white/30" />
-                            <span className="text-xs text-white/50">
-                              Preview
+                          <div className="flex flex-col items-end gap-2">
+                            <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white/85">
+                              {c.plan}
+                            </span>
+                            <span
+                              className={[
+                                "rounded-full px-3 py-1 text-xs border",
+                                statusPill(c.status),
+                              ].join(" ")}
+                            >
+                              {c.status}
                             </span>
                           </div>
                         </div>
-                      )}
 
-                      {/* FULL DETAILS only for active card */}
-                      {isActive && (
-                        <div className="relative mt-5 grid grid-cols-2 gap-3">
-                          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                            <div className="text-xs text-white/50">KPI</div>
-                            <div className="mt-1 text-sm font-semibold text-white/90">
-                              {c.kpi}
-                            </div>
-                          </div>
-                          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                            <div className="text-xs text-white/50">Note</div>
-                            <div className="mt-1 text-sm text-white/80">
+                        {/* Preview for non-active */}
+                        {!isActive && (
+                          <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4">
+                            <div className="text-sm text-white/80 line-clamp-2">
                               {c.note}
                             </div>
+                            <div className="mt-3 flex items-center gap-2">
+                              <span className="h-2 w-2 rounded-full bg-white/30" />
+                              <span className="text-xs text-white/60">Preview</span>
+                            </div>
                           </div>
+                        )}
 
-                          <div className="col-span-2 mt-1 flex items-center justify-between">
-                            <div className="text-xs text-white/50">
-                              Clique une carte pour l’activer
+                        {/* Full details for active */}
+                        {isActive && (
+                          <div className="mt-5 grid grid-cols-2 gap-3">
+                            <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+                              <div className="text-xs text-white/60">KPI</div>
+                              <div className="mt-1 text-sm font-semibold text-white/95">
+                                {c.kpi}
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <span className="h-2 w-2 rounded-full bg-purple-400" />
-                              <span className="text-xs text-white/70">
-                                Premium deck
-                              </span>
+                            <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+                              <div className="text-xs text-white/60">Note</div>
+                              <div className="mt-1 text-sm text-white/85">
+                                {c.note}
+                              </div>
+                            </div>
+
+                            <div className="col-span-2 mt-1 flex items-center justify-between">
+                              <div className="text-xs text-white/60">
+                                Clique une carte pour l’activer
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="h-2 w-2 rounded-full bg-purple-400" />
+                                <span className="text-xs text-white/75">WOW deck</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
+
+                      {/* Bottom shine line */}
+                      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                     </div>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
           </div>
 
           {/* Controls */}
-          <div className="mt-5 flex items-center justify-between">
+          <div className="mt-4 flex items-center justify-between">
             <button
               className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 disabled:opacity-40"
-              onClick={() => setActiveIndex((v) => Math.max(0, v - 1))}
+              onClick={prev}
               disabled={activeIndex === 0}
             >
               ← Précédent
@@ -268,9 +288,7 @@ export default function ClientsPage() {
 
             <button
               className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 disabled:opacity-40"
-              onClick={() =>
-                setActiveIndex((v) => Math.min(clients.length - 1, v + 1))
-              }
+              onClick={next}
               disabled={activeIndex === clients.length - 1}
             >
               Suivant →
@@ -278,18 +296,18 @@ export default function ClientsPage() {
           </div>
         </div>
 
-        {/* RIGHT: Details panel */}
+        {/* RIGHT: Details */}
         <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
           <div className="text-sm font-semibold text-white/90">Détails client</div>
 
-          <div className="mt-5 rounded-3xl border border-white/10 bg-black/75 p-6 backdrop-blur-xl shadow-[0_25px_70px_rgba(0,0,0,0.45)]">
+          <div className="mt-5 rounded-3xl border border-white/10 bg-black/60 p-6 backdrop-blur-xl">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="text-xl font-semibold text-white/95">
-                  {active.name}
+                  {clients[activeIndex].name}
                 </div>
                 <div className="mt-1 text-sm text-white/60">
-                  {active.industry}
+                  {clients[activeIndex].industry}
                 </div>
               </div>
 
@@ -302,29 +320,22 @@ export default function ClientsPage() {
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <div className="text-xs text-white/50">Statut</div>
                 <div className="mt-1 text-sm font-semibold text-white/90">
-                  {active.status}
+                  {clients[activeIndex].status}
                 </div>
               </div>
 
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <div className="text-xs text-white/50">KPI</div>
                 <div className="mt-1 text-sm font-semibold text-white/90">
-                  {active.kpi}
+                  {clients[activeIndex].kpi}
                 </div>
               </div>
 
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <div className="text-xs text-white/50">Note</div>
-                <div className="mt-1 text-sm text-white/80">{active.note}</div>
-              </div>
-
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <div className="text-xs text-white/50">Prochaines actions</div>
-                <ul className="mt-2 list-disc pl-5 text-sm text-white/75 space-y-1">
-                  <li>Créer / assigner un brief</li>
-                  <li>Générer 3 scripts + 2 variantes</li>
-                  <li>Valider / publier / suivre les retours</li>
-                </ul>
+                <div className="mt-1 text-sm text-white/80">
+                  {clients[activeIndex].note}
+                </div>
               </div>
             </div>
 
@@ -342,18 +353,11 @@ export default function ClientsPage() {
               >
                 Générer script
               </button>
-
-              <button
-                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10"
-                onClick={() => alert("Plus tard: campagnes")}
-              >
-                Voir campagnes
-              </button>
             </div>
           </div>
 
           <div className="mt-6 text-xs text-white/50">
-            Demo-ready maintenant, branchable au cloud ensuite.
+            (Tu peux remplacer le contenu des cartes par des visuels plus tard.)
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-"use client";
+="use client";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -608,3 +608,10 @@ function LangButton({
 }
 
 export default function Landing() {
+  return (
+    <main>
+      ...
+    </main>
+  );
+}
+

@@ -608,10 +608,10 @@ function LangButton({
 }
 
 export default function Landing() {
-  return (
-    <main>
-      ...
-    </main>
-  );
+ return (
+  <main>
+    ...
+  </main>
+);
 }
 

@@ -110,8 +110,8 @@ const dict: Dict = {
     ctaOffers: "Voir les offres",
     ctaTerms: "Conditions (CGU)",
 
-    featuresTitle: "Fonctionnalités clés",
-
+    featuresTitle: "Fonctionnalités clés", 
+    featuresSubtitle: "Une démo simple et claire du dashboard UGC.",
 
     f1Title: "Scripts structurés & actionnables",
     f1Desc: "Output lisible (HOOK / STORY / PROBLÈME / SOLUTION / PREUVE / CTA), prêt à poster.",

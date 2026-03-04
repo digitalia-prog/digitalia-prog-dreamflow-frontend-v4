@@ -5,17 +5,23 @@ import { useRouter } from "next/navigation";
 const LOCALES = ["fr", "en", "ar", "zh"] as const;
 export type Locale = (typeof LOCALES)[number];
 
-function setLocaleCookie(locale: Locale) {
-  // Cookie lisible côté serveur + persistant
+function setLocale(locale: Locale) {
+  // Cookie pour le serveur
   document.cookie = `NEXT_LOCALE=${locale}; Path=/; Max-Age=31536000; SameSite=Lax`;
+
+  // localStorage pour le client (landing + dashboard sync)
+  localStorage.setItem("NEXT_LOCALE", locale);
+
+  // événement global pour prévenir les pages
+  window.dispatchEvent(new Event("locale-change"));
 }
 
 export default function LanguageSwitcher({ value }: { value: Locale }) {
   const router = useRouter();
 
   const changeLocale = (locale: Locale) => {
-    setLocaleCookie(locale);
-    router.refresh(); // force re-render server components + pages
+    setLocale(locale);
+    router.refresh(); // re-render server components
   };
 
   return (

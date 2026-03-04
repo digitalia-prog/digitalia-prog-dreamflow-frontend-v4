@@ -104,14 +104,14 @@ const dict: Dict = {
     badge: "Bêta — 7 jours gratuit pour tests (restrictions anti-abus)",
     heroTitle: "Le dashboard UGC qui génère et organise.",
     heroSubtitle:
-      "Centralise campagnes, créateurs, briefs, et utilise le Script Engine IA (Viral / HAK) pour produire des scripts structurés rapidement — sans “site factice”.",
+      "Centralise campagnes, créateurs, briefs, et utilise le Script Engine IA (Viral / HAK) pour produire des scripts structurés rapidement.",
 
     ctaDashboard: "Accéder au dashboard",
     ctaOffers: "Voir les offres",
     ctaTerms: "Conditions (CGU)",
 
     featuresTitle: "Fonctionnalités clés",
-    featuresSubtitle: "Objectif : une démo propre, claire, qui marche — pas un “MVP vide”",
+
 
     f1Title: "Scripts structurés & actionnables",
     f1Desc: "Output lisible (HOOK / STORY / PROBLÈME / SOLUTION / PREUVE / CTA), prêt à poster.",
@@ -127,8 +127,8 @@ const dict: Dict = {
     f6Desc: "FR / EN / AR / ES / 中文 — prêt pour agences & créateurs internationaux.",
 
     pricingTitle: "Prix (bêta)",
-    pricingSubtitle:
-      "En bêta : on teste avec agences & créateurs, 7 jours gratuits + restrictions anti-abus. Ensuite abonnement.",
+    pricingSubtitle: "",
+     
 
     planBetaTitle: "Test bêta",
     planBetaPrice: "0€ / 7 jours",

@@ -29,9 +29,18 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = (await req.json()) as Body;
+    const body = (await req.json()) as Body;const locale =
+  (body?.locale as string | undefined) ??
+  req.cookies.get("NEXT_LOCALE")?.value ??
+  "fr";
 
-    const prompt = `
+const languageDirective =
+  locale === "en" ? "Write ONLY in English." :
+  locale === "ar" ? "اكتب فقط باللغة العربية الفصحى. لا تستخدم الإنجليزية. اجعل النص مناسبًا للإعلانات القصيرة وUGC." :
+  locale === "zh" ? "只用中文输出。不要夹杂英文。风格适合短视频UGC脚本。" :
+  "Écris UNIQUEMENT en français. N’utilise pas d’anglais. Style UGC/TikTok, naturel et vendeur.";
+
+    const prompt = `${languageDirective}\n\n${prompt}`;
 Tu es un expert script TikTok/Reels.
 
 Crée un script viral structuré :

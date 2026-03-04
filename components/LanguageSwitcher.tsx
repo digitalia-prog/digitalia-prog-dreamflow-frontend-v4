@@ -2,26 +2,28 @@
 
 import { useRouter } from "next/navigation";
 
-const LOCALES = ["fr", "en", "ar", "zh"] as const;
+const LOCALES = ["fr", "en", "ar", "es", "zh"] as const;
 export type Locale = (typeof LOCALES)[number];
 
-function setLocale(locale: Locale) {
-  // Cookie pour le serveur
+const LABELS: Record<Locale, string> = {
+  fr: "FR",
+  en: "EN",
+  ar: "AR",
+  es: "ES",
+  zh: "中文",
+};
+
+function setLocaleCookie(locale: Locale) {
   document.cookie = `NEXT_LOCALE=${locale}; Path=/; Max-Age=31536000; SameSite=Lax`;
-
-  // localStorage pour le client (landing + dashboard sync)
   localStorage.setItem("NEXT_LOCALE", locale);
-
-  // événement global pour prévenir les pages
-  window.dispatchEvent(new Event("locale-change"));
 }
 
 export default function LanguageSwitcher({ value }: { value: Locale }) {
   const router = useRouter();
 
   const changeLocale = (locale: Locale) => {
-    setLocale(locale);
-    router.refresh(); // re-render server components
+    setLocaleCookie(locale);
+    router.refresh();
   };
 
   return (
@@ -38,7 +40,7 @@ export default function LanguageSwitcher({ value }: { value: Locale }) {
               : "bg-zinc-900 text-zinc-200 border-zinc-700 hover:border-zinc-500")
           }
         >
-          {l.toUpperCase()}
+          {LABELS[l]}
         </button>
       ))}
     </div>

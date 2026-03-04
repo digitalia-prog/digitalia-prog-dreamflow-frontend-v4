@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-
 type Lang = "fr" | "en" | "ar" | "es" | "zh";
 
 type Dict = Record<
@@ -100,6 +99,9 @@ const dict: Dict = {
     navFAQ: "FAQ",
     navFeedback: "Feedback",
     navTerms: "CGU",
+
+    premiumTitle: "",
+    premiumSubtitle: "",
 
     badge: "Bêta — 7 jours gratuit pour tests (restrictions anti-abus)",
     heroTitle: "Le dashboard UGC qui génère et organise.",

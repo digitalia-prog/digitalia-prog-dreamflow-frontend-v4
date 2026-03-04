@@ -723,7 +723,7 @@ export default function Landing() {
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
               <div className="font-semibold">Multi-langue</div>
               <div className="mt-2 text-sm text-white/70">
-                FR/EN/AR/ES/中文 — extensible selon besoins.
+   
               </div>
             </div>
           </div>

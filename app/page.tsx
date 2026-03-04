@@ -160,8 +160,6 @@ const dict: Dict = {
     whoC: "Marques e-commerce (briefs + validation + organisation)",
     whoD: "Teams social media (process & qualité)",
 
-    premiumTitle: "Premium — quand ça devient “sérieux”",
-    premiumSubtitle: "Quand tes outputs deviennent vraiment :",
     premiumA: "Psychologiques",
     premiumB: "Émotionnels",
     premiumC: "Branding (ton + promesse + différenciation)",

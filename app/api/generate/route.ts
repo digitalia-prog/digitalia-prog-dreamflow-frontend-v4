@@ -90,7 +90,8 @@ ${mode === "HAK" ? "HAK/TWIST:" : ""}
 
 Règles:
 const prompt = `
-you are a professional ugc video director.
+You are a professional UGC video director.
+
 Create a TikTok / Reels script.
 
 Structure the output with:
@@ -103,14 +104,18 @@ PROOF
 CTA
 
 For each section include:
-- text
-- camera
-- emotion
-- action
-- duration
-
-Keep the script concise and optimized for short-form content.
+TEXT: what the creator says
+CAMERA: camera angle or framing
+EMOTION: emotion the creator shows
+ACTION: gesture or movement
+DELIVERY: tone and pace
 `;
+Rules:
+- Short sentences
+- Easy to read out loud
+- No explanations
+- Add two hooks (HOOK A / HOOK B)
+`;`;
 - Pas de blabla.
 - Pas d'explications meta.
 - Phrases courtes, faciles à lire à voix haute.

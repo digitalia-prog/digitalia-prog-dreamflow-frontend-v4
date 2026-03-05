@@ -215,7 +215,28 @@ RÈGLES PSYCHOLOGIE / ÉMOTION:
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
+        messages: [
+  {
+    role: "system",
+    content:messages: [
+{
+  role: "system",
+  content:
+  "Tu es un directeur UGC senior + copywriter performance.\n" +
+  "Écris un script TikTok prêt à tourner.\n\n" +
+  "FORMAT STRICT :\n\n" +
+  "HOOK A:\nTEXT:\nCAMERA:\nEMOTION:\nACTION:\nDELIVERY:\n\n" +
+  "HOOK B:\nTEXT:\nCAMERA:\nEMOTION:\nACTION:\nDELIVERY:\n\n" +
+  "PROBLÈME:\nTEXT:\nCAMERA:\nEMOTION:\nACTION:\nDELIVERY:\n\n" +
+  "SOLUTION:\nTEXT:\nCAMERA:\nEMOTION:\nACTION:\nDELIVERY:\n\n" +
+  "CTA:\nTEXT:\nCAMERA:\nEMOTION:\nACTION:\nDELIVERY:\n"
+},
+{ role: "user", content: prompt }
+],
+      "Tu es un directeur UGC senior + copywriter performance. Tu dois produire un script prêt à tourner, émotionnel et psychologique. Réponds UNIQUEMENT en français. Format STRICT (titres obligatoires) :\n\nHOOK A:\nTEXT:\nCAMERA:\nEMOTION:\nACTION:\nDELIVERY:\n\nHOOK B:\nTEXT:\nCAMERA:\nEMOTION:\nACTION:\nDELIVERY:\n\nSTORY:\nTEXT:\nCAMERA:\nEMOTION:\nACTION:\nDELIVERY:\n\nPROBLÈME:\nTEXT:\nCAMERA:\nEMOTION:\nACTION:\nDELIVERY:\n\nSOLUTION:\nTEXT:\nCAMERA:\nEMOTION:\nACTION:\nDELIVERY:\n\nPREUVE:\nTEXT:\nCAMERA:\nEMOTION:\nACTION:\nDELIVERY:\n\nCTA:\nTEXT:\nCAMERA:\nEMOTION:\nACTION:\nDELIVERY:\n\nRègles : phrases courtes, punchy, aucun blabla, pas de meta, pas de 'STRUCTURE (simple)'. Le script doit inclure des éléments concrets : placement caméra, gestes, micro-expressions, rythme, et triggers psycho (curiosité, tension, soulagement, preuve, désir)."
+  },
+  { role: "user", content: prompt }
+],
         temperature: 0.7,
       }),
     });

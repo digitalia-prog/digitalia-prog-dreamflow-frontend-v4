@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     const required = ["mode","lang","platform","objective","audience","offer","angle","objection","hookType","tone","duration"] as const;
     for (const k of required) {
       if (!body[k]) {
-        return Response.json<ApiErr>(
+        return Response.json(
           { error: "Missing field", details: String(k) },
           { status: 400 }
         );
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     const data = await r.json();
 
     if (!r.ok) {
-      return Response.json<ApiErr>(
+      return Response.json(
         { error: "OpenAI API error", details: JSON.stringify(data) },
         { status: 500 }
       );
@@ -71,9 +71,9 @@ export async function POST(req: Request) {
 
     const parsed = safeJsonParse(raw);
 
-    return Response.json<ApiOk>({ raw, parsed });
+    return Response.json({ raw, parsed });
   } catch (e: any) {
-    return Response.json<ApiErr>(
+    return Response.json(
       { error: "Server error", details: String(e?.message ?? e) },
       { status: 500 }
     );

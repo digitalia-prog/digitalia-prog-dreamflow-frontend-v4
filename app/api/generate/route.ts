@@ -1,144 +1,80 @@
-import { NextResponse } from "next/server";
+import { buildEnginePrompts, EngineInput } from "@/lib/scriptEngine";
 
 export const runtime = "nodejs";
 
-type Body = {
-  offer?: string;
-  audience?: string;
-  problem?: string;
-  solution?: string;
-  proof?: string;
-  cta?: string;
-  hak?: string;
-};
+type ApiOk = { raw: string; parsed: any | null };
+type ApiErr = { error: string; details?: string };
 
-function safe(v: unknown) {
-  return typeof v === "string" ? v.trim() : "";
+function safeJsonParse(text: string) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
 }
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as Body;
-
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: "Missing OPENAI_API_KEY" }, { status: 500 });
+      return Response.json(
+        { error: "Missing OPENAI_API_KEY in environment variables." },
+        { status: 500 }
+      );
     }
 
-    const offer = safe(body.offer);
-    const audience = safe(body.audience);
-    const problem = safe(body.problem);
-    const solution = safe(body.solution);
-    const proof = safe(body.proof);
-    const cta = safe(body.cta);
-    const hak = safe(body.hak);
+    const body = (await req.json()) as Partial<EngineInput>;
+    const required = ["mode","lang","platform","objective","audience","offer","angle","objection","hookType","tone","duration"] as const;
+    for (const k of required) {
+      if (!body[k]) {
+        return Response.json<ApiErr>(
+          { error: "Missing field", details: String(k) },
+          { status: 400 }
+        );
+      }
+    }
 
-    const prompt = `
-You are a professional UGC video director and viral strategist.
+    const input = body as EngineInput;
+    const { system, user } = buildEnginePrompts(input);
 
-Create a TikTok / Reels script.
-
-Offer: ${offer}
-Audience: ${audience}
-Problem: ${problem}
-Solution: ${solution}
-Proof: ${proof}
-CTA: ${cta}
-Hook idea (HAK): ${hak}
-
-Return ONLY the following structure:
-
-HOOK A
-TEXT:
-CAMERA:
-EMOTION:
-ACTION:
-DELIVERY:
-
-HOOK B
-TEXT:
-CAMERA:
-EMOTION:
-ACTION:
-DELIVERY:
-
-STORY
-TEXT:
-CAMERA:
-EMOTION:
-ACTION:
-DELIVERY:
-
-PROBLEM
-TEXT:
-CAMERA:
-EMOTION:
-ACTION:
-DELIVERY:
-
-SOLUTION
-TEXT:
-CAMERA:
-EMOTION:
-ACTION:
-DELIVERY:
-
-PROOF
-TEXT:
-CAMERA:
-EMOTION:
-ACTION:
-DELIVERY:
-
-CTA
-TEXT:
-CAMERA:
-EMOTION:
-ACTION:
-DELIVERY:
-
-Rules:
-- Short sentences
-- Creator speaking style
-- Strong emotional hooks
-- Clear camera directions
-- No explanations
-`;
-
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    // Responses API (simple via fetch)
+    const r = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
-        temperature: 0.7,
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are an expert UGC script writer specialised in viral short-form video. Do not output 'STRUCTURE (simple)' or any notes. Follow the exact format requested.",
-          },
-          { role: "user", content: prompt },
+        input: [
+          { role: "system", content: system },
+          { role: "user", content: user },
         ],
+        temperature: 0.7,
       }),
     });
 
-    const data = await res.json();
+    const data = await r.json();
 
-    if (!res.ok) {
-      return NextResponse.json(
-        { error: data?.error?.message || "OpenAI error" },
-        { status: res.status }
+    if (!r.ok) {
+      return Response.json<ApiErr>(
+        { error: "OpenAI API error", details: JSON.stringify(data) },
+        { status: 500 }
       );
     }
 
-    const text = data?.choices?.[0]?.message?.content ?? "";
-    return NextResponse.json({ text });
+    // On récupère le texte de sortie
+    const raw =
+      data?.output?.[0]?.content?.[0]?.text ??
+      data?.output_text ??
+      "";
+
+    const parsed = safeJsonParse(raw);
+
+    return Response.json<ApiOk>({ raw, parsed });
   } catch (e: any) {
-    return NextResponse.json(
-      { error: e?.message || "Server error" },
+    return Response.json<ApiErr>(
+      { error: "Server error", details: String(e?.message ?? e) },
       { status: 500 }
     );
   }

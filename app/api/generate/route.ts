@@ -109,6 +109,12 @@ CAMERA: camera angle or framing
 EMOTION: emotion the creator shows
 ACTION: gesture or movement
 DELIVERY: tone and pace
+
+Rules:
+- Short sentences
+- Easy to read out loud
+- No explanations
+- Add two hooks (HOOK A / HOOK B)
 `;
 Rules:
 - Short sentences

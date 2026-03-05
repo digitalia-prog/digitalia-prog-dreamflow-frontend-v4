@@ -7,6 +7,8 @@ function titleFromPath(path: string) {
   if (path.includes("/dashboard/agency")) return "Agency Dashboard";
   if (path.includes("/dashboard/creator")) return "Creator Dashboard";
   if (path.includes("/dashboard/ai")) return "Script Engine";
+  if (path.includes("/dashboard/campaigns")) return "Campaigns";
+  if (path.includes("/dashboard/creators")) return "Creators";
   return "Dashboard";
 }
 
@@ -26,18 +28,18 @@ export default function Topbar() {
           <div className="hidden md:block">
             <input
               placeholder="Search..."
-              className="w-[260px] rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-violet-500/40"
+              className="w-[260px] rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-violet-600/40"
             />
           </div>
 
-          <button className="rounded-xl border border-violet-500/30 bg-violet-600/10 px-3 py-2 text-sm text-violet-200 hover:bg-violet-600/20">
-            + New
-          </button>
-
-          <div className="h-9 w-9 rounded-full border border-violet-500/30 bg-violet-600/20 shadow-[0_0_30px_rgba(139,92,246,0.25)]" />
+          <a
+            href="/dashboard/campaigns/new"
+            className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500"
+          >
+            + Nouvelle campagne
+          </a>
         </div>
       </div>
     </header>
   );
 }
-

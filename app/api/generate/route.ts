@@ -88,8 +88,8 @@ PREUVE:
 CTA:
 ${mode === "HAK" ? "HAK/TWIST:" : ""}
 
-Règles:
-const prompt = `
+// Règles:
+const prompt = '
 You are a professional UGC video director.
 
 Create a TikTok / Reels script.

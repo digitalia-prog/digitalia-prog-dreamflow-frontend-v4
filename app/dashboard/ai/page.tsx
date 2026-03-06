@@ -37,7 +37,9 @@ type FormState = {
 type ApiOk = {
   output?: string;
   raw?: string;
+  prompt?: string;
   parsed?: any;
+  success?: boolean;
 };
 
 type ApiErr = {
@@ -287,7 +289,14 @@ export default function AiPage() {
       }
 
       const ok = data as ApiOk;
-      setOutput(ok.output || ok.raw || "");
+
+      const finalOutput =
+        ok.output ||
+        ok.raw ||
+        ok.prompt ||
+        (ok.parsed ? JSON.stringify(ok.parsed, null, 2) : "");
+
+      setOutput(finalOutput);
     } catch (e: any) {
       setError(String(e?.message ?? e));
       setOutput("");

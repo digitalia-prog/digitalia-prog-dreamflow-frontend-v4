@@ -35,7 +35,7 @@ type FormState = {
 };
 
 type ApiOk = {
-  output: string;
+  output?: string;
   raw?: string;
   parsed?: any;
 };
@@ -267,10 +267,16 @@ export default function AiPage() {
     setError("");
 
     try {
+      const payload = {
+        ...state,
+        objective: "Vente",
+        angle: state.hak || "Hook viral",
+      };
+
       const r = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(state),
+        body: JSON.stringify(payload),
       });
 
       const data = (await r.json()) as ApiOk | ApiErr;
@@ -282,11 +288,9 @@ export default function AiPage() {
 
       const ok = data as ApiOk;
       setOutput(ok.output || ok.raw || "");
-      if (!ok.output && !ok.raw) setOutput(buildLocalScript(state));
     } catch (e: any) {
       setError(String(e?.message ?? e));
-      // fallback local
-      setOutput(buildLocalScript(state));
+      setOutput("");
     } finally {
       setLoading(false);
     }

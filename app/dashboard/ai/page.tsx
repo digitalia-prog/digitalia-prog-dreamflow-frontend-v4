@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { formatScript } from "@/lib/formatScript";
 
 type Lang = "fr" | "en-GB" | "en-US" | "es" | "ar";
 type Mode = "CREATOR" | "AGENCY";
@@ -210,7 +211,10 @@ export default function AiPage() {
         <div className="mt-10 grid md:grid-cols-2 gap-6">
           <div className="p-4 rounded-xl border border-white/10 bg-white/5">
             <h2 className="font-semibold mb-3">Sortie JSON (parsed)</h2>
-            <pre className="text-xs whitespace-pre-wrap break-words">{parsed ? JSON.stringify(parsed, null, 2) : "—"}</pre>
+              {parsed ? formatScript(parsed) : "-"}
+<pre className="text-xs whitespace-pre-wrap break-words">
+  {parsed ? formatScript(parsed) : "-"}
+</pre>
           </div>
 
           <div className="p-4 rounded-xl border border-white/10 bg-white/5">

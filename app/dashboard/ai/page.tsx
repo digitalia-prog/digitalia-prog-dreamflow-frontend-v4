@@ -1,7 +1,40 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { formatScript } from "@/lib/formatScript";
+export function formatScript(data: any) {
+  const v = data?.variants?.[0];
+  if (!v) return "-";
+
+  const hook = v.hook || "";
+  const script = v?.script?.aida || {};
+  const beats = v.beats?.join("\n• ") || "";
+  const proof = v.proof?.join("\n• ") || "";
+  const shotlist = v.shotlist?.join("\n• ") || "";
+  const cta = v?.cta?.primary || "";
+
+  return `
+HOOK
+${hook}
+
+SCRIPT
+Attention: ${script.attention || ""}
+Interest: ${script.interest || ""}
+Desire: ${script.desire || ""}
+Action: ${script.action || ""}
+
+BEATS
+• ${beats}
+
+PROOF
+• ${proof}
+
+SHOTLIST
+• ${shotlist}
+
+CTA
+${cta}
+`;
+}
 
 type Lang = "fr" | "en-GB" | "en-US" | "es" | "ar";
 type Mode = "CREATOR" | "AGENCY";

@@ -251,10 +251,7 @@ export default function AiPage() {
 </pre>
           </div>
 
-          <div className="p-4 rounded-xl border border-white/10 bg-white/5">
-            <h2 className="font-semibold mb-3">Raw (si JSON cassé)</h2>
-            <pre className="text-xs whitespace-pre-wrap break-words">{raw || "—"}</pre>
-          </div>
+          <h2 className="font-semibold mb-3">Sortie JSON (parsed)</h2>
         </div>
       </div>
     </main>

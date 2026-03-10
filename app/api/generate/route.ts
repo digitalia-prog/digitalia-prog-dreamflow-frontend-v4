@@ -33,9 +33,32 @@ export async function POST(req: Request) {
         );
       }
     }
-
+    const prompt = `
+Generate ${hooksCount} distinct script variants for this brief.
+Return exactly ${hooksCount} variants.
+Each variant must include:
+- name
+- hook
+- script with AIDA
+- beats
+- proof
+- shotlist
+- cta
+`
     const input = body as EngineInput;
-    const { system, user } = buildEnginePrompts(input);
+      mode,
+  lang,
+  platform,
+  ...
+} = await req.json()  mode,
+  lang,
+  platform,
+  ...
+} = await req.json()  mode,
+  lang,
+  platform,
+  ...
+} = await req.json()const { system, user } = buildEnginePrompts(input);
 
     // Responses API (simple via fetch)
     const r = await fetch("https://api.openai.com/v1/responses", {

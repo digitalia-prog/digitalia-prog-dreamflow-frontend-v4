@@ -87,7 +87,7 @@ export default function AiPage() {
   const [tone, setTone] = useState<string>(TONES[0]);
   const [duration, setDuration] = useState<string>(DURATIONS[1]);
   const [context, setContext] = useState<string>("");
-  const [hooksCount, setHooksCount] = useState<number>(10);
+  const hooksCount: mode === "AGENCY" ? 10 : 4
 
   const [loading, setLoading] = useState(false);
   const [raw, setRaw] = useState<string>("");

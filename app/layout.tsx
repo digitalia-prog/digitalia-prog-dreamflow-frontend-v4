@@ -15,7 +15,6 @@ export default async function RootLayout({
 }: {
   children: ReactNode;
 }) {
-  // ⚠️ Next 16 => cookies() est async
   const cookieStore = await cookies();
 
   const locale =
@@ -24,7 +23,7 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body>
-        <AppHeader locale={locale} />
+        <AppHeader />
         {children}
       </body>
     </html>

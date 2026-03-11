@@ -121,6 +121,7 @@ export default function AiPage() {
           tone,
           duration,
           context,
+          scriptsCount,
         }),
       });
 

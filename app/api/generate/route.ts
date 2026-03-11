@@ -37,6 +37,16 @@ export async function POST(req: Request) {
     const input = body as EngineInput;
     const { system, user } = buildEnginePrompts(input);
 
+   const finalUser = `
+   ${user}
+
+   VARIANTS COUNT RULE
+   - Return exactly ${scriptsCount} variants.
+   - If mode = AGENCY, return 10 variants.
+   - If mode = CREATOR, return 4 variants.
+   - Every variant must be genuinely different.
+   `;
+
     // Responses API (simple via fetch)
     const r = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",

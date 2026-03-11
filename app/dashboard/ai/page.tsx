@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { formatScript } from "@/lib/formatScript";
 export function formatScript(data: any) {
   const v = data?.variants?.[0];
   if (!v) return "-";

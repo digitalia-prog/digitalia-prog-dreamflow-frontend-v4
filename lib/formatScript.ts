@@ -1,26 +1,45 @@
 export function formatScript(data: any) {
-  const aida = data?.script?.aida || {};
+  const v = data?.variants?.[0];
+  if (!v) return "-";
+
+  const aida = v?.script?.aida || {};
+
+  const beats = (v?.script?.beats || [])
+    .map((x: string) => `• ${x}`)
+    .join("\n");
+
+  const proof = (v?.script?.proof || [])
+    .map((x: string) => `• ${x}`)
+    .join("\n");
+
+  const cta = (v?.script?.cta || [])
+    .map((x: string) => `• ${x}`)
+    .join("\n");
+
+  const shotlist = (v?.shotlist || [])
+    .map((x: string) => `• ${x}`)
+    .join("\n");
 
   return `
 HOOK
-${data?.hook || ""}
+${v?.hook || ""}
 
 SCRIPT
-${aida.attention || ""}
-${aida.interest || ""}
-${aida.desire || ""}
-${aida.action || ""}
+Attention: ${aida.attention || ""}
+Interest: ${aida.interest || ""}
+Desire: ${aida.desire || ""}
+Action: ${aida.action || ""}
 
 BEATS
-${(data?.beats || []).map((b: string) => "- " + b).join("\n")}
+${beats}
 
 PROOF
-${(data?.proof || []).map((p: string) => "- " + p).join("\n")}
+${proof}
 
 SHOTLIST
-${(data?.shotlist || []).map((s: string) => "- " + s).join("\n")}
+${shotlist}
 
 CTA
-${Array.isArray(data?.cta) ? data.cta.join(" / ") : data?.cta || ""}
-`;
+${cta}
+`.trim();
 }

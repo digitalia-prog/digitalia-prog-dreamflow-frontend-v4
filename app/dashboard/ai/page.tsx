@@ -63,16 +63,14 @@ export default function AiPage() {
   const [lang, setLang] = useState<Lang>("fr");
   const [platform, setPlatform] = useState<string>(PLATFORMS[0]);
   const [objective, setObjective] = useState<string>(OBJECTIVES[0]);
-  const [audience, setAudience] = useState<string>(
-    "E-commerçants (débutants) sur TikTok"
-  );
+  const [audience, setAudience] = useState<string>("E-commerçants sur TikTok");
   const [offer, setOffer] = useState<string>("Coaching UGC Growth");
   const [price, setPrice] = useState<string>("49€/mois");
   const [angle, setAngle] = useState<string>(
     "ROI rapide & scripts prêts à filmer"
   );
   const [objection, setObjection] = useState<string>(
-    "J’ai pas le temps / je sais pas quoi dire"
+    "Je ne sais pas quoi dire en vidéo"
   );
   const [hookType, setHookType] = useState<string>(HOOK_TYPES[0]);
   const [tone, setTone] = useState<string>(TONES[0]);
@@ -82,9 +80,8 @@ export default function AiPage() {
   const scriptsCount = mode === "AGENCY" ? 10 : 4;
 
   const [loading, setLoading] = useState(false);
-  const [raw, setRaw] = useState<string>("");
   const [parsed, setParsed] = useState<any | null>(null);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState("");
 
   const title = useMemo(() => {
     return mode === "AGENCY"
@@ -95,7 +92,6 @@ export default function AiPage() {
   async function onGenerate() {
     setLoading(true);
     setError("");
-    setRaw("");
     setParsed(null);
 
     try {
@@ -125,13 +121,12 @@ export default function AiPage() {
       const data = await r.json();
 
       if (!r.ok) {
-        throw new Error(data?.details || data?.error || "Erreur API");
+        throw new Error(data?.error || "Erreur API");
       }
 
-      setRaw(data.raw || "");
-      setParsed(data.parsed ?? null);
+      setParsed(data.parsed || null);
     } catch (e: any) {
-      setError(String(e?.message ?? e));
+      setError(e.message || "Erreur inconnue");
     } finally {
       setLoading(false);
     }
@@ -140,22 +135,21 @@ export default function AiPage() {
   return (
     <main className="min-h-screen bg-black px-6 py-10 text-white">
       <div className="mx-auto max-w-5xl">
-        <h1 className="mb-2 text-3xl font-bold">{title}</h1>
+        <h1 className="text-3xl font-bold mb-2">{title}</h1>
 
-        <p className="mb-8 text-white/70">
-          Remplis les champs → Générer = {scriptsCount} scripts + hooks +
-          framework + shotlist + plan de test.
+        <p className="text-white/70 mb-8">
+          Générer {scriptsCount} scripts marketing prêts à tourner.
         </p>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid md:grid-cols-2 gap-4">
           <Field label="Mode">
             <select
               className={inputCls}
               value={mode}
               onChange={(e) => setMode(e.target.value as Mode)}
             >
-              <option value="CREATOR">CREATOR (simple, tournable)</option>
-              <option value="AGENCY">AGENCY (premium, stratégique)</option>
+              <option value="CREATOR">CREATOR</option>
+              <option value="AGENCY">AGENCY</option>
             </select>
           </Field>
 
@@ -180,9 +174,7 @@ export default function AiPage() {
               onChange={(e) => setPlatform(e.target.value)}
             >
               {PLATFORMS.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
+                <option key={p}>{p}</option>
               ))}
             </select>
           </Field>
@@ -194,14 +186,12 @@ export default function AiPage() {
               onChange={(e) => setObjective(e.target.value)}
             >
               {OBJECTIVES.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
+                <option key={o}>{o}</option>
               ))}
             </select>
           </Field>
 
-          <Field label="Audience (avatar)">
+          <Field label="Audience">
             <input
               className={inputCls}
               value={audience}
@@ -217,7 +207,7 @@ export default function AiPage() {
             />
           </Field>
 
-          <Field label="Prix (optionnel)">
+          <Field label="Prix">
             <input
               className={inputCls}
               value={price}
@@ -241,16 +231,14 @@ export default function AiPage() {
             />
           </Field>
 
-          <Field label="Type de Hook">
+          <Field label="Type de hook">
             <select
               className={inputCls}
               value={hookType}
               onChange={(e) => setHookType(e.target.value)}
             >
               {HOOK_TYPES.map((h) => (
-                <option key={h} value={h}>
-                  {h}
-                </option>
+                <option key={h}>{h}</option>
               ))}
             </select>
           </Field>
@@ -262,9 +250,7 @@ export default function AiPage() {
               onChange={(e) => setTone(e.target.value)}
             >
               {TONES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
+                <option key={t}>{t}</option>
               ))}
             </select>
           </Field>
@@ -276,14 +262,12 @@ export default function AiPage() {
               onChange={(e) => setDuration(e.target.value)}
             >
               {DURATIONS.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
+                <option key={d}>{d}</option>
               ))}
             </select>
           </Field>
 
-          <Field label="Contexte (optionnel)">
+          <Field label="Contexte">
             <textarea
               className={cn(inputCls, "h-24")}
               value={context}
@@ -292,51 +276,32 @@ export default function AiPage() {
           </Field>
         </div>
 
-        <div className="mt-6 flex items-center gap-3">
-          <button
-            onClick={onGenerate}
-            disabled={loading}
-            className={cn(
-              "rounded-lg px-5 py-3 font-semibold",
-              loading ? "bg-white/10" : "bg-violet-600 hover:bg-violet-500"
-            )}
-          >
-            {loading ? "Génération..." : `Générer ${scriptsCount} scripts`}
-          </button>
+        <button
+          onClick={onGenerate}
+          disabled={loading}
+          className="mt-6 px-5 py-3 rounded-lg bg-violet-600 hover:bg-violet-500 font-semibold"
+        >
+          {loading ? "Génération..." : `Générer ${scriptsCount} scripts`}
+        </button>
 
-          {error ? <span className="text-red-400">{error}</span> : null}
-        </div>
+        {error && <div className="mt-6 text-red-400">{error}</div>}
 
         {parsed?.variants?.length ? (
           <div className="mt-10 space-y-6">
-            <h2 className="text-xl font-semibold">
-              Scripts générés ({parsed.variants.length})
-            </h2>
-
-            {parsed.variants.map((variant: any, index: number) => (
+            {parsed.variants.map((variant: any, i: number) => (
               <div
-                key={index}
-                className="rounded-xl border border-white/10 bg-white/5 p-4"
+                key={i}
+                className="border border-white/10 rounded-xl p-4 bg-white/5"
               >
-                <h3 className="mb-3 font-semibold">
-                  Script {index + 1}
-                  {variant?.name ? ` — Variante ${variant.name}` : ""}
-                </h3>
+                <h3 className="font-semibold mb-3">Script {i + 1}</h3>
 
-                <pre className="text-xs whitespace-pre-wrap break-words">
+                <pre className="text-sm whitespace-pre-wrap">
                   {formatScript({ variants: [variant] })}
                 </pre>
               </div>
             ))}
           </div>
         ) : null}
-
-        <div className="mt-10 rounded-xl border border-white/10 bg-white/5 p-4">
-          <h2 className="mb-3 font-semibold">Réponse brute</h2>
-          <pre className="text-xs whitespace-pre-wrap break-words">
-            {raw || "-"}
-          </pre>
-        </div>
       </div>
     </main>
   );

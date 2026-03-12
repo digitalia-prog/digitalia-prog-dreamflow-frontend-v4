@@ -1,40 +1,7 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { formatScript } from "@/lib/formatScript";
-export function formatScript(data: any) {
-  const v = data?.variants?.[0];
-  if (!v) return "-";
-
-  const hook = v.hook || "";
-  const script = v?.script?.aida || {};
-  const beats = v.beats?.join("\n• ") || "";
-  const proof = v.proof?.join("\n• ") || "";
-  const shotlist = v.shotlist?.join("\n• ") || "";
-  const cta = v?.cta?.primary || "";
-
-  return `
-HOOK
-${hook}
-
-SCRIPT
-Attention: ${script.attention || ""}
-Interest: ${script.interest || ""}
-Desire: ${script.desire || ""}
-Action: ${script.action || ""}
-
-BEATS
-• ${beats}
-
-PROOF
-• ${proof}
-
-SHOTLIST
-• ${shotlist}
-
-CTA
-${cta}
-`;
-}
 
 type Lang = "fr" | "en-GB" | "en-US" | "es" | "ar";
 type Mode = "CREATOR" | "AGENCY";
@@ -73,20 +40,46 @@ function cn(...v: (string | false | null | undefined)[]) {
   return v.filter(Boolean).join(" ");
 }
 
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="text-sm text-white/80">{label}</div>
+      {children}
+    </div>
+  );
+}
+
+const inputCls =
+  "w-full rounded-lg bg-black/40 border border-white/20 px-3 py-2 outline-none focus:border-white/40";
+
 export default function AiPage() {
   const [mode, setMode] = useState<Mode>("AGENCY");
   const [lang, setLang] = useState<Lang>("fr");
   const [platform, setPlatform] = useState<string>(PLATFORMS[0]);
   const [objective, setObjective] = useState<string>(OBJECTIVES[0]);
-  const [audience, setAudience] = useState<string>("E-commerçants (débutants) sur TikTok");
+  const [audience, setAudience] = useState<string>(
+    "E-commerçants (débutants) sur TikTok"
+  );
   const [offer, setOffer] = useState<string>("Coaching UGC Growth");
   const [price, setPrice] = useState<string>("49€/mois");
-  const [angle, setAngle] = useState<string>("ROI rapide & scripts prêts à filmer");
-  const [objection, setObjection] = useState<string>("J’ai pas le temps / je sais pas quoi dire");
+  const [angle, setAngle] = useState<string>(
+    "ROI rapide & scripts prêts à filmer"
+  );
+  const [objection, setObjection] = useState<string>(
+    "J’ai pas le temps / je sais pas quoi dire"
+  );
   const [hookType, setHookType] = useState<string>(HOOK_TYPES[0]);
   const [tone, setTone] = useState<string>(TONES[0]);
   const [duration, setDuration] = useState<string>(DURATIONS[1]);
   const [context, setContext] = useState<string>("");
+
+  const scriptsCount = mode === "AGENCY" ? 10 : 4;
 
   const [loading, setLoading] = useState(false);
   const [raw, setRaw] = useState<string>("");
@@ -94,7 +87,9 @@ export default function AiPage() {
   const [error, setError] = useState<string>("");
 
   const title = useMemo(() => {
-    return mode === "AGENCY" ? "Script Engine — Agency" : "Script Engine — Creator";
+    return mode === "AGENCY"
+      ? "Script Engine — Agency"
+      : "Script Engine — Creator";
   }, [mode]);
 
   async function onGenerate() {
@@ -106,7 +101,9 @@ export default function AiPage() {
     try {
       const r = await fetch("/api/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           mode,
           lang,
@@ -126,7 +123,10 @@ export default function AiPage() {
       });
 
       const data = await r.json();
-      if (!r.ok) throw new Error(data?.details || data?.error || "Erreur API");
+
+      if (!r.ok) {
+        throw new Error(data?.details || data?.error || "Erreur API");
+      }
 
       setRaw(data.raw || "");
       setParsed(data.parsed ?? null);
@@ -138,23 +138,33 @@ export default function AiPage() {
   }
 
   return (
-    <main className="min-h-screen bg-black text-white px-6 py-10">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2">{title}</h1>
-        <p className="text-white/70 mb-8">
-          Remplis les champs → Générer = 2 variantes A/B + framework + shotlist + plan de test.
+    <main className="min-h-screen bg-black px-6 py-10 text-white">
+      <div className="mx-auto max-w-5xl">
+        <h1 className="mb-2 text-3xl font-bold">{title}</h1>
+
+        <p className="mb-8 text-white/70">
+          Remplis les champs → Générer = 2 variantes A/B + framework +
+          shotlist + plan de test.
         </p>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid gap-4 md:grid-cols-2">
           <Field label="Mode">
-            <select className={inputCls} value={mode} onChange={(e) => setMode(e.target.value as Mode)}>
+            <select
+              className={inputCls}
+              value={mode}
+              onChange={(e) => setMode(e.target.value as Mode)}
+            >
               <option value="CREATOR">CREATOR (simple, tournable)</option>
               <option value="AGENCY">AGENCY (premium, stratégique)</option>
             </select>
           </Field>
 
           <Field label="Langue">
-            <select className={inputCls} value={lang} onChange={(e) => setLang(e.target.value as Lang)}>
+            <select
+              className={inputCls}
+              value={lang}
+              onChange={(e) => setLang(e.target.value as Lang)}
+            >
               <option value="fr">FR</option>
               <option value="en-GB">EN (UK)</option>
               <option value="en-US">EN (US)</option>
@@ -164,67 +174,121 @@ export default function AiPage() {
           </Field>
 
           <Field label="Plateforme">
-            <select className={inputCls} value={platform} onChange={(e) => setPlatform(e.target.value)}>
+            <select
+              className={inputCls}
+              value={platform}
+              onChange={(e) => setPlatform(e.target.value)}
+            >
               {PLATFORMS.map((p) => (
-                <option key={p} value={p}>{p}</option>
+                <option key={p} value={p}>
+                  {p}
+                </option>
               ))}
             </select>
           </Field>
 
           <Field label="Objectif">
-            <select className={inputCls} value={objective} onChange={(e) => setObjective(e.target.value)}>
+            <select
+              className={inputCls}
+              value={objective}
+              onChange={(e) => setObjective(e.target.value)}
+            >
               {OBJECTIVES.map((o) => (
-                <option key={o} value={o}>{o}</option>
+                <option key={o} value={o}>
+                  {o}
+                </option>
               ))}
             </select>
           </Field>
 
           <Field label="Audience (avatar)">
-            <input className={inputCls} value={audience} onChange={(e) => setAudience(e.target.value)} />
+            <input
+              className={inputCls}
+              value={audience}
+              onChange={(e) => setAudience(e.target.value)}
+            />
           </Field>
 
           <Field label="Offre / Produit">
-            <input className={inputCls} value={offer} onChange={(e) => setOffer(e.target.value)} />
+            <input
+              className={inputCls}
+              value={offer}
+              onChange={(e) => setOffer(e.target.value)}
+            />
           </Field>
 
           <Field label="Prix (optionnel)">
-            <input className={inputCls} value={price} onChange={(e) => setPrice(e.target.value)} />
+            <input
+              className={inputCls}
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
           </Field>
 
           <Field label="Angle marketing">
-            <input className={inputCls} value={angle} onChange={(e) => setAngle(e.target.value)} />
+            <input
+              className={inputCls}
+              value={angle}
+              onChange={(e) => setAngle(e.target.value)}
+            />
           </Field>
 
           <Field label="Objection principale">
-            <input className={inputCls} value={objection} onChange={(e) => setObjection(e.target.value)} />
+            <input
+              className={inputCls}
+              value={objection}
+              onChange={(e) => setObjection(e.target.value)}
+            />
           </Field>
 
           <Field label="Type de Hook">
-            <select className={inputCls} value={hookType} onChange={(e) => setHookType(e.target.value)}>
+            <select
+              className={inputCls}
+              value={hookType}
+              onChange={(e) => setHookType(e.target.value)}
+            >
               {HOOK_TYPES.map((h) => (
-                <option key={h} value={h}>{h}</option>
+                <option key={h} value={h}>
+                  {h}
+                </option>
               ))}
             </select>
           </Field>
 
           <Field label="Ton">
-            <select className={inputCls} value={tone} onChange={(e) => setTone(e.target.value)}>
+            <select
+              className={inputCls}
+              value={tone}
+              onChange={(e) => setTone(e.target.value)}
+            >
               {TONES.map((t) => (
-                <option key={t} value={t}>{t}</option>
+                <option key={t} value={t}>
+                  {t}
+                </option>
               ))}
             </select>
           </Field>
 
           <Field label="Durée">
-            <select className={inputCls} value={duration} onChange={(e) => setDuration(e.target.value)}>
+            <select
+              className={inputCls}
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+            >
               {DURATIONS.map((d) => (
-                <option key={d} value={d}>{d}</option>
+                <option key={d} value={d}>
+                  {d}
+                </option>
               ))}
             </select>
           </Field>
 
           <Field label="Contexte (optionnel)">
-            <textarea className={cn(inputCls, "h-24")} value={context} onChange={(e) => setContext(e.target.value)} />
+            <textarea
+              className={cn(inputCls, "h-24")}
+              value={context}
+              onChange={(e) => setContext(e.target.value)}
+            />
           </Field>
         </div>
 
@@ -233,39 +297,32 @@ export default function AiPage() {
             onClick={onGenerate}
             disabled={loading}
             className={cn(
-              "px-5 py-3 rounded-lg font-semibold",
+              "rounded-lg px-5 py-3 font-semibold",
               loading ? "bg-white/10" : "bg-violet-600 hover:bg-violet-500"
             )}
           >
-            {loading ? "Génération..." : "Générer"}
+            {loading ? "Génération..." : `Générer ${scriptsCount} scripts`}
           </button>
+
           {error ? <span className="text-red-400">{error}</span> : null}
         </div>
 
-        <div className="mt-10 grid md:grid-cols-2 gap-6">
-          <div className="p-4 rounded-xl border border-white/10 bg-white/5">
-            <h2 className="font-semibold mb-3">Sortie JSON (parsed)</h2>
+        <div className="mt-10 grid gap-6 md:grid-cols-2">
+          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+            <h2 className="mb-3 font-semibold">Sortie JSON (parsed)</h2>
+            <pre className="text-xs whitespace-pre-wrap break-words">
               {parsed ? formatScript(parsed) : "-"}
-<pre className="text-xs whitespace-pre-wrap break-words">
-  {parsed ? formatScript(parsed) : "-"}
-</pre>
+            </pre>
           </div>
 
-          
+          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+            <h2 className="mb-3 font-semibold">Réponse brute</h2>
+            <pre className="text-xs whitespace-pre-wrap break-words">
+              {raw || "-"}
+            </pre>
+          </div>
         </div>
       </div>
     </main>
   );
 }
-
-function Field({ label, children }: { label: string; children: any }) {
-  return (
-    <div className="space-y-2">
-      <div className="text-sm text-white/80">{label}</div>
-      {children}
-    </div>
-  );
-}
-
-const inputCls =
-  "w-full rounded-lg bg-black/40 border border-white/20 px-3 py-2 outline-none focus:border-white/40";

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+
 type Lang = "fr" | "en" | "ar" | "es" | "zh";
 
 type Dict = Record<
@@ -112,7 +113,7 @@ const dict: Dict = {
     ctaOffers: "Voir les offres",
     ctaTerms: "Conditions (CGU)",
 
-    featuresTitle: "Fonctionnalités clés", 
+    featuresTitle: "Fonctionnalités clés",
     featuresSubtitle: "Une démo simple et claire du dashboard UGC.",
 
     f1Title: "Scripts structurés & actionnables",
@@ -130,7 +131,6 @@ const dict: Dict = {
 
     pricingTitle: "Prix (bêta)",
     pricingSubtitle: "",
-     
 
     planBetaTitle: "Test bêta",
     planBetaPrice: "0€ / 7 jours",
@@ -278,7 +278,7 @@ const dict: Dict = {
     badge: "بيتا — 7 أيام مجانًا للتجربة (قيود ضد الإساءة)",
     heroTitle: "لوحة UGC التي تُولِّد وتُنظِّم.",
     heroSubtitle:
-      "اجمع الحملات وصنّاع المحتوى والـ briefs، واستخدم Script Engine (Viral / HAK) لإنتاج سكربتات منظمة بسرعة — بدون “موقع وهمي”.",
+      "اجمع الحملات وصنّاع المحتوى والـ briefs، واستخدم Script Engine (Viral / HAK) لإنتاج سكربتات منظمة بسرعة — بدون “موقع وهمي” .",
 
     ctaDashboard: "الدخول للوحة التحكم",
     ctaOffers: "عرض الباقات",
@@ -365,7 +365,7 @@ const dict: Dict = {
     badge: "Beta — 7 días gratis para pruebas (límites anti-abuso)",
     heroTitle: "El dashboard UGC que genera y organiza.",
     heroSubtitle:
-      "Centraliza campañas, creadores, briefs, y usa el Script Engine (Viral / HAK) para crear guiones estructurados rápido — sin “sitio falso”.",
+      "Centraliza campañas, creadores, briefs, y usa el Script Engine (Viral / HAK) para crear guiones estructurados rápido — sin “sitio falso” .",
 
     ctaDashboard: "Entrar al dashboard",
     ctaOffers: "Ver ofertas",
@@ -609,6 +609,11 @@ function LangButton({
 
 export default function Landing() {
   const [lang, setLang] = useState<Lang>("fr");
+  const [showEmailGate, setShowEmailGate] = useState(false);
+  const [betaEmail, setBetaEmail] = useState("");
+  const [betaLoading, setBetaLoading] = useState(false);
+  const [betaError, setBetaError] = useState("");
+
   const t = useMemo(() => dict[lang], [lang]);
 
   const isRTL = lang === "ar";
@@ -620,13 +625,45 @@ export default function Landing() {
     zh: "中文",
   };
 
+  async function submitBetaAccess() {
+    setBetaError("");
+
+    if (!betaEmail.trim() || !betaEmail.includes("@")) {
+      setBetaError("Entre un email valide.");
+      return;
+    }
+
+    try {
+      setBetaLoading(true);
+
+      const r = await fetch("/api/welcome", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: betaEmail.trim() }),
+      });
+
+      const data = await r.json();
+
+      if (!r.ok || !data?.ok) {
+        throw new Error(data?.error || "Impossible d'envoyer l'email.");
+      }
+
+      window.location.href = "/dashboard";
+    } catch (e: any) {
+      setBetaError(e?.message || "Erreur inconnue.");
+    } finally {
+      setBetaLoading(false);
+    }
+  }
+
   return (
     <main
       className="min-h-screen bg-black text-white"
       dir={isRTL ? "rtl" : "ltr"}
       lang={lang}
     >
-      {/* Header */}
       <header className="mx-auto max-w-6xl px-6 py-10 flex items-center justify-between gap-6">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-purple-600/80" />
@@ -654,7 +691,6 @@ export default function Landing() {
           </Link>
         </nav>
 
-        {/* Language switch */}
         <div className="flex items-center gap-2">
           {(Object.keys(langLabel) as Lang[]).map((l) => (
             <LangButton
@@ -667,7 +703,6 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero */}
       <section className="mx-auto max-w-6xl px-6 py-6 md:py-12">
         <div className="rounded-3xl border border-white/10 bg-white/5 p-10 md:p-14">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-4 py-2 text-xs text-white/80">
@@ -684,12 +719,12 @@ export default function Landing() {
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
-            <Link
-              href="/dashboard"
+            <button
+              onClick={() => setShowEmailGate(true)}
               className="rounded-xl bg-purple-600 px-6 py-3 font-semibold hover:bg-purple-700"
             >
               {t.ctaDashboard}
-            </Link>
+            </button>
 
             <a
               href="#pricing"
@@ -706,7 +741,6 @@ export default function Landing() {
             </Link>
           </div>
 
-          {/* Small feature row */}
           <div className="mt-10 grid gap-4 md:grid-cols-3">
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
               <div className="font-semibold">Script Engine (Viral + HAK)</div>
@@ -723,14 +757,13 @@ export default function Landing() {
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
               <div className="font-semibold">Multi-langue</div>
               <div className="mt-2 text-sm text-white/70">
-   
+                FR / EN / AR / ES / 中文
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features */}
       <section id="features" className="mx-auto max-w-6xl px-6 py-16">
         <h2 className="text-3xl md:text-4xl font-bold">{t.featuresTitle}</h2>
         <p className="mt-3 text-white/70">{t.featuresSubtitle}</p>
@@ -745,7 +778,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Pricing */}
       <section id="pricing" className="mx-auto max-w-6xl px-6 py-16">
         <h2 className="text-3xl md:text-4xl font-bold">{t.pricingTitle}</h2>
         <p className="mt-3 text-white/70">{t.pricingSubtitle}</p>
@@ -775,7 +807,6 @@ export default function Landing() {
         <div className="mt-6 text-sm text-white/60">{t.pricingFootnote}</div>
       </section>
 
-      {/* Who is it for */}
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="rounded-3xl border border-white/10 bg-white/5 p-10">
           <h2 className="text-3xl font-bold">{t.whoTitle}</h2>
@@ -789,7 +820,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Premium section */}
       <section className="mx-auto max-w-6xl px-6 pb-16">
         <div className="rounded-3xl border border-purple-500/20 bg-purple-500/10 p-10">
           <h2 className="text-3xl font-bold">{t.premiumTitle}</h2>
@@ -802,7 +832,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* FAQ */}
       <section id="faq" className="mx-auto max-w-6xl px-6 py-16">
         <h2 className="text-3xl md:text-4xl font-bold">{t.faqTitle}</h2>
 
@@ -822,7 +851,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Feedback */}
       <section className="mx-auto max-w-6xl px-6 pb-20">
         <div className="rounded-3xl border border-white/10 bg-white/5 p-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div>
@@ -851,6 +879,52 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+
+      {showEmailGate && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-4">
+          <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#111118] p-6 text-white shadow-2xl">
+            <h3 className="text-2xl font-bold">Accès bêta</h3>
+            <p className="mt-2 text-white/70">
+              Entre ton email pour recevoir le message de bienvenue puis accéder au dashboard.
+            </p>
+
+            <div className="mt-5 space-y-3">
+              <input
+                type="email"
+                placeholder="ton@email.com"
+                value={betaEmail}
+                onChange={(e) => setBetaEmail(e.target.value)}
+                className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 outline-none focus:border-white/40"
+              />
+
+              {betaError ? (
+                <div className="text-sm text-red-400">{betaError}</div>
+              ) : null}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowEmailGate(false);
+                    setBetaError("");
+                    setBetaEmail("");
+                  }}
+                  className="flex-1 rounded-xl border border-white/15 px-4 py-3 text-white/80 hover:border-white/30 hover:text-white"
+                >
+                  Annuler
+                </button>
+
+                <button
+                  onClick={submitBetaAccess}
+                  disabled={betaLoading}
+                  className="flex-1 rounded-xl bg-violet-600 px-4 py-3 font-semibold text-white hover:bg-violet-500 disabled:opacity-60"
+                >
+                  {betaLoading ? "Envoi..." : "Continuer"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

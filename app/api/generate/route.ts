@@ -49,6 +49,71 @@ function extractJson(text: string) {
   return JSON.parse(match[0]);
 }
 
+function normalizeVariants(parsed: any, scriptsCount: number) {
+  if (!Array.isArray(parsed?.variants)) {
+    throw new Error("Réponse IA invalide: variants manquant.");
+  }
+
+  return parsed.variants.slice(0, scriptsCount).map((v: any, index: number) => {
+    const beats =
+      Array.isArray(v?.beats) && v.beats.filter(Boolean).length > 0
+        ? v.beats.filter(Boolean)
+        : [
+            "Ouverture sur le problème ou la frustration du client",
+            "Démonstration du produit en situation réelle",
+            "Moment de persuasion juste avant l'appel à l'action",
+          ];
+
+    const proof =
+      Array.isArray(v?.proof) && v.proof.filter(Boolean).length > 0
+        ? v.proof.filter(Boolean)
+        : [
+            "Démonstration concrète du produit en action",
+            "Élément de réassurance ou bénéfice visible immédiatement",
+          ];
+
+    const shotlist =
+      Array.isArray(v?.shotlist) && v.shotlist.filter(Boolean).length > 0
+        ? v.shotlist.filter(Boolean)
+        : [
+            "Gros plan sur le produit en main",
+            "Démonstration du produit en usage réel",
+            "Plan final lifestyle ou réaction utilisateur",
+          ];
+
+    return {
+      name: v?.name || String.fromCharCode(65 + index),
+      hook:
+        v?.hook ||
+        "Tu veux un produit qui fait vraiment la différence au quotidien ?",
+      script: {
+        aida: {
+          attention:
+            v?.script?.aida?.attention ||
+            "Voici le problème que ce produit résout immédiatement.",
+          interest:
+            v?.script?.aida?.interest ||
+            "Ce produit apporte un vrai avantage concret au quotidien.",
+          desire:
+            v?.script?.aida?.desire ||
+            "Tu gagnes en confort, en style et en simplicité d'utilisation.",
+          action:
+            v?.script?.aida?.action ||
+            "Clique maintenant pour le commander avant qu'il n'y en ait plus.",
+        },
+      },
+      beats,
+      proof,
+      shotlist,
+      cta: {
+        primary:
+          v?.cta?.primary ||
+          "Clique sur le lien pour commander maintenant avant la rupture de stock.",
+      },
+    };
+  });
+}
+
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as Body;
@@ -102,12 +167,13 @@ COUNT RULES
 - If mode = AGENCY, return 10 variants.
 - If mode = CREATOR, return 4 variants.
 
-SECTION RULES
+MANDATORY SECTION RULES
+- EVERY section must be filled with real content.
 - Never leave beats empty.
 - Never leave proof empty.
 - Never leave CTA empty.
-- Beats must describe the progression of the video.
-- Proof must include credibility, comparison, trust, demo, result, or buyer reassurance.
+- Beats must describe the progression of the video story.
+- Proof must include credibility, comparison, trust, demo, result, or reassurance.
 - Shotlist must contain concrete visual shots.
 - CTA must clearly push to click, buy, order, or try now.
 
@@ -161,12 +227,13 @@ CONTEXT: ${context}
 
 STRICT INSTRUCTIONS
 - Sell the product only.
-- Make the scripts feel natural, filmable, emotional, and credible.
+- Make the scripts feel natural, emotional, credible, and ready to shoot.
 - Fill all AIDA sections with real content.
-- Beats must explain the story progression of the video.
-- Proof must include believable trust elements.
-- Shotlist must be concrete and visual.
-- CTA must be direct and purchase-oriented.
+- Fill beats with real story progression.
+- Fill proof with believable trust elements.
+- Fill shotlist with concrete visual actions.
+- Fill CTA with a direct purchase-oriented call to action.
+- No empty field is allowed.
 `;
 
     const openaiRes = await fetch("https://api.openai.com/v1/responses", {
@@ -182,6 +249,7 @@ STRICT INSTRUCTIONS
           { role: "user", content: userPrompt },
         ],
         temperature: 0.9,
+        max_output_tokens: 2000,
       }),
     });
 
@@ -209,67 +277,16 @@ STRICT INSTRUCTIONS
       );
     }
 
-    let parsed = extractJson(raw);
-
-    if (!Array.isArray(parsed?.variants)) {
-      throw new Error("Réponse IA invalide: variants manquant.");
-    }
-
-    parsed.variants = parsed.variants
-      .slice(0, scriptsCount)
-      .map((v: any, index: number) => ({
-        name: v?.name || String.fromCharCode(65 + index),
-        hook: v?.hook || "Tu veux un produit qui fait vraiment la différence ?",
-        script: {
-          aida: {
-            attention:
-              v?.script?.aida?.attention ||
-              "Voici le problème que ce produit résout immédiatement.",
-            interest:
-              v?.script?.aida?.interest ||
-              "Ce produit apporte un vrai avantage concret au quotidien.",
-            desire:
-              v?.script?.aida?.desire ||
-              "Tu gagnes en confort, en style et en simplicité d'utilisation.",
-            action:
-              v?.script?.aida?.action ||
-              "Clique maintenant pour le commander avant qu'il n'y en ait plus.",
-          },
-        },
-        beats:
-          Array.isArray(v?.beats) && v.beats.filter(Boolean).length > 0
-            ? v.beats.filter(Boolean)
-            : [
-                "Ouverture sur le problème ou la frustration du client",
-                "Démonstration du produit en situation réelle",
-                "Moment de persuasion juste avant l'appel à l'action",
-              ],
-        proof:
-          Array.isArray(v?.proof) && v.proof.filter(Boolean).length > 0
-            ? v.proof.filter(Boolean)
-            : [
-                "Démonstration concrète du produit en action",
-                "Élément de réassurance ou bénéfice visible immédiatement",
-              ],
-        shotlist:
-          Array.isArray(v?.shotlist) && v.shotlist.filter(Boolean).length > 0
-            ? v.shotlist.filter(Boolean)
-            : [
-                "Gros plan sur le produit en main",
-                "Démonstration du produit en usage réel",
-                "Plan final lifestyle ou réaction utilisateur",
-              ],
-        cta: {
-          primary:
-            v?.cta?.primary ||
-            "Clique sur le lien pour commander maintenant avant la rupture de stock.",
-        },
-      }));
+    const parsed = extractJson(raw);
+    const normalizedVariants = normalizeVariants(parsed, scriptsCount);
 
     return NextResponse.json({
       ok: true,
       raw,
-      parsed,
+      parsed: {
+        ...parsed,
+        variants: normalizedVariants,
+      },
     });
   } catch (error: any) {
     return NextResponse.json(

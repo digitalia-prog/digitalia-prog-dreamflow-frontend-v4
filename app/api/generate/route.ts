@@ -83,42 +83,36 @@ Generate SELLABLE short form video ads.
 
 RULES
 - Focus only on selling the product.
-- Never mention scripts, SaaS, marketing tools.
+- Never mention scripts, SaaS, dashboard, or marketing tools.
 - Hooks must stop scrolling.
 - Scripts must feel natural and credible.
-
-Return exactly ${scriptsCount} variants.
-
-Every variant must contain:
-
-HOOK
-SCRIPT (AIDA)
-BEATS
-PROOF
-SHOTLIST
-CTA
+- Return exactly ${scriptsCount} variants.
+- Every variant must include hook, aida script, beats, proof, shotlist, and cta.
+- No field can be empty.
 
 JSON FORMAT ONLY
 
 {
- "variants":[
-  {
-   "name":"A",
-   "hook":"",
-   "script":{
-     "aida":{
-       "attention":"",
-       "interest":"",
-       "desire":"",
-       "action":""
-     }
-   },
-   "beats":["","",""],
-   "proof":["",""],
-   "shotlist":["","",""],
-   "cta":{"primary":""}
-  }
- ]
+  "variants": [
+    {
+      "name": "A",
+      "hook": "",
+      "script": {
+        "aida": {
+          "attention": "",
+          "interest": "",
+          "desire": "",
+          "action": ""
+        }
+      },
+      "beats": ["", "", ""],
+      "proof": ["", ""],
+      "shotlist": ["", "", ""],
+      "cta": {
+        "primary": ""
+      }
+    }
+  ]
 }
 `;
 
@@ -129,29 +123,21 @@ MODE: ${mode}
 LANGUAGE: ${lang}
 PLATFORM: ${platform}
 OBJECTIVE: ${objective}
-
 PRODUCT: ${offer}
 PRICE: ${price}
-
 AUDIENCE: ${audience}
-
 ANGLE: ${angle}
-
 OBJECTION: ${objection}
-
 HOOK TYPE: ${hookType}
-
 TONE: ${tone}
-
 VIDEO DURATION: ${duration}
-
 CONTEXT: ${context}
 `;
 
     const openaiRes = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
-        Authorization: \`Bearer \${apiKey}\`,
+        Authorization: "Bearer " + apiKey,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -197,39 +183,52 @@ CONTEXT: ${context}
       hook: v?.hook || "Tu veux découvrir ce produit ?",
       script: {
         aida: {
-          attention: v?.script?.aida?.attention || "Voici le problème.",
-          interest: v?.script?.aida?.interest || "Voici pourquoi ce produit est intéressant.",
-          desire: v?.script?.aida?.desire || "Voici pourquoi tu vas le vouloir.",
-          action: v?.script?.aida?.action || "Clique pour commander maintenant."
-        }
+          attention:
+            v?.script?.aida?.attention || "Voici le problème que ce produit résout.",
+          interest:
+            v?.script?.aida?.interest || "Voici pourquoi ce produit est intéressant.",
+          desire:
+            v?.script?.aida?.desire || "Voici pourquoi tu vas vraiment le vouloir.",
+          action:
+            v?.script?.aida?.action || "Clique pour commander maintenant.",
+        },
       },
-      beats: v?.beats?.length ? v.beats : [
-        "Présentation du problème",
-        "Démonstration produit",
-        "Décision d'achat"
-      ],
-      proof: v?.proof?.length ? v.proof : [
-        "Démonstration produit",
-        "Résultat visible"
-      ],
-      shotlist: v?.shotlist?.length ? v.shotlist : [
-        "Plan produit",
-        "Plan démonstration",
-        "Plan final"
-      ],
+      beats:
+        Array.isArray(v?.beats) && v.beats.filter(Boolean).length
+          ? v.beats.filter(Boolean)
+          : [
+              "Présentation du problème client",
+              "Démonstration du produit en action",
+              "Moment de persuasion avant l'achat",
+            ],
+      proof:
+        Array.isArray(v?.proof) && v.proof.filter(Boolean).length
+          ? v.proof.filter(Boolean)
+          : [
+              "Démonstration produit en situation réelle",
+              "Résultat visible ou élément de réassurance",
+            ],
+      shotlist:
+        Array.isArray(v?.shotlist) && v.shotlist.filter(Boolean).length
+          ? v.shotlist.filter(Boolean)
+          : [
+              "Plan produit en gros plan",
+              "Plan démonstration usage réel",
+              "Plan final avec appel à l'action",
+            ],
       cta: {
-        primary: v?.cta?.primary || "Clique sur le lien pour commander maintenant."
-      }
+        primary:
+          v?.cta?.primary || "Clique sur le lien pour commander maintenant.",
+      },
     }));
 
     return NextResponse.json({
       ok: true,
       raw,
       parsed: {
-        variants: normalized
-      }
+        variants: normalized,
+      },
     });
-
   } catch (error: any) {
     return NextResponse.json(
       {

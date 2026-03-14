@@ -36,7 +36,6 @@ function extractTextFromResponsesApi(data: any): string {
 
 function extractJson(text: string) {
   const trimmed = text.trim();
-
   try {
     return JSON.parse(trimmed);
   } catch {}
@@ -85,97 +84,70 @@ export async function POST(req: Request) {
     const systemPrompt = `
 You are an elite UGC direct-response script engine for short-form ads.
 
-Your only goal is to generate SELLABLE product scripts.
-You must sell the PRODUCT, never the SaaS, never the script engine, never the tool.
+Your goal is to generate SELLABLE product scripts.
 
 COUNT RULES
 - Return exactly ${scriptsCount} variants.
-- If mode = AGENCY, return 10 variants.
-- If mode = CREATOR, return 4 variants.
-- Never return only 2 variants.
-- Every variant must be genuinely different.
-
-DIFFERENTIATION RULES
-Each variant must differ in:
-- hook angle
-- emotional trigger
-- product framing
-- proof style
-- objection handling
-- CTA wording
 
 QUALITY RULES
-- Focus only on the product and the buyer.
-- Do not mention scripts, SaaS, dashboard, AI tools, or marketing tools.
-- Hooks must feel scroll-stopping and specific.
-- The script must sound like a real creator speaking naturally.
-- Fill every section with actual content.
-- Do not leave sections empty.
-- Add real buying psychology.
-- Add desire, urgency, clarity, and credibility.
-- Use the user's language.
+- Focus ONLY on selling the product.
+- Never mention scripts, SaaS, tools, or marketing engines.
+- Hooks must stop scrolling.
+- Scripts must sound like a real creator talking.
+- Every section must contain real content.
+- Never leave beats empty.
+- Never leave proof empty.
+- Always generate a CTA.
+- Beats must describe the video progression.
+- Proof must include credibility (reviews, results, comparison).
+- CTA must push to click, buy, or order now.
 
-RETURN FORMAT
-Return valid JSON only.
-No markdown.
-No explanation.
-Use exactly this schema:
+RETURN FORMAT (JSON ONLY):
 
 {
-  "variants": [
-    {
-      "name": "A",
-      "hook": "string",
-      "script": {
-        "aida": {
-          "attention": "string",
-          "interest": "string",
-          "desire": "string",
-          "action": "string"
-        }
-      },
-      "beats": ["string", "string", "string"],
-      "proof": ["string", "string"],
-      "shotlist": ["string", "string", "string"],
-      "cta": {
-        "primary": "string"
-      }
-    }
-  ]
+ "variants":[
+  {
+   "name":"A",
+   "hook":"string",
+   "script":{
+     "aida":{
+       "attention":"string",
+       "interest":"string",
+       "desire":"string",
+       "action":"string"
+     }
+   },
+   "beats":["string","string","string"],
+   "proof":["string","string"],
+   "shotlist":["string","string","string"],
+   "cta":{"primary":"string"}
+  }
+ ]
 }
 `;
 
     const userPrompt = `
-Generate ${scriptsCount} high-converting UGC ad variants for this product.
+Generate ${scriptsCount} high-converting UGC ad variants.
 
 MODE: ${mode}
 LANGUAGE: ${lang}
 PLATFORM: ${platform}
 OBJECTIVE: ${objective}
 AUDIENCE: ${audience}
-OFFER / PRODUCT: ${offer}
+PRODUCT: ${offer}
 PRICE: ${price}
-MARKETING ANGLE: ${angle}
-MAIN OBJECTION: ${objection}
+ANGLE: ${angle}
+OBJECTION: ${objection}
 HOOK TYPE: ${hookType}
 TONE: ${tone}
 DURATION: ${duration}
-EXTRA CONTEXT: ${context}
-
-STRICT INSTRUCTIONS
-- Sell the product only.
-- Make the scripts feel filmable, emotional, and credible.
-- Add proof even if it must be framed as product benefit, usage result, comparison, or trust cue.
-- Fill beats with real video steps.
-- Fill shotlist with concrete visual shots.
-- CTA must push to buy, click, order, or try now.
-- Do not leave any field empty.
+CONTEXT: ${context}
 `;
 
     const openaiRes = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: \`Bearer \${apiKey}\`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

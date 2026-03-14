@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+=import { NextResponse } from "next/server";
 
 type Body = {
   mode?: "AGENCY" | "CREATOR";
@@ -249,7 +249,7 @@ STRICT INSTRUCTIONS
           { role: "user", content: userPrompt },
         ],
         temperature: 0.9,
-        max_output_tokens: 2000,
+        max_output_tokens: 6000,
       }),
     });
 

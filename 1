@@ -2914,4 +2914,148 @@ To github.com:digitalia-prog/digitalia-prog-dreamflow-frontend-v4.git
 
 ƒ  (Dynamic)  server-rendered on demand
 
+[?25h[1G[0K⠙[1G[0K[1m[7m%[27m[1m[0m                                                                                                                           ]7;file://MacBook-Pro-de-AITEUR.local/Users/aiteur/Desktop/digitalia-prog-dreamflow-frontend-v4[0m[27m[24m[Jaiteur@MacBook-Pro-de-AITEUR digitalia-prog-dreamflow-frontend-v4 % [K[?2004h[7mgit add .[27m
+[7mgit commit -m "fix script engine clean version"[27m[K
+[7mgit push[27m[K[A[A[60C[27mg[27mi[27mt[27m [27ma[27md[27md[27m [27m.[1B[27mg[27mi[27mt[27m [27mc[27mo[27mm[27mm[27mi[27mt[27m [27m-[27mm[27m [27m"[27mf[27mi[27mx[27m [27ms[27mc[27mr[27mi[27mp[27mt[27m [27me[27mn[27mg[27mi[27mn[27me[27m [27mc[27ml[27me[27ma[27mn[27m [27mv[27me[27mr[27ms[27mi[27mo[27mn[27m"[1B[27mg[27mi[27mt[27m [27mp[27mu[27ms[27mh[?2004l
+[dev-18d8ef8 44cbccb] fix script engine clean version
+ 3 files changed, 3235 insertions(+), 308 deletions(-)
+ create mode 100644 1
+ create mode 100644 Engine
+ rewrite app/dashboard/ai/page.tsx (62%)
+Enumerating objects: 13, done.
+Counting objects:   7% (1/13)Counting objects:  15% (2/13)Counting objects:  23% (3/13)Counting objects:  30% (4/13)Counting objects:  38% (5/13)Counting objects:  46% (6/13)Counting objects:  53% (7/13)Counting objects:  61% (8/13)Counting objects:  69% (9/13)Counting objects:  76% (10/13)Counting objects:  84% (11/13)Counting objects:  92% (12/13)Counting objects: 100% (13/13)Counting objects: 100% (13/13), done.
+Delta compression using up to 4 threads
+Compressing objects:  12% (1/8)Compressing objects:  25% (2/8)Compressing objects:  37% (3/8)Compressing objects:  50% (4/8)Compressing objects:  62% (5/8)Compressing objects:  75% (6/8)Compressing objects:  87% (7/8)Compressing objects: 100% (8/8)Compressing objects: 100% (8/8), done.
+Writing objects:  12% (1/8)Writing objects:  25% (2/8)Writing objects:  37% (3/8)Writing objects:  50% (4/8)Writing objects:  62% (5/8)Writing objects:  75% (6/8)Writing objects:  87% (7/8)Writing objects: 100% (8/8)Writing objects: 100% (8/8), 46.67 KiB | 4.24 MiB/s, done.
+Total 8 (delta 4), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas:   0% (0/4)[Kremote: Resolving deltas:  25% (1/4)[Kremote: Resolving deltas:  50% (2/4)[Kremote: Resolving deltas:  75% (3/4)[Kremote: Resolving deltas: 100% (4/4)[Kremote: Resolving deltas: 100% (4/4), completed with 4 local objects.[K
+To github.com:digitalia-prog/digitalia-prog-dreamflow-frontend-v4.git
+   89fbc2e..44cbccb  dev-18d8ef8 -> dev-18d8ef8
+[1m[7m%[27m[1m[0m                                                                                                                           ]7;file://MacBook-Pro-de-AITEUR.local/Users/aiteur/Desktop/digitalia-prog-dreamflow-frontend-v4[0m[27m[24m[Jaiteur@MacBook-Pro-de-AITEUR digitalia-prog-dreamflow-frontend-v4 % [K[?2004h[7mnano lib/formatScript.ts[27m[24D[27mn[27ma[27mn[27mo[27m [27ml[27mi[27mb[27m/[27mf[27mo[27mr[27mm[27ma[27mt[27mS[27mc[27mr[27mi[27mp[27mt[27m.[27mt[27ms[?2004l
+[?1049h[1;47r(B[m[4l[?7h[?12l[?25h[?1h=[?1h=[?1h=[39;49m[39;49m(B[m[H[2J(B[0;7m  GNU nano 2.0.6                         File: lib/formatScript.ts                                                         [3;1H(B[mexport function formatScript(data: any) {[4;3Hconst variants = data?.variants || [];[5;3Hif (!variants.length) return "-";[7;3Hreturn variants[8;5H.map((v: any, i: number) => {[9;7Hconst aida = v?.script?.aida || {};[11;7Hconst hook =[12;9Htypeof v?.hook === "string" && v.hook.trim()[13;11H? v.hook.trim()[14;11H: "Tu veux découvrir un produit qui fait vraiment la différence ?";[16;7Hconst attention =[17;9Htypeof aida?.attention === "string" && aida.attention.trim()[18;11H? aida.attention.trim()[19;11H: "Voici le problème que ce produit résout immédiatement.";[21;7Hconst interest =[22;9Htypeof aida?.interest === "string" && aida.interest.trim()[23;11H? aida.interest.trim()[24;11H: "Ce produit apporte un avantage concret, simple et utile.";[26;7Hconst desire =[27;9Htypeof aida?.desire === "string" && aida.desire.trim()[28;11H? aida.desire.trim()[29;11H: "Tu gagnes en confort, en praticité et en tranquillité d’esprit.";[31;7Hconst action =[32;9Htypeof aida?.action === "string" && aida.action.trim()[33;11H? aida.action.trim()[34;11H: "Clique maintenant pour le commander avant qu’il n’y en ait plus.";[36;7Hconst beats =[37;9HArray.isArray(v?.beats) && v.beats.filter(Boolean).length > 0[38;11H? v.beats.filter((x: any) => typeof x === "string" && x.trim())[39;11H: [[40d "Ouverture sur le problème ou la frustration du client",[41;15H"Démonstration du produit en situation réelle",[42;15H"Moment de persuasion juste avant l’appel à l’action",[43;13H];[45;54H(B[0;7m[ Read 89 lines ][46d^G(B[m Get Help[46;21H(B[0;7m^O(B[m WriteOut[46;41H(B[0;7m^R(B[m Read File[46;61H(B[0;7m^Y(B[m Prev Page[46;81H(B[0;7m^K(B[m Cut Text[46;101H(B[0;7m^C(B[m Cur Pos[47d(B[0;7m^X(B[m Exit[47;21H(B[0;7m^J(B[m Justify[47;41H(B[0;7m^W(B[m Where Is[47;61H(B[0;7m^V(B[m Next Page[47;81H(B[0;7m^U(B[m UnCut Text[101G(B[0;7m^T(B[m To Spell[3d[3;44r[44;1H
+[1;47r[1;114H(B[0;7mModified[44;7H(B[mconst proof =[3d[3;44r[44;1H
+[1;47r[44;9HArray.isArray(v?.proof) && v.proof.filter(Boolean).length > 0[3d[3;44r[44;1H
+[1;47r[44;11H? v.proof.filter((x: any) => typeof x === "string" && x.trim())[3d[2;44r[44;1H
+[1;47r[44;11H: [[3d[3;44r[44;1H
+[1;47r[44;15H"Démonstration concrète du produit en action",[3d[3;44r[44;1H
+[1;47r[44;15H"Élément de réassurance ou bénéfice visible immédiatement",[3d[3;44r[44;1H
+[1;47r[44;13H];[3d[2;44r[44;1H
+[1;47r[3;1H[3;44r[44;1H
+[1;47r[44;7Hconst shotlist =[3d[3;44r[44;1H
+[1;47r[44;9HArray.isArray(v?.shotlist) && v.shotlist.filter(Boolean).length > 0[3d[3;44r[44;1H
+[1;47r[44;11H? v.shotlist.filter((x: any) => typeof x === "string" && x.trim())[3d[3;44r[44;1H
+[1;47r[44;11H: [[3d[2;44r[44;1H
+[1;47r[44;15H"Gros plan sur le produit en main",[3d[3;44r[44;1H
+[1;47r[44;15H"Plan montrant le produit utilisé en situation réelle",[3d[3;44r[44;1H
+[1;47r[44;15H"Plan final lifestyle ou réaction utilisateur",[3d[3;44r[44;1H
+[1;47r[44;13H];[3d[3;44r[44;1H
+[1;47r[3;1H[2;44r[44;1H
+[1;47r[44;7Hconst cta =[3d[3;44r[44;1H
+[1;47r[44;9Htypeof v?.cta?.primary === "string" && v.cta.primary.trim()[3d[3;44r[44;1H
+[1;47r[44;11H? v.cta.primary.trim()[3d[3;44r[44;1H
+[1;47r[44;11H: "Clique sur le lien pour commander maintenant avant la rupture de stock.";[3d[3;44r[44;1H
+[1;47r[3;1H[2;44r[44;1H
+[1;47r[44;7Hreturn `Script ${i + 1}[3d[3;44r[44;1H
+[1;47r[3;1H[3;44r[44;1H
+[1;47r[44;1HHOOK[3d[3;45r[45;1H[1;47r[43;1H${hook}[K[3d[2;45r[45;1H
+[1;47r[44;1HSCRIPT[3d[3;45r[45;1H
+[1;47r[44;1HAttention: ${attention}[3d[3;45r[45;1H
+[1;47r[44;1HInterest: ${interest}[3d[3;45r[45;1H
+[1;47r[44;1HDesire: ${desire}[3d[3;45r[45;1H
+[1;47r[44;1HAction: ${action}[3d[2;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[44;1HBEATS[3d[3;45r[45;1H
+[1;47r[44;1H${beats.map((b: string) => `• ${b}`).join("\n")}[3d[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[44;1HPROOF[3d[3;45r[45;1H
+[1;47r[44;1H${proof.map((p: string) => `• ${p}`).join("\n")}[3d[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[44;1HSHOTLIST[3d[3;45r[45;1H
+[1;47r[44;1H${shotlist.map((s: string) => `• ${s}`).join("\n")}[3d[2;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[44;1HCTA[3d[3;45r[45;1H
+[1;47r[44;1H${cta}`;[3d[3;45r[45;1H
+[1;47r[44;5H})[3d[3;45r[45;1H
+[1;47r[44;5H.join("\n\n");[3d[3;45r[45;1H
+[1;47r[44;1H}[3d[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[2;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[2;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[2;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[2;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[2;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[2;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[2;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[2;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[2;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[3;45r[45;1H
+[1;47r[3;1H[K=============================[5dHOOK[6d${hook}[8dSCRIPT[9dAttention: ${script.attention || ""}[10dInterest: ${script.interest || ""}[11dDesire: ${script.desire || ""}[12dAction: ${script.action || ""}[14dBEATS[15d• ${beats}[17dPROOF[18d• ${proof}[20dSHOTLIST[21d• ${shotlist}[23dCTA[24d${cta}[26d`;[27d  })[28d.join("\n");[29d}[A[A[A[A[A$[A[A[A[C[A[A[A[C[A[A[A[C[A[A[AA[A[A[A[A[A[A$[A[A[A=[2;44r[2;1H[1;47r[3;1Hexport function formatScript(data: any) {[4;3Hif (!data) return "-";[6;3Hconst variants = data?.variants || [];[8;3Hif (!variants.length) return "-";[10;3Hreturn variants[11;5H.map((v: any, i: number) => {[12;7Hconst hook = v.hook || "";[14;7Hconst script = v?.script?.aida || {};[16;7Hconst beats = v?.beats?.join("\n• ") || "";[17;7Hconst proof = v?.proof?.join("\n• ") || "";[18;7Hconst shotlist = v?.shotlist?.join("\n• ") || "";[19;7Hconst cta = v?.cta?.primary || "";[21;7Hreturn `[22d=============================[23dSCRIPT ${i + 1}S[A[A[A[A [A[A[A[A[A [A[45d(B[0;7mFile Name to Write: lib/formatScript.ts                                                                                    [46;21H(B[m          (B[0;7m^T(B[m To Files           [46;61H(B[0;7mM-M(B[m Mac Format[81G          (B[0;7mM-P(B[m Prepend[K[47;2H(B[0;7mC(B[m Cancel[47;21H          (B[0;7mM-D(B[m DOS Format       [47;61H(B[0;7mM-A(B[m Append  [47;81H          (B[0;7mM-B(B[m Backup File[K[45;40H[1;114H[39;49m(B[0;7m        [45;52H(B[m[1K (B[0;7m[ Wrote 48 lines ](B[m[K[46;21H(B[0;7m^O(B[m WriteOut         (B[0;7m^R(B[m Read File[46;61H(B[0;7m^Y(B[m Prev Page  [81G(B[0;7m^K(B[m Cut Text         (B[0;7m^C(B[m Cur Pos[47;2H(B[0;7mX(B[m Exit  [47;21H(B[0;7m^J(B[m Justify          (B[0;7m^W(B[m Where Is[47;61H(B[0;7m^V(B[m Next Page[47;81H(B[0;7m^U(B[m UnCut Text       (B[0;7m^T(B[m To Spell[13d[46d[J[47;123H[47;1H[?1049l[?1l>[1m[7m%[27m[1m[0m                                                                                                                           ]7;file://MacBook-Pro-de-AITEUR.local/Users/aiteur/Desktop/digitalia-prog-dreamflow-frontend-v4[0m[27m[24m[Jaiteur@MacBook-Pro-de-AITEUR digitalia-prog-dreamflow-frontend-v4 % [K[?2004h[7mnpm run build[27m[13D[27mn[27mp[27mm[27m [27mr[27mu[27mn[27m [27mb[27mu[27mi[27ml[27md[?2004l
+
+> digitalia-prog-dreamflow-frontend-v4@0.1.0 build
+> next build
+
+[1G[0K[1m[38;2;173;127;168m▲ Next.js 16.1.6[39m[22m (Turbopack)
+- Environments: .env.local
+
+[37m[1m [22m[39m Creating an optimized production build ...
+[32m[1m✓[22m[39m Compiled successfully in 8.1s
+[?25l[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m..[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m...[39m[2K[1G[37m[1m [22m[39m Running TypeScript  [36m.[39m[2K[1G[?25h[?25l[37m[1m [22m[39m Finished TypeScript in 5.6s  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finished TypeScript in 5.6s    [32m[1m✓[22m[39m Finished TypeScript in 5.6s 
+[?25l[37m[1m [22m[39m Collecting page data using 3 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 3 workers  [36m..[39m[2K[1G[37m[1m [22m[39m Collecting page data using 3 workers  [36m...[39m[2K[1G[37m[1m [22m[39m Collecting page data using 3 workers  [36m.[39m[2K[1G[37m[1m [22m[39m Collecting page data using 3 workers  [36m..[39m[2K[1G[?25h[37m[1m [22m[39m Collecting page data using 3 workers in 1008.2ms    [32m[1m✓[22m[39m Collecting page data using 3 workers in 1008.2ms 
+[?25l[37m[1m [22m[39m Generating static pages using 3 workers (0/20)  [36m[    ][39m[2K[1G[37m[1m [22m[39m Generating static pages using 3 workers (7/20)  [36m[=   ][39m[2K[1G[?25h[32m[1m✓[22m[39m Generating static pages using 3 workers (20/20) in 363.1ms
+[?25l[37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G[?25h[37m[1m [22m[39m Finalizing page optimization in 18.8ms    [32m[1m✓[22m[39m Finalizing page optimization in 18.8ms 
+
+[4mRoute (app)[24m
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /api/feedback
+├ ƒ /api/generate
+├ ƒ /api/welcome
+├ ƒ /dashboard
+├ ƒ /dashboard/agency
+├ ƒ /dashboard/agency/clients
+├ ƒ /dashboard/ai
+├ ƒ /dashboard/campaigns
+├ ƒ /dashboard/creator
+├ ƒ /dashboard/creators
+├ ƒ /dashboard/overview
+├ ƒ /dashboard/settings
+├ ƒ /dashboard/social
+├ ƒ /dashboard/socials
+├ ƒ /feedback
+└ ƒ /terms
+
+
+ƒ Proxy (Middleware)
+
+ƒ  (Dynamic)  server-rendered on demand
+
 [?25h[1G[0K⠙[1G[0K[1m[7m%[27m[1m[0m                                                                                                                           ]7;file://MacBook-Pro-de-AITEUR.local/Users/aiteur/Desktop/digitalia-prog-dreamflow-frontend-v4[0m[27m[24m[Jaiteur@MacBook-Pro-de-AITEUR digitalia-prog-dreamflow-frontend-v4 % [K[?2004h

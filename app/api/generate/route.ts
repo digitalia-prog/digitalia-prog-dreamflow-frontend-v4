@@ -14,18 +14,20 @@ type Body = {
   tone?: string;
   duration?: string;
   context?: string;
+  scriptsCount?: number;
 };
 
 function extractTextFromResponsesApi(data: any): string {
-  const directText = data?.output_text;
-  if (typeof directText === "string" && directText.trim()) return directText;
+  if (typeof data?.output_text === "string" && data.output_text.trim()) {
+    return data.output_text;
+  }
 
-  const output = data?.output ?? [];
+  const output = Array.isArray(data?.output) ? data.output : [];
   for (const item of output) {
-    const content = item?.content ?? [];
-    for (const c of content) {
-      if (c?.type === "output_text" && typeof c?.text === "string") {
-        return c.text;
+    const content = Array.isArray(item?.content) ? item.content : [];
+    for (const part of content) {
+      if (part?.type === "output_text" && typeof part?.text === "string") {
+        return part.text;
       }
     }
   }
@@ -38,14 +40,82 @@ function extractJson(text: string) {
 
   try {
     return JSON.parse(trimmed);
-  } catch {}
+  } catch {
+    const match = trimmed.match(/\{[\s\S]*\}/);
+    if (!match) {
+      throw new Error("Impossible de parser le JSON renvoyé par l'IA.");
+    }
+    return JSON.parse(match[0]);
+  }
+}
 
-  const match = trimmed.match(/\{[\s\S]*\}/);
-  if (!match) {
-    throw new Error("Impossible de parser le JSON renvoyé par l'IA.");
+function cleanArray(value: any, fallback: string[]) {
+  if (!Array.isArray(value)) return fallback;
+  const cleaned = value
+    .map((item) => (typeof item === "string" ? item.trim() : ""))
+    .filter(Boolean);
+
+  return cleaned.length > 0 ? cleaned : fallback;
+}
+
+function cleanString(value: any, fallback: string) {
+  return typeof value === "string" && value.trim() ? value.trim() : fallback;
+}
+
+function normalizeVariants(parsed: any, scriptsCount: number) {
+  if (!Array.isArray(parsed?.variants)) {
+    throw new Error("Réponse IA invalide: variants manquant.");
   }
 
-  return JSON.parse(match[0]);
+  return parsed.variants.slice(0, scriptsCount).map((v: any, i: number) => {
+    return {
+      name: cleanString(v?.name, String.fromCharCode(65 + i)),
+      hook: cleanString(
+        v?.hook,
+        "Tu veux découvrir un produit qui change vraiment le quotidien ?"
+      ),
+      script: {
+        aida: {
+          attention: cleanString(
+            v?.script?.aida?.attention,
+            "Voici le problème que ce produit résout immédiatement."
+          ),
+          interest: cleanString(
+            v?.script?.aida?.interest,
+            "Ce produit apporte un avantage concret, simple et utile."
+          ),
+          desire: cleanString(
+            v?.script?.aida?.desire,
+            "Tu gagnes en confort, en praticité et en tranquillité d'esprit."
+          ),
+          action: cleanString(
+            v?.script?.aida?.action,
+            "Clique maintenant pour le commander avant qu'il n'y en ait plus."
+          ),
+        },
+      },
+      beats: cleanArray(v?.beats, [
+        "Ouverture sur le problème ou la frustration du client",
+        "Démonstration du produit en situation réelle",
+        "Moment de persuasion juste avant l'appel à l'action",
+      ]),
+      proof: cleanArray(v?.proof, [
+        "Démonstration concrète du produit en action",
+        "Élément de réassurance ou bénéfice visible immédiatement",
+      ]),
+      shotlist: cleanArray(v?.shotlist, [
+        "Gros plan sur le produit en main",
+        "Plan montrant le produit utilisé en situation réelle",
+        "Plan final lifestyle ou réaction utilisateur",
+      ]),
+      cta: {
+        primary: cleanString(
+          v?.cta?.primary,
+          "Clique sur le lien pour commander maintenant avant la rupture de stock."
+        ),
+      },
+    };
+  });
 }
 
 export async function POST(req: Request) {
@@ -61,7 +131,12 @@ export async function POST(req: Request) {
     }
 
     const mode = body.mode === "CREATOR" ? "CREATOR" : "AGENCY";
-    const scriptsCount = mode === "AGENCY" ? 10 : 4;
+    const scriptsCount =
+      typeof body.scriptsCount === "number"
+        ? body.scriptsCount
+        : mode === "AGENCY"
+        ? 10
+        : 4;
 
     const lang = body.lang || "fr";
     const platform = body.platform || "TikTok";
@@ -77,61 +152,92 @@ export async function POST(req: Request) {
     const context = body.context || "";
 
     const systemPrompt = `
-You are an elite UGC direct response script generator.
+Tu es un scriptwriter UGC senior spécialisé en publicité direct-response.
 
-Generate SELLABLE short form video ads.
+MISSION
+Tu génères des scripts UGC qui donnent envie d'acheter le PRODUIT.
+Tu ne vends jamais un SaaS, jamais un outil, jamais un script engine.
 
-RULES
-- Focus only on selling the product.
-- Never mention scripts, SaaS, dashboard, or marketing tools.
-- Hooks must stop scrolling.
-- Scripts must feel natural and credible.
-- Return exactly ${scriptsCount} variants.
-- Every variant must include hook, aida script, beats, proof, shotlist, and cta.
-- No field can be empty.
+RÈGLES CRITIQUES
+- Réponds en JSON UNIQUEMENT.
+- Aucun texte avant ou après le JSON.
+- Toutes les variantes doivent être différentes.
+- Toutes les sections doivent être remplies.
+- Aucun champ vide autorisé.
+- Le ton doit être naturel, crédible, filmable, orienté conversion.
+- Le hook doit arrêter le scroll.
+- Le script doit parler du PRODUIT uniquement.
+- Ne mentionne jamais "scripts", "SaaS", "dashboard", "outil marketing", "IA".
 
-JSON FORMAT ONLY
+NOMBRE DE VARIANTES
+- Si mode = AGENCY : exactement 10 variantes.
+- Si mode = CREATOR : exactement 4 variantes.
+- Ici, tu dois renvoyer exactement ${scriptsCount} variantes.
 
+FORMAT JSON EXACT À RESPECTER
 {
   "variants": [
     {
       "name": "A",
-      "hook": "",
+      "hook": "string",
       "script": {
         "aida": {
-          "attention": "",
-          "interest": "",
-          "desire": "",
-          "action": ""
+          "attention": "string",
+          "interest": "string",
+          "desire": "string",
+          "action": "string"
         }
       },
-      "beats": ["", "", ""],
-      "proof": ["", ""],
-      "shotlist": ["", "", ""],
+      "beats": ["string", "string", "string"],
+      "proof": ["string", "string"],
+      "shotlist": ["string", "string", "string"],
       "cta": {
-        "primary": ""
+        "primary": "string"
       }
     }
   ]
 }
+
+DÉFINITION DES CHAMPS
+- hook : phrase d'accroche qui stoppe le scroll
+- script.aida.attention : problème, tension, douleur, prise de conscience
+- script.aida.interest : pourquoi ce produit est intéressant / différent
+- script.aida.desire : bénéfices concrets, émotion, envie, projection
+- script.aida.action : pousser à agir maintenant
+- beats : progression de la vidéo en 3 étapes
+- proof : 2 éléments de crédibilité / réassurance / démonstration / preuve
+- shotlist : 3 plans précis à filmer
+- cta.primary : appel à l'action clair et direct
+
+IMPORTANT
+Même si certaines infos utilisateur sont vagues, tu remplis TOUS les champs avec des contenus crédibles.
 `;
 
     const userPrompt = `
-Generate ${scriptsCount} UGC ad scripts.
+Génère ${scriptsCount} scripts UGC.
 
+BRIEF
 MODE: ${mode}
-LANGUAGE: ${lang}
-PLATFORM: ${platform}
-OBJECTIVE: ${objective}
-PRODUCT: ${offer}
-PRICE: ${price}
+LANGUE: ${lang}
+PLATEFORME: ${platform}
+OBJECTIF: ${objective}
 AUDIENCE: ${audience}
-ANGLE: ${angle}
-OBJECTION: ${objection}
-HOOK TYPE: ${hookType}
-TONE: ${tone}
-VIDEO DURATION: ${duration}
-CONTEXT: ${context}
+OFFRE / PRODUIT: ${offer}
+PRIX: ${price}
+ANGLE MARKETING: ${angle}
+OBJECTION PRINCIPALE: ${objection}
+TYPE DE HOOK: ${hookType}
+TON: ${tone}
+DURÉE: ${duration}
+CONTEXTE: ${context}
+
+CONSIGNES
+- Vends uniquement le produit.
+- Les scripts doivent être tournables immédiatement.
+- Les preuves doivent être crédibles.
+- Les beats doivent être concrets.
+- Le CTA doit pousser à cliquer, commander, acheter, découvrir maintenant.
+- Renvoie uniquement le JSON final.
 `;
 
     const openaiRes = await fetch("https://api.openai.com/v1/responses", {
@@ -142,12 +248,12 @@ CONTEXT: ${context}
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
-        temperature: 0.9,
-        max_output_tokens: 6000,
         input: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
+        temperature: 0.9,
+        max_output_tokens: 6000,
       }),
     });
 
@@ -156,8 +262,11 @@ CONTEXT: ${context}
     if (!openaiRes.ok) {
       return NextResponse.json(
         {
-          error: "OpenAI request failed",
-          details: openaiData,
+          error: "OpenAI request failed.",
+          details:
+            openaiData?.error?.message ||
+            JSON.stringify(openaiData) ||
+            "Unknown OpenAI error",
         },
         { status: 500 }
       );
@@ -167,66 +276,19 @@ CONTEXT: ${context}
 
     if (!raw) {
       return NextResponse.json(
-        { error: "OpenAI returned empty response" },
+        { error: "OpenAI returned an empty response." },
         { status: 500 }
       );
     }
 
     const parsed = extractJson(raw);
-
-    if (!Array.isArray(parsed?.variants)) {
-      throw new Error("Invalid AI response");
-    }
-
-    const normalized = parsed.variants.slice(0, scriptsCount).map((v: any, i: number) => ({
-      name: v?.name || String.fromCharCode(65 + i),
-      hook: v?.hook || "Tu veux découvrir ce produit ?",
-      script: {
-        aida: {
-          attention:
-            v?.script?.aida?.attention || "Voici le problème que ce produit résout.",
-          interest:
-            v?.script?.aida?.interest || "Voici pourquoi ce produit est intéressant.",
-          desire:
-            v?.script?.aida?.desire || "Voici pourquoi tu vas vraiment le vouloir.",
-          action:
-            v?.script?.aida?.action || "Clique pour commander maintenant.",
-        },
-      },
-      beats:
-        Array.isArray(v?.beats) && v.beats.filter(Boolean).length
-          ? v.beats.filter(Boolean)
-          : [
-              "Présentation du problème client",
-              "Démonstration du produit en action",
-              "Moment de persuasion avant l'achat",
-            ],
-      proof:
-        Array.isArray(v?.proof) && v.proof.filter(Boolean).length
-          ? v.proof.filter(Boolean)
-          : [
-              "Démonstration produit en situation réelle",
-              "Résultat visible ou élément de réassurance",
-            ],
-      shotlist:
-        Array.isArray(v?.shotlist) && v.shotlist.filter(Boolean).length
-          ? v.shotlist.filter(Boolean)
-          : [
-              "Plan produit en gros plan",
-              "Plan démonstration usage réel",
-              "Plan final avec appel à l'action",
-            ],
-      cta: {
-        primary:
-          v?.cta?.primary || "Clique sur le lien pour commander maintenant.",
-      },
-    }));
+    const normalizedVariants = normalizeVariants(parsed, scriptsCount);
 
     return NextResponse.json({
       ok: true,
       raw,
       parsed: {
-        variants: normalized,
+        variants: normalizedVariants,
       },
     });
   } catch (error: any) {
@@ -239,3 +301,4 @@ CONTEXT: ${context}
     );
   }
 }
+

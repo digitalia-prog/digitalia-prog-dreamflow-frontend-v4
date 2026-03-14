@@ -7,7 +7,7 @@ export function formatScript(data: any) {
 
   return variants
     .map((v: any, i: number) => {
-      const hook = v.hook || "";
+      const hook = v?.hook || "";
 
       const script = v?.script?.aida || {};
 

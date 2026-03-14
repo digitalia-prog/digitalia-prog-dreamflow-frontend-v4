@@ -87,23 +87,36 @@ You are an elite UGC direct-response script engine for short-form ads.
 
 Your goal is to generate SELLABLE product scripts.
 
+CRITICAL RULES
+- Focus ONLY on selling the product.
+- NEVER mention scripts.
+- NEVER mention SaaS.
+- NEVER mention dashboard, AI tools, or marketing tools.
+- Hooks must stop scrolling.
+- Scripts must sound like a real creator talking naturally.
+- Use the user's language.
+- Every variant must be genuinely different.
+
 COUNT RULES
 - Return exactly ${scriptsCount} variants.
+- If mode = AGENCY, return 10 variants.
+- If mode = CREATOR, return 4 variants.
 
-QUALITY RULES
-- Focus ONLY on selling the product.
-- Never mention scripts, SaaS, tools, or marketing engines.
-- Hooks must stop scrolling.
-- Scripts must sound like a real creator talking.
-- Every section must contain real content.
+SECTION RULES
 - Never leave beats empty.
 - Never leave proof empty.
-- Always generate a CTA.
-- Beats must describe the video progression.
-- Proof must include credibility (reviews, results, comparison).
-- CTA must push to click, buy, or order now.
+- Never leave CTA empty.
+- Beats must describe the progression of the video.
+- Proof must include credibility, comparison, trust, demo, result, or buyer reassurance.
+- Shotlist must contain concrete visual shots.
+- CTA must clearly push to click, buy, order, or try now.
 
-RETURN FORMAT (JSON ONLY):
+RETURN FORMAT
+Return valid JSON only.
+No markdown.
+No explanation.
+
+Use exactly this schema:
 
 {
   "variants": [
@@ -130,7 +143,7 @@ RETURN FORMAT (JSON ONLY):
 `;
 
     const userPrompt = `
-Generate ${scriptsCount} high-converting UGC ad variants.
+Generate ${scriptsCount} high-converting UGC ad variants for this product.
 
 MODE: ${mode}
 LANGUAGE: ${lang}
@@ -139,12 +152,21 @@ OBJECTIVE: ${objective}
 AUDIENCE: ${audience}
 PRODUCT: ${offer}
 PRICE: ${price}
-ANGLE: ${angle}
-OBJECTION: ${objection}
+ANGLE MARKETING: ${angle}
+MAIN OBJECTION: ${objection}
 HOOK TYPE: ${hookType}
 TONE: ${tone}
 DURATION: ${duration}
 CONTEXT: ${context}
+
+STRICT INSTRUCTIONS
+- Sell the product only.
+- Make the scripts feel natural, filmable, emotional, and credible.
+- Fill all AIDA sections with real content.
+- Beats must explain the story progression of the video.
+- Proof must include believable trust elements.
+- Shotlist must be concrete and visual.
+- CTA must be direct and purchase-oriented.
 `;
 
     const openaiRes = await fetch("https://api.openai.com/v1/responses", {
@@ -193,7 +215,56 @@ CONTEXT: ${context}
       throw new Error("Réponse IA invalide: variants manquant.");
     }
 
-    parsed.variants = parsed.variants.slice(0, scriptsCount);
+    parsed.variants = parsed.variants
+      .slice(0, scriptsCount)
+      .map((v: any, index: number) => ({
+        name: v?.name || String.fromCharCode(65 + index),
+        hook: v?.hook || "Tu veux un produit qui fait vraiment la différence ?",
+        script: {
+          aida: {
+            attention:
+              v?.script?.aida?.attention ||
+              "Voici le problème que ce produit résout immédiatement.",
+            interest:
+              v?.script?.aida?.interest ||
+              "Ce produit apporte un vrai avantage concret au quotidien.",
+            desire:
+              v?.script?.aida?.desire ||
+              "Tu gagnes en confort, en style et en simplicité d'utilisation.",
+            action:
+              v?.script?.aida?.action ||
+              "Clique maintenant pour le commander avant qu'il n'y en ait plus.",
+          },
+        },
+        beats:
+          Array.isArray(v?.beats) && v.beats.filter(Boolean).length > 0
+            ? v.beats.filter(Boolean)
+            : [
+                "Ouverture sur le problème ou la frustration du client",
+                "Démonstration du produit en situation réelle",
+                "Moment de persuasion juste avant l'appel à l'action",
+              ],
+        proof:
+          Array.isArray(v?.proof) && v.proof.filter(Boolean).length > 0
+            ? v.proof.filter(Boolean)
+            : [
+                "Démonstration concrète du produit en action",
+                "Élément de réassurance ou bénéfice visible immédiatement",
+              ],
+        shotlist:
+          Array.isArray(v?.shotlist) && v.shotlist.filter(Boolean).length > 0
+            ? v.shotlist.filter(Boolean)
+            : [
+                "Gros plan sur le produit en main",
+                "Démonstration du produit en usage réel",
+                "Plan final lifestyle ou réaction utilisateur",
+              ],
+        cta: {
+          primary:
+            v?.cta?.primary ||
+            "Clique sur le lien pour commander maintenant avant la rupture de stock.",
+        },
+      }));
 
     return NextResponse.json({
       ok: true,

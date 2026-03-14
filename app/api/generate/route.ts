@@ -36,6 +36,7 @@ function extractTextFromResponsesApi(data: any): string {
 
 function extractJson(text: string) {
   const trimmed = text.trim();
+
   try {
     return JSON.parse(trimmed);
   } catch {}
@@ -105,24 +106,26 @@ QUALITY RULES
 RETURN FORMAT (JSON ONLY):
 
 {
- "variants":[
-  {
-   "name":"A",
-   "hook":"string",
-   "script":{
-     "aida":{
-       "attention":"string",
-       "interest":"string",
-       "desire":"string",
-       "action":"string"
-     }
-   },
-   "beats":["string","string","string"],
-   "proof":["string","string"],
-   "shotlist":["string","string","string"],
-   "cta":{"primary":"string"}
-  }
- ]
+  "variants": [
+    {
+      "name": "A",
+      "hook": "string",
+      "script": {
+        "aida": {
+          "attention": "string",
+          "interest": "string",
+          "desire": "string",
+          "action": "string"
+        }
+      },
+      "beats": ["string", "string", "string"],
+      "proof": ["string", "string"],
+      "shotlist": ["string", "string", "string"],
+      "cta": {
+        "primary": "string"
+      }
+    }
+  ]
 }
 `;
 
@@ -147,7 +150,7 @@ CONTEXT: ${context}
     const openaiRes = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
-        Authorization: \`Bearer \${apiKey}\`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

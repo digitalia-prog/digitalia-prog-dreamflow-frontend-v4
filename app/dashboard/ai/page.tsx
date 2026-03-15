@@ -30,6 +30,7 @@ type GenerateResponse = {
   creativeAngles?: string[];
   testingPlanSummary?: string;
   variants?: Variant[];
+  raw?: string;
   parsed?: {
     hookIdeas?: string[];
     creativeAngles?: string[];
@@ -160,7 +161,10 @@ export default function AiPage() {
   const scriptsCount = useMemo(() => (mode === "AGENCY" ? 10 : 4), [mode]);
 
   const title = useMemo(
-    () => (mode === "AGENCY" ? "Script Engine — Agency" : "Script Engine — Creator"),
+    () =>
+      mode === "AGENCY"
+        ? "Script Engine — Agency"
+        : "Script Engine — Creator",
     [mode]
   );
 
@@ -201,7 +205,21 @@ export default function AiPage() {
         throw new Error(data?.details || data?.error || "Erreur API");
       }
 
-      const payload = data?.parsed ?? data ?? {};
+      let payload: any = data?.parsed ?? data ?? {};
+
+      const isEmptyPayload =
+        !Array.isArray(payload?.hookIdeas) &&
+        !Array.isArray(payload?.creativeAngles) &&
+        !Array.isArray(payload?.variants) &&
+        typeof payload?.testingPlanSummary !== "string";
+
+      if (isEmptyPayload && typeof data?.raw === "string" && data.raw.trim()) {
+        try {
+          payload = JSON.parse(data.raw);
+        } catch {
+          // on garde payload tel quel
+        }
+      }
 
       const nextHookIdeas = Array.isArray(payload?.hookIdeas)
         ? payload.hookIdeas
@@ -228,6 +246,8 @@ export default function AiPage() {
         !nextTestingPlan &&
         !nextVariants.length
       ) {
+        console.log("API RESPONSE:", data);
+        console.log("PAYLOAD USED:", payload);
         setError("La réponse API est vide ou dans un format non reconnu.");
       }
     } catch (e: any) {
@@ -259,7 +279,9 @@ export default function AiPage() {
                     const nextMode = e.target.value as Mode;
                     setMode(nextMode);
                     setContext(
-                      nextMode === "AGENCY" ? "Générer 10 scripts" : "Générer 4 scripts"
+                      nextMode === "AGENCY"
+                        ? "Générer 10 scripts"
+                        : "Générer 4 scripts"
                     );
                   }}
                 >
@@ -454,19 +476,27 @@ export default function AiPage() {
                           </div>
                           <div className="space-y-2 text-sm text-white/90">
                             <div>
-                              <span className="font-semibold text-white">Attention:</span>{" "}
+                              <span className="font-semibold text-white">
+                                Attention:
+                              </span>{" "}
                               {variant?.script?.aida?.attention || "-"}
                             </div>
                             <div>
-                              <span className="font-semibold text-white">Interest:</span>{" "}
+                              <span className="font-semibold text-white">
+                                Interest:
+                              </span>{" "}
                               {variant?.script?.aida?.interest || "-"}
                             </div>
                             <div>
-                              <span className="font-semibold text-white">Desire:</span>{" "}
+                              <span className="font-semibold text-white">
+                                Desire:
+                              </span>{" "}
                               {variant?.script?.aida?.desire || "-"}
                             </div>
                             <div>
-                              <span className="font-semibold text-white">Action:</span>{" "}
+                              <span className="font-semibold text-white">
+                                Action:
+                              </span>{" "}
                               {variant?.script?.aida?.action || "-"}
                             </div>
                           </div>

@@ -1,37 +1,98 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { formatScript } from "@/lib/formatScript";
 
-export default function AIPage() {
-  const [loading, setLoading] = useState(false);
-  const [scripts, setScripts] = useState<any[]>([]);
-  const [hookIdeas, setHookIdeas] = useState<string[]>([]);
-  const [creativeAngles, setCreativeAngles] = useState<string[]>([]);
-  const [testingPlanSummary, setTestingPlanSummary] = useState("");
-  const [error, setError] = useState("");
+type Mode = "AGENCY" | "CREATOR";
+type Lang = "fr" | "en-GB" | "en-US" | "es" | "ar";
 
-  const [mode, setMode] = useState("AGENCY");
-  const [lang, setLang] = useState("FR");
-  const [platform, setPlatform] = useState("TikTok");
-  const [objective, setObjective] = useState("Vente");
-  const [audience, setAudience] = useState("");
-  const [offer, setOffer] = useState("");
-  const [price, setPrice] = useState("");
-  const [angle, setAngle] = useState("");
-  const [objection, setObjection] = useState("");
-  const [hookType, setHookType] = useState("");
-  const [tone, setTone] = useState("");
-  const [duration, setDuration] = useState("");
-  const [context, setContext] = useState("");
+const PLATFORMS = [
+  "TikTok",
+  "Instagram Reels",
+  "YouTube Shorts",
+  "Facebook Ads",
+  "Google Ads",
+  "Landing page",
+  "Email",
+];
+
+const OBJECTIVES = ["Vente", "Lead", "Awareness", "UGC", "Conversion"];
+
+const HOOK_TYPES = [
+  "Question choc",
+  "Story",
+  "Pain point",
+  "Contrarian",
+  "Direct claim",
+  "Curiosity",
+];
+
+const TONES = [
+  "UGC naturel (simple)",
+  "Direct response",
+  "Storytelling",
+  "Premium",
+  "Funny",
+];
+
+const DURATIONS = ["15s", "30s", "45s", "60s"];
+
+function cn(...v: (string | false | null | undefined)[]) {
+  return v.filter(Boolean).join(" ");
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-2">
+      <div className="text-sm text-white/80">{label}</div>
+      {children}
+    </div>
+  );
+}
+
+export default function AiPage() {
+  const inputCls =
+    "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-white/35 focus:border-violet-500";
+
+  const [mode, setMode] = useState<Mode>("AGENCY");
+  const [lang, setLang] = useState<Lang>("fr");
+  const [platform, setPlatform] = useState<string>(PLATFORMS[0]);
+  const [objective, setObjective] = useState<string>(OBJECTIVES[0]);
+  const [audience, setAudience] = useState<string>(
+    "E-commerçants (débutants) sur TikTok"
+  );
+  const [offer, setOffer] = useState<string>("Coaching UGC Growth");
+  const [price, setPrice] = useState<string>("49€/mois");
+  const [angle, setAngle] = useState<string>(
+    "ROI rapide & scripts prêts à filmer"
+  );
+  const [objection, setObjection] = useState<string>(
+    "J’ai pas le temps / je sais pas quoi dire"
+  );
+  const [hookType, setHookType] = useState<string>(HOOK_TYPES[0]);
+  const [tone, setTone] = useState<string>(TONES[0]);
+  const [duration, setDuration] = useState<string>(DURATIONS[1]);
+  const [context, setContext] = useState<string>("Générer 10 scripts");
 
   const scriptsCount = mode === "AGENCY" ? 10 : 4;
 
-  const handleGenerate = async () => {
-    try {
-      setLoading(true);
-      setError("");
+  const [loading, setLoading] = useState(false);
+  const [parsed, setParsed] = useState<any | null>(null);
+  const [error, setError] = useState<string>("");
 
-      const res = await fetch("/api/generate", {
+  const title = useMemo(() => {
+    return mode === "AGENCY"
+      ? "Script Engine — Agency"
+      : "Script Engine — Creator";
+  }, [mode]);
+
+  async function onGenerate() {
+    setLoading(true);
+    setError("");
+    setParsed(null);
+
+    try {
+      const r = await fetch("/api/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,195 +114,187 @@ export default function AIPage() {
         }),
       });
 
-      const data = await res.json();
+      const data = await r.json();
 
-      if (!res.ok) {
-        throw new Error(data?.error || "Generation failed");
+      if (!r.ok) {
+        throw new Error(data?.details || data?.error || "Erreur API");
       }
 
-      const variants = Array.isArray(data?.variants)
-        ? data.variants
-        : Array.isArray(data?.parsed?.variants)
-        ? data.parsed.variants
-        : [];
-
-      setScripts(variants);
-
-      setHookIdeas(
-        Array.isArray(data?.hookIdeas)
-          ? data.hookIdeas
-          : data?.parsed?.hookIdeas || []
-      );
-
-      setCreativeAngles(
-        Array.isArray(data?.creativeAngles)
-          ? data.creativeAngles
-          : data?.parsed?.creativeAngles || []
-      );
-
-      setTestingPlanSummary(
-        data?.testingPlanSummary ||
-          data?.parsed?.testingPlanSummary ||
-          ""
-      );
-    } catch (err: any) {
-      setError(err?.message || "Une erreur est survenue");
-      setScripts([]);
+      setParsed(data?.parsed ?? data ?? null);
+    } catch (e: any) {
+      setError(String(e?.message ?? e));
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
-    <main className="min-h-screen bg-[#0b0b12] text-white px-6 py-8">
-      <div className="max-w-7xl mx-auto grid lg:grid-cols-[420px_1fr] gap-6">
+    <main className="min-h-screen bg-black px-6 py-10 text-white">
+      <div className="mx-auto max-w-5xl">
+        <h1 className="mb-2 text-3xl font-bold">{title}</h1>
 
-        {/* LEFT PANEL */}
-        <div className="bg-[#14121c] border border-white/10 rounded-2xl p-6 space-y-4">
+        <p className="mb-8 text-white/70">
+          Remplis les champs → Générer = hooks, script AIDA, beats, proof,
+          shotlist et CTA.
+        </p>
 
-          <h2 className="text-lg font-semibold">Script Engine — Agency</h2>
-          <p className="text-white/60 text-sm">
-            Remplis les champs → Générer = hooks, script AIDA, beats, proof,
-            shotlist et CTA.
-          </p>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Mode">
+            <select
+              className={inputCls}
+              value={mode}
+              onChange={(e) => setMode(e.target.value as Mode)}
+            >
+              <option value="CREATOR">CREATOR</option>
+              <option value="AGENCY">AGENCY</option>
+            </select>
+          </Field>
 
-          <select
-            className="w-full bg-[#0b0b12] border border-white/10 rounded-xl p-2"
-            value={mode}
-            onChange={(e) => setMode(e.target.value)}
-          >
-            <option>AGENCY</option>
-            <option>CREATOR</option>
-          </select>
+          <Field label="Langue">
+            <select
+              className={inputCls}
+              value={lang}
+              onChange={(e) => setLang(e.target.value as Lang)}
+            >
+              <option value="fr">FR</option>
+              <option value="en-GB">EN (UK)</option>
+              <option value="en-US">EN (US)</option>
+              <option value="es">ES</option>
+              <option value="ar">AR</option>
+            </select>
+          </Field>
 
-          <select
-            className="w-full bg-[#0b0b12] border border-white/10 rounded-xl p-2"
-            value={lang}
-            onChange={(e) => setLang(e.target.value)}
-          >
-            <option>FR</option>
-            <option>EN</option>
-          </select>
+          <Field label="Plateforme">
+            <select
+              className={inputCls}
+              value={platform}
+              onChange={(e) => setPlatform(e.target.value)}
+            >
+              {PLATFORMS.map((p) => (
+                <option key={p}>{p}</option>
+              ))}
+            </select>
+          </Field>
 
-          <input
-            placeholder="Audience"
-            className="w-full bg-[#0b0b12] border border-white/10 rounded-xl p-2"
-            value={audience}
-            onChange={(e) => setAudience(e.target.value)}
-          />
+          <Field label="Objectif">
+            <select
+              className={inputCls}
+              value={objective}
+              onChange={(e) => setObjective(e.target.value)}
+            >
+              {OBJECTIVES.map((o) => (
+                <option key={o}>{o}</option>
+              ))}
+            </select>
+          </Field>
 
-          <input
-            placeholder="Offre / Produit"
-            className="w-full bg-[#0b0b12] border border-white/10 rounded-xl p-2"
-            value={offer}
-            onChange={(e) => setOffer(e.target.value)}
-          />
+          <Field label="Audience">
+            <input
+              className={inputCls}
+              value={audience}
+              onChange={(e) => setAudience(e.target.value)}
+            />
+          </Field>
 
-          <input
-            placeholder="Prix"
-            className="w-full bg-[#0b0b12] border border-white/10 rounded-xl p-2"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-          />
+          <Field label="Offre / Produit">
+            <input
+              className={inputCls}
+              value={offer}
+              onChange={(e) => setOffer(e.target.value)}
+            />
+          </Field>
 
-          <textarea
-            placeholder="Angle marketing"
-            className="w-full bg-[#0b0b12] border border-white/10 rounded-xl p-2"
-            value={angle}
-            onChange={(e) => setAngle(e.target.value)}
-          />
+          <Field label="Prix">
+            <input
+              className={inputCls}
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
+          </Field>
 
-          <textarea
-            placeholder="Objection principale"
-            className="w-full bg-[#0b0b12] border border-white/10 rounded-xl p-2"
-            value={objection}
-            onChange={(e) => setObjection(e.target.value)}
-          />
+          <Field label="Angle marketing">
+            <input
+              className={inputCls}
+              value={angle}
+              onChange={(e) => setAngle(e.target.value)}
+            />
+          </Field>
 
+          <Field label="Objection principale">
+            <input
+              className={inputCls}
+              value={objection}
+              onChange={(e) => setObjection(e.target.value)}
+            />
+          </Field>
+
+          <Field label="Type de Hook">
+            <select
+              className={inputCls}
+              value={hookType}
+              onChange={(e) => setHookType(e.target.value)}
+            >
+              {HOOK_TYPES.map((h) => (
+                <option key={h}>{h}</option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label="Ton">
+            <select
+              className={inputCls}
+              value={tone}
+              onChange={(e) => setTone(e.target.value)}
+            >
+              {TONES.map((t) => (
+                <option key={t}>{t}</option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label="Durée">
+            <select
+              className={inputCls}
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+            >
+              {DURATIONS.map((d) => (
+                <option key={d}>{d}</option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label="Contexte (optionnel)">
+            <textarea
+              className={cn(inputCls, "h-24")}
+              value={context}
+              onChange={(e) => setContext(e.target.value)}
+            />
+          </Field>
+        </div>
+
+        <div className="mt-6 flex items-center gap-3">
           <button
-            onClick={handleGenerate}
-            className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-500 rounded-xl py-3 font-semibold"
+            onClick={onGenerate}
+            disabled={loading}
+            className={cn(
+              "rounded-lg px-5 py-3 font-semibold transition",
+              loading
+                ? "bg-white/10 text-white/60"
+                : "bg-violet-600 text-white hover:bg-violet-500"
+            )}
           >
             {loading ? "Génération..." : `Générer ${scriptsCount} scripts`}
           </button>
 
-          {error && (
-            <div className="text-red-400 text-sm">
-              {error}
-            </div>
-          )}
+          {error && <span className="text-red-400">{error}</span>}
         </div>
 
-        {/* RIGHT PANEL */}
-        <div className="space-y-6">
-
-          {/* HOOKS */}
-          <div className="bg-[#14121c] border border-white/10 rounded-2xl p-6">
-            <h3 className="font-semibold mb-3">Hooks générés</h3>
-            {hookIdeas.length ? (
-              hookIdeas.map((h, i) => (
-                <div key={i} className="text-white/80 text-sm mb-2">
-                  • {h}
-                </div>
-              ))
-            ) : (
-              <div className="text-white/40">-</div>
-            )}
-          </div>
-
-          {/* ANGLES */}
-          <div className="bg-[#14121c] border border-white/10 rounded-2xl p-6">
-            <h3 className="font-semibold mb-3">Angles créatifs</h3>
-            {creativeAngles.length ? (
-              creativeAngles.map((a, i) => (
-                <div key={i} className="text-white/80 text-sm mb-2">
-                  • {a}
-                </div>
-              ))
-            ) : (
-              <div className="text-white/40">-</div>
-            )}
-          </div>
-
-          {/* TEST PLAN */}
-          <div className="bg-[#14121c] border border-white/10 rounded-2xl p-6">
-            <h3 className="font-semibold mb-3">Plan de test global</h3>
-            <div className="text-white/80 text-sm">
-              {testingPlanSummary || "-"}
-            </div>
-          </div>
-
-          {/* SCRIPTS */}
-          <div className="bg-[#14121c] border border-white/10 rounded-2xl p-6">
-            <h3 className="font-semibold mb-4">Scripts générés</h3>
-
-            {scripts.length ? (
-              scripts.map((s, i) => (
-                <div
-                  key={i}
-                  className="bg-[#0b0b12] border border-white/10 rounded-xl p-4 mb-4"
-                >
-                  <div className="text-sm text-white/50 mb-2">
-                    Script {i + 1}
-                  </div>
-
-                  <div className="text-violet-400 font-semibold mb-2">
-                    {s?.hook}
-                  </div>
-
-                  <div className="text-white/80 text-sm space-y-2">
-                    <div>{s?.script?.aida?.attention}</div>
-                    <div>{s?.script?.aida?.interest}</div>
-                    <div>{s?.script?.aida?.desire}</div>
-                    <div>{s?.script?.aida?.action}</div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-white/40">-</div>
-            )}
-          </div>
-
+        <div className="mt-10 rounded-xl border border-white/10 bg-white/5 p-4">
+          <h2 className="mb-4 font-semibold">Scripts générés</h2>
+          <pre className="whitespace-pre-wrap break-words text-xs">
+            {parsed ? formatScript(parsed) : "-"}
+          </pre>
         </div>
       </div>
     </main>

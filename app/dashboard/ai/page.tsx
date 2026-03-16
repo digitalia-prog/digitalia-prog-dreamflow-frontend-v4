@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Mode = "AGENCY" | "CREATOR";
 type Lang = "fr" | "en-GB" | "en-US" | "es" | "ar";
@@ -125,6 +125,14 @@ function ListBlock({ items }: { items?: string[] }) {
   );
 }
 
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mb-2 text-xs uppercase tracking-wide text-violet-300">
+      {children}
+    </div>
+  );
+}
+
 export default function AiPage() {
   const inputCls =
     "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-white/35 focus:border-violet-500";
@@ -157,6 +165,7 @@ export default function AiPage() {
   const [creativeAngles, setCreativeAngles] = useState<string[]>([]);
   const [testingPlanSummary, setTestingPlanSummary] = useState<string>("");
   const [variants, setVariants] = useState<Variant[]>([]);
+  const [activeScriptIndex, setActiveScriptIndex] = useState(0);
 
   const scriptsCount = useMemo(() => (mode === "AGENCY" ? 10 : 4), [mode]);
 
@@ -168,6 +177,20 @@ export default function AiPage() {
     [mode]
   );
 
+  useEffect(() => {
+    setActiveScriptIndex(0);
+  }, [mode]);
+
+  useEffect(() => {
+    if (!variants.length) {
+      setActiveScriptIndex(0);
+      return;
+    }
+    if (activeScriptIndex > variants.length - 1) {
+      setActiveScriptIndex(0);
+    }
+  }, [variants, activeScriptIndex]);
+
   async function onGenerate() {
     setLoading(true);
     setError("");
@@ -175,6 +198,7 @@ export default function AiPage() {
     setCreativeAngles([]);
     setTestingPlanSummary("");
     setVariants([]);
+    setActiveScriptIndex(0);
 
     try {
       const response = await fetch("/api/generate", {
@@ -239,6 +263,7 @@ export default function AiPage() {
       setCreativeAngles(nextCreativeAngles);
       setTestingPlanSummary(nextTestingPlan);
       setVariants(nextVariants);
+      setActiveScriptIndex(0);
 
       if (
         !nextHookIdeas.length &&
@@ -256,6 +281,11 @@ export default function AiPage() {
       setLoading(false);
     }
   }
+
+  const activeVariant =
+    variants.length && variants[activeScriptIndex]
+      ? variants[activeScriptIndex]
+      : null;
 
   return (
     <main className="min-h-screen bg-[#0b0b12] px-6 py-10 text-white">
@@ -450,108 +480,112 @@ export default function AiPage() {
 
             <Block title="Scripts générés">
               {variants.length ? (
-                <div className="space-y-4">
-                  {variants.map((variant, index) => (
-                    <div
-                      key={`variant-${index}`}
-                      className="rounded-2xl border border-white/10 bg-white/5 p-4"
-                    >
-                      <div className="mb-3 text-sm font-semibold text-white/70">
-                        Script {index + 1}
+                <div className="space-y-5">
+                  <div className="flex flex-wrap gap-2">
+                    {variants.map((_, index) => {
+                      const isActive = index === activeScriptIndex;
+                      return (
+                        <button
+                          key={`tab-${index}`}
+                          type="button"
+                          onClick={() => setActiveScriptIndex(index)}
+                          className={cn(
+                            "rounded-xl px-3 py-2 text-sm font-medium transition",
+                            isActive
+                              ? "bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white"
+                              : "border border-white/10 bg-white/5 text-white/75 hover:bg-white/10"
+                          )}
+                        >
+                          Script {index + 1}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {activeVariant ? (
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                      <div className="mb-4 text-sm font-semibold text-white/70">
+                        Script {activeScriptIndex + 1}
                       </div>
 
-                      <div className="space-y-4">
+                      <div className="space-y-5">
                         <div>
-                          <div className="mb-1 text-xs uppercase tracking-wide text-violet-300">
-                            Hook
-                          </div>
+                          <SectionTitle>Hook</SectionTitle>
                           <div className="text-sm text-white">
-                            {variant?.hook || "-"}
+                            {activeVariant?.hook || "-"}
                           </div>
                         </div>
 
                         <div>
-                          <div className="mb-2 text-xs uppercase tracking-wide text-violet-300">
-                            Script (AIDA)
-                          </div>
+                          <SectionTitle>Script (AIDA)</SectionTitle>
                           <div className="space-y-2 text-sm text-white/90">
                             <div>
                               <span className="font-semibold text-white">
                                 Attention:
                               </span>{" "}
-                              {variant?.script?.aida?.attention || "-"}
+                              {activeVariant?.script?.aida?.attention || "-"}
                             </div>
                             <div>
                               <span className="font-semibold text-white">
                                 Interest:
                               </span>{" "}
-                              {variant?.script?.aida?.interest || "-"}
+                              {activeVariant?.script?.aida?.interest || "-"}
                             </div>
                             <div>
                               <span className="font-semibold text-white">
                                 Desire:
                               </span>{" "}
-                              {variant?.script?.aida?.desire || "-"}
+                              {activeVariant?.script?.aida?.desire || "-"}
                             </div>
                             <div>
                               <span className="font-semibold text-white">
                                 Action:
                               </span>{" "}
-                              {variant?.script?.aida?.action || "-"}
+                              {activeVariant?.script?.aida?.action || "-"}
                             </div>
                           </div>
                         </div>
 
                         <div>
-                          <div className="mb-2 text-xs uppercase tracking-wide text-violet-300">
-                            Beats
-                          </div>
-                          <ListBlock items={variant?.beats} />
+                          <SectionTitle>Beats</SectionTitle>
+                          <ListBlock items={activeVariant?.beats} />
                         </div>
 
                         <div>
-                          <div className="mb-2 text-xs uppercase tracking-wide text-violet-300">
-                            Proof
-                          </div>
-                          <ListBlock items={variant?.proof} />
+                          <SectionTitle>Proof</SectionTitle>
+                          <ListBlock items={activeVariant?.proof} />
                         </div>
 
                         <div>
-                          <div className="mb-2 text-xs uppercase tracking-wide text-violet-300">
-                            Shotlist
-                          </div>
-                          <ListBlock items={variant?.shotlist} />
+                          <SectionTitle>Shotlist</SectionTitle>
+                          <ListBlock items={activeVariant?.shotlist} />
                         </div>
 
                         <div>
-                          <div className="mb-1 text-xs uppercase tracking-wide text-violet-300">
-                            CTA
-                          </div>
+                          <SectionTitle>CTA</SectionTitle>
                           <div className="text-sm text-white/90">
-                            {variant?.cta?.primary || "-"}
+                            {activeVariant?.cta?.primary || "-"}
                           </div>
                         </div>
 
                         <div>
-                          <div className="mb-1 text-xs uppercase tracking-wide text-violet-300">
-                            Testing Plan
-                          </div>
+                          <SectionTitle>Testing Plan</SectionTitle>
                           <div className="text-sm text-white/90">
-                            {variant?.testingPlan || "-"}
+                            {activeVariant?.testingPlan || "-"}
                           </div>
                         </div>
 
                         <div>
-                          <div className="mb-1 text-xs uppercase tracking-wide text-violet-300">
-                            KPI
-                          </div>
+                          <SectionTitle>KPI</SectionTitle>
                           <div className="text-sm text-white/90">
-                            {variant?.kpi || "-"}
+                            {activeVariant?.kpi || "-"}
                           </div>
                         </div>
                       </div>
                     </div>
-                  ))}
+                  ) : (
+                    <div className="text-white/40">-</div>
+                  )}
                 </div>
               ) : (
                 <div className="text-white/40">-</div>

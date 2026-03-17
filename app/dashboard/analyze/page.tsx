@@ -67,13 +67,18 @@ export default function AnalyzePage() {
   const [audience, setAudience] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
+  const [scriptLoading, setScriptLoading] = useState(false);
   const [error, setError] = useState("");
+  const [scriptError, setScriptError] = useState("");
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
+  const [script, setScript] = useState<string>("");
 
   async function onAnalyze() {
     setLoading(true);
     setError("");
     setResult(null);
+    setScript("");
+    setScriptError("");
 
     try {
       const response = await fetch("/api/analyze-video", {
@@ -104,10 +109,46 @@ export default function AnalyzePage() {
     }
   }
 
+  async function generateScript() {
+    if (!result) return;
+
+    setScriptLoading(true);
+    setScriptError("");
+    setScript("");
+
+    try {
+      const response = await fetch("/api/generate-script", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          analysis: result,
+          platform,
+          offer,
+          audience,
+          notes,
+          url,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.details || data?.error || "Génération impossible");
+      }
+
+      setScript(data?.script || "");
+    } catch (e: any) {
+      setScriptError(String(e?.message ?? e ?? "Erreur inconnue"));
+    } finally {
+      setScriptLoading(false);
+    }
+  }
+
   return (
     <main className="min-h-screen bg-black text-white px-6 py-10">
       <div className="max-w-6xl mx-auto space-y-8">
-
         <div className="rounded-2xl border border-white/10 bg-[#14121c] p-6">
           <h1 className="text-3xl font-bold mb-2">
             Analyse vidéo — Ads / UGC
@@ -119,7 +160,6 @@ export default function AnalyzePage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-
           <Block title="Lien vidéo">
             <input
               className={inputCls}
@@ -160,7 +200,6 @@ export default function AnalyzePage() {
               placeholder="Ex: Familles pressées"
             />
           </Block>
-
         </div>
 
         <Block title="Transcript / description de la vidéo">
@@ -172,43 +211,49 @@ export default function AnalyzePage() {
           />
         </Block>
 
-        <button
-          onClick={onAnalyze}
-          disabled={loading}
-          className={cn(
-            "px-6 py-3 rounded-xl font-semibold",
-            loading
-              ? "bg-white/10 text-white/50"
-              : "bg-violet-600 hover:bg-violet-500"
-          )}
-        >
-          {loading ? "Analyse..." : "Analyser la vidéo"}
-        </button>
+        <div className="flex flex-wrap items-center gap-4">
+          <button
+            onClick={onAnalyze}
+            disabled={loading}
+            className={cn(
+              "px-6 py-3 rounded-xl font-semibold",
+              loading
+                ? "bg-white/10 text-white/50"
+                : "bg-violet-600 hover:bg-violet-500"
+            )}
+          >
+            {loading ? "Analyse..." : "Analyser la vidéo"}
+          </button>
 
-        {error && (
-          <div className="text-red-400">{error}</div>
-        )}
+          {result && (
+            <button
+              onClick={generateScript}
+              disabled={scriptLoading}
+              className={cn(
+                "px-6 py-3 rounded-xl font-semibold",
+                scriptLoading
+                  ? "bg-white/10 text-white/50"
+                  : "bg-gradient-to-r from-purple-600 to-pink-500 hover:opacity-90"
+              )}
+            >
+              {scriptLoading
+                ? "Génération du script..."
+                : "Générer un script avec cette analyse 🚀"}
+            </button>
+          )}
+        </div>
+
+        {error && <div className="text-red-400">{error}</div>}
+        {scriptError && <div className="text-red-400">{scriptError}</div>}
 
         {result && (
-          <div className="space-y-6">
+          <div className="mt-2 grid gap-6 md:grid-cols-2">
+            <Block title="Résumé">{result.summary || "-"}</Block>
+            <Block title="Hook">{result.hook || "-"}</Block>
+            <Block title="Structure">{result.structure || "-"}</Block>
+            <Block title="Angle">{result.angle || "-"}</Block>
 
-            <Block title="Résumé">
-              {result.summary || "-"}
-            </Block>
-
-            <Block title="Hook principal">
-              {result.hook || "-"}
-            </Block>
-
-            <Block title="Structure">
-              {result.structure || "-"}
-            </Block>
-
-            <Block title="Angle marketing">
-              {result.angle || "-"}
-            </Block>
-
-            <Block title="Psychologie utilisée">
+            <Block title="Psychologie">
               <ListBlock items={result.psychology} />
             </Block>
 
@@ -224,18 +269,31 @@ export default function AnalyzePage() {
               <ListBlock items={result.recreateIdeas} />
             </Block>
 
-            <Block title="Hooks similaires">
+            <Block title="Hooks à tester">
               <ListBlock items={result.similarHooks} />
             </Block>
 
-            <Block title="Angles similaires">
+            <Block title="Angles à tester">
               <ListBlock items={result.similarAngles} />
             </Block>
 
-            <Block title="Prompt pour recréer une vidéo">
-              {result.scriptPrompt || "-"}
-            </Block>
+            <div className="md:col-span-2">
+              <Block title="Concept vidéo prêt à tourner">
+                <div className="whitespace-pre-wrap text-sm text-white/85">
+                  {result.scriptPrompt || "-"}
+                </div>
+              </Block>
+            </div>
+          </div>
+        )}
 
+        {script && (
+          <div className="mt-4">
+            <Block title="Script prêt à tourner 🎬">
+              <div className="whitespace-pre-wrap text-sm text-white/90">
+                {script}
+              </div>
+            </Block>
           </div>
         )}
       </div>

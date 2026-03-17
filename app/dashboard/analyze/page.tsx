@@ -105,160 +105,139 @@ export default function AnalyzePage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0b0b12] px-6 py-10 text-white">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-6 rounded-2xl border border-white/10 bg-[#14121c] p-6">
-          <h1 className="mb-2 text-3xl font-bold text-white">
+    <main className="min-h-screen bg-black text-white px-6 py-10">
+      <div className="max-w-6xl mx-auto space-y-8">
+
+        <div className="rounded-2xl border border-white/10 bg-[#14121c] p-6">
+          <h1 className="text-3xl font-bold mb-2">
             Analyse vidéo — Ads / UGC
           </h1>
-          <p className="text-white/65">
-            Colle un lien et le texte ou transcript d’une vidéo pour obtenir une
-            analyse marketing claire et exploitable.
+
+          <p className="text-white/60">
+            Analyse une publicité TikTok / Reels / Ads à partir d’un lien ou d’un transcript.
           </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[420px_minmax(0,1fr)]">
-          <div className="rounded-2xl border border-white/10 bg-[#14121c] p-6">
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <div className="text-sm text-white/80">Lien vidéo</div>
-                <input
-                  className={inputCls}
-                  placeholder="https://www.tiktok.com/..."
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                />
-              </div>
+        <div className="grid gap-6 md:grid-cols-2">
 
-              <div className="space-y-2">
-                <div className="text-sm text-white/80">Plateforme</div>
-                <select
-                  className={inputCls}
-                  value={platform}
-                  onChange={(e) => setPlatform(e.target.value)}
-                >
-                  <option>TikTok</option>
-                  <option>Instagram Reels</option>
-                  <option>YouTube Shorts</option>
-                  <option>Facebook Ads</option>
-                  <option>Google Ads</option>
-                  <option>Other</option>
-                </select>
-              </div>
+          <Block title="Lien vidéo">
+            <input
+              className={inputCls}
+              placeholder="https://www.tiktok.com/..."
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+            />
+          </Block>
 
-              <div className="space-y-2">
-                <div className="text-sm text-white/80">
-                  Offre / Produit (optionnel)
-                </div>
-                <input
-                  className={inputCls}
-                  placeholder="Ex : Coque MagSafe iPhone"
-                  value={offer}
-                  onChange={(e) => setOffer(e.target.value)}
-                />
-              </div>
+          <Block title="Plateforme">
+            <select
+              className={inputCls}
+              value={platform}
+              onChange={(e) => setPlatform(e.target.value)}
+            >
+              <option>TikTok</option>
+              <option>Instagram Reels</option>
+              <option>YouTube Shorts</option>
+              <option>Facebook Ads</option>
+              <option>Google Ads</option>
+            </select>
+          </Block>
 
-              <div className="space-y-2">
-                <div className="text-sm text-white/80">
-                  Audience cible (optionnel)
-                </div>
-                <input
-                  className={inputCls}
-                  placeholder="Ex : E-commerçants débutants"
-                  value={audience}
-                  onChange={(e) => setAudience(e.target.value)}
-                />
-              </div>
+          <Block title="Produit / Offre (optionnel)">
+            <input
+              className={inputCls}
+              value={offer}
+              onChange={(e) => setOffer(e.target.value)}
+              placeholder="Ex: Aspirateur sans fil"
+            />
+          </Block>
 
-              <div className="space-y-2">
-                <div className="text-sm text-white/80">
-                  Texte / transcript / description
-                </div>
-                <textarea
-                  className={textareaCls}
-                  placeholder="Colle ici le hook, le script parlé, la description ou le transcript de la vidéo."
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                />
-              </div>
+          <Block title="Audience (optionnel)">
+            <input
+              className={inputCls}
+              value={audience}
+              onChange={(e) => setAudience(e.target.value)}
+              placeholder="Ex: Familles pressées"
+            />
+          </Block>
 
-              <button
-                onClick={onAnalyze}
-                disabled={loading}
-                className={cn(
-                  "rounded-xl px-5 py-3 font-semibold text-white transition",
-                  loading
-                    ? "cursor-not-allowed bg-white/10 text-white/60"
-                    : "bg-gradient-to-r from-violet-600 to-fuchsia-500 hover:from-violet-500 hover:to-fuchsia-400"
-                )}
-              >
-                {loading ? "Analyse en cours..." : "Analyser la vidéo"}
-              </button>
+        </div>
 
-              {error ? <div className="text-sm text-red-400">{error}</div> : null}
-            </div>
-          </div>
+        <Block title="Transcript / description de la vidéo">
+          <textarea
+            className={textareaCls}
+            placeholder="Colle le script ou la description de la pub ici"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
+        </Block>
 
+        <button
+          onClick={onAnalyze}
+          disabled={loading}
+          className={cn(
+            "px-6 py-3 rounded-xl font-semibold",
+            loading
+              ? "bg-white/10 text-white/50"
+              : "bg-violet-600 hover:bg-violet-500"
+          )}
+        >
+          {loading ? "Analyse..." : "Analyser la vidéo"}
+        </button>
+
+        {error && (
+          <div className="text-red-400">{error}</div>
+        )}
+
+        {result && (
           <div className="space-y-6">
+
             <Block title="Résumé">
-              <div className="whitespace-pre-wrap text-sm text-white/85">
-                {result?.summary || "-"}
-              </div>
+              {result.summary || "-"}
             </Block>
 
-            <div className="grid gap-6 md:grid-cols-2">
-              <Block title="Hook principal">
-                <div className="text-sm text-white/85">{result?.hook || "-"}</div>
-              </Block>
+            <Block title="Hook principal">
+              {result.hook || "-"}
+            </Block>
 
-              <Block title="Structure">
-                <div className="text-sm text-white/85">
-                  {result?.structure || "-"}
-                </div>
-              </Block>
-            </div>
+            <Block title="Structure">
+              {result.structure || "-"}
+            </Block>
 
-            <div className="grid gap-6 md:grid-cols-2">
-              <Block title="Angle marketing">
-                <div className="text-sm text-white/85">{result?.angle || "-"}</div>
-              </Block>
+            <Block title="Angle marketing">
+              {result.angle || "-"}
+            </Block>
 
-              <Block title="Psychologie utilisée">
-                <ListBlock items={result?.psychology} />
-              </Block>
-            </div>
+            <Block title="Psychologie utilisée">
+              <ListBlock items={result.psychology} />
+            </Block>
 
-            <div className="grid gap-6 md:grid-cols-2">
-              <Block title="Points forts">
-                <ListBlock items={result?.strengths} />
-              </Block>
+            <Block title="Points forts">
+              <ListBlock items={result.strengths} />
+            </Block>
 
-              <Block title="Points faibles">
-                <ListBlock items={result?.weaknesses} />
-              </Block>
-            </div>
+            <Block title="Points faibles">
+              <ListBlock items={result.weaknesses} />
+            </Block>
 
             <Block title="Idées à reproduire">
-              <ListBlock items={result?.recreateIdeas} />
+              <ListBlock items={result.recreateIdeas} />
             </Block>
 
-            <div className="grid gap-6 md:grid-cols-2">
-              <Block title="Hooks similaires">
-                <ListBlock items={result?.similarHooks} />
-              </Block>
-
-              <Block title="Angles similaires">
-                <ListBlock items={result?.similarAngles} />
-              </Block>
-            </div>
-
-            <Block title="Brief pour recréer une vidéo similaire">
-              <div className="whitespace-pre-wrap text-sm text-white/85">
-                {result?.scriptPrompt || "-"}
-              </div>
+            <Block title="Hooks similaires">
+              <ListBlock items={result.similarHooks} />
             </Block>
+
+            <Block title="Angles similaires">
+              <ListBlock items={result.similarAngles} />
+            </Block>
+
+            <Block title="Prompt pour recréer une vidéo">
+              {result.scriptPrompt || "-"}
+            </Block>
+
           </div>
-        </div>
+        )}
       </div>
     </main>
   );

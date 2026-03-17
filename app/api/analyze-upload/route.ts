@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   try {
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(
-        { error: "Missing OPENAI_API_KEY in environment variables." },
+        { error: "Missing OPENAI_API_KEY" },
         { status: 500 }
       );
     }
@@ -20,35 +20,40 @@ export async function POST(req: Request) {
     const extraNotes = String(formData.get("extraNotes") || "");
 
     if (!file) {
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    }
+
+    // 🔒 Sécurité taille (important pour Vercel)
+    if (file.size > 4_000_000) {
       return NextResponse.json(
-        { error: "Missing file." },
+        { error: "Fichier trop lourd (max 4MB sur Vercel)" },
         { status: 400 }
       );
     }
 
-    const transcriptionForm = new FormData();
-    transcriptionForm.append("file", file);
-    transcriptionForm.append("model", "gpt-4o-mini-transcribe");
+    // 🎧 TRANSCRIPTION AUDIO / VIDEO
+    const audioForm = new FormData();
+    audioForm.append("file", file);
+    audioForm.append("model", "gpt-4o-mini-transcribe");
 
-    const transcriptionResponse = await fetch(
+    const transcriptionRes = await fetch(
       "https://api.openai.com/v1/audio/transcriptions",
       {
         method: "POST",
         headers: {
           Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
         },
-        body: transcriptionForm,
+        body: audioForm,
       }
     );
 
-    const transcriptionData = await transcriptionResponse.json();
+    const transcriptionData = await transcriptionRes.json();
 
-    if (!transcriptionResponse.ok) {
+    if (!transcriptionRes.ok) {
       return NextResponse.json(
         {
-          error: "OpenAI transcription failed",
-          details:
-            transcriptionData?.error?.message || "Unknown transcription error",
+          error: "Transcription failed",
+          details: transcriptionData?.error?.message,
         },
         { status: 500 }
       );
@@ -56,84 +61,15 @@ export async function POST(req: Request) {
 
     const transcript = transcriptionData?.text || "";
 
-    if (!transcript.trim()) {
+    if (!transcript) {
       return NextResponse.json(
-        {
-          error: "Transcript is empty.",
-        },
+        { error: "Transcript vide" },
         { status: 400 }
       );
     }
 
-    const systemPrompt = `
-You are a senior UGC ads strategist, direct-response creative analyst, and performance marketing expert.
-
-LANGUAGE RULE
-- Detect the language of the transcript and extra notes.
-- Respond ONLY in that same language.
-- Never switch language.
-
-HONESTY RULE
-- You are analyzing the content based on the real transcript plus optional notes.
-- Do not invent visual details unless strongly implied by the words.
-- If some parts are unclear, say so honestly.
-
-YOUR JOB
-Analyze the content like a real agency strategist.
-
-Return useful, practical, marketer-grade analysis.
-
-Return valid JSON only.
-No markdown.
-No code fences.
-No intro text.
-`;
-
-    const userPrompt = `
-Analyze this video/audio content.
-
-Platform: ${platform}
-Product / Offer: ${offer}
-Audience: ${audience}
-
-Transcript:
-${transcript}
-
-Extra notes:
-${extraNotes}
-
-Return this exact JSON shape:
-{
-  "summary": "",
-  "hook": "",
-  "structure": "",
-  "angle": "",
-  "psychology": ["", ""],
-  "strengths": ["", ""],
-  "weaknesses": ["", ""],
-  "recreateIdeas": ["", ""],
-  "similarHooks": ["", ""],
-  "similarAngles": ["", ""],
-  "scriptPrompt": ""
-}
-
-RULES
-- summary: concise but useful
-- hook: specific and directly usable
-- structure: explain the flow clearly
-- angle: real marketing promise
-- psychology: precise emotional / persuasive mechanisms
-- strengths: what works
-- weaknesses: what is missing or weak
-- recreateIdeas: practical ways to remake or improve
-- similarHooks: 3 to 5 hooks
-- similarAngles: 3 angles
-- scriptPrompt: short but actionable creative brief
-- respond in the same language as the user content
-- JSON only
-`;
-
-    const analysisResponse = await fetch(
+    // 🧠 ANALYSE MARKETING PRO
+    const analysisRes = await fetch(
       "https://api.openai.com/v1/chat/completions",
       {
         method: "POST",
@@ -143,38 +79,80 @@ RULES
         },
         body: JSON.stringify({
           model: "gpt-4o",
-          temperature: 0.7,
+          temperature: 0.6,
           response_format: { type: "json_object" },
           messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt },
+            {
+              role: "system",
+              content: `
+Tu es un expert en marketing UGC.
+
+RÈGLES :
+- Tu n'inventes rien
+- Tu analyses uniquement ce qui est dit dans l'audio
+- Si c'est flou → tu le dis
+- Tu donnes une analyse exploitable pour vendre
+- Réponse en FRANÇAIS
+- JSON uniquement
+              `,
+            },
+            {
+              role: "user",
+              content: `
+Plateforme: ${platform}
+Produit: ${offer}
+Audience: ${audience}
+
+Transcript:
+${transcript}
+
+Notes:
+${extraNotes}
+
+Donne une analyse :
+
+{
+  "summary": "",
+  "hook": "",
+  "structure": "",
+  "angle": "",
+  "psychology": [],
+  "strengths": [],
+  "weaknesses": [],
+  "recreateIdeas": [],
+  "similarHooks": [],
+  "similarAngles": [],
+  "scriptPrompt": ""
+}
+              `,
+            },
           ],
         }),
       }
     );
 
-    const analysisData = await analysisResponse.json();
+    const analysisData = await analysisRes.json();
 
-    if (!analysisResponse.ok) {
+    if (!analysisRes.ok) {
       return NextResponse.json(
         {
-          error: "OpenAI analysis failed",
-          details: analysisData?.error?.message || "Unknown analysis error",
+          error: "Analyse failed",
+          details: analysisData?.error?.message,
         },
         { status: 500 }
       );
     }
 
-    const raw = analysisData?.choices?.[0]?.message?.content || "";
-
-    let parsed: any;
+    let parsed;
     try {
-      parsed = JSON.parse(raw);
-    } catch {
+      parsed = JSON.parse(
+        analysisData?.choices?.[0]?.message?.content || "{}"
+      );
+    } catch (err) {
       return NextResponse.json(
         {
-          error: "Failed to parse AI JSON response",
-          raw,
+          error: "JSON parsing error",
+          raw: analysisData,
         },
         { status: 500 }
       );
@@ -182,30 +160,13 @@ RULES
 
     return NextResponse.json({
       transcript,
-      summary: typeof parsed?.summary === "string" ? parsed.summary : "",
-      hook: typeof parsed?.hook === "string" ? parsed.hook : "",
-      structure: typeof parsed?.structure === "string" ? parsed.structure : "",
-      angle: typeof parsed?.angle === "string" ? parsed.angle : "",
-      psychology: Array.isArray(parsed?.psychology) ? parsed.psychology : [],
-      strengths: Array.isArray(parsed?.strengths) ? parsed.strengths : [],
-      weaknesses: Array.isArray(parsed?.weaknesses) ? parsed.weaknesses : [],
-      recreateIdeas: Array.isArray(parsed?.recreateIdeas)
-        ? parsed.recreateIdeas
-        : [],
-      similarHooks: Array.isArray(parsed?.similarHooks)
-        ? parsed.similarHooks
-        : [],
-      similarAngles: Array.isArray(parsed?.similarAngles)
-        ? parsed.similarAngles
-        : [],
-      scriptPrompt:
-        typeof parsed?.scriptPrompt === "string" ? parsed.scriptPrompt : "",
+      ...parsed,
     });
   } catch (error: any) {
     return NextResponse.json(
       {
-        error: "Unexpected server error",
-        details: error?.message || "Unknown error",
+        error: "Server error",
+        details: error?.message,
       },
       { status: 500 }
     );

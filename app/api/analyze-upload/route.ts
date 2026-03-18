@@ -3,142 +3,161 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type AnalyzeUploadResponse = {
-  transcript: string;
-  summary: string;
-  hook: string;
-  structure: string;
-  angle: string;
-  psychology: string[];
-  strengths: string[];
-  weaknesses: string[];
-  ideas: string[];
-  similarHooks: string[];
-  similarAngles: string[];
-  recreationBrief: string;
-};
-
-function safeString(value: unknown, fallback = "-"): string {
-  return typeof value === "string" && value.trim() ? value.trim() : fallback;
-}
-
-function safeArray(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value
+function toBulletString(value: unknown): string {
+  if (!Array.isArray(value)) return "-";
+  const items = value
     .filter((item) => typeof item === "string")
     .map((item) => item.trim())
     .filter(Boolean);
-}
 
-function formatBulletList(items: string[]): string {
   if (!items.length) return "-";
   return items.map((item) => `• ${item}`).join("\n");
 }
 
-async function fakeTranscriptFromFile(file: File): Promise<string> {
-  const fileName = file.name || "fichier";
-  return `Transcription simulée du fichier "${fileName}". Le contenu exact n’a pas encore été retranscrit automatiquement, mais le fichier a bien été reçu et préparé pour analyse.`;
-}
-
-function buildFallbackAnalysis(params: {
-  transcript: string;
-  platform: string;
-  product: string;
-  audience: string;
-  notes: string;
-  fileName: string;
-}): AnalyzeUploadResponse {
-  const { transcript, platform, product, audience, notes, fileName } = params;
-
-  const contextBits = [
-    platform ? `Plateforme : ${platform}` : null,
-    product ? `Produit / offre : ${product}` : null,
-    audience ? `Audience : ${audience}` : null,
-    notes ? `Notes : ${notes}` : null,
-  ].filter(Boolean);
-
-  return {
-    transcript,
-    summary:
-      `Le fichier "${fileName}" a bien été reçu. ` +
-      `Le contenu semble destiné à une analyse marketing ${platform ? `sur ${platform}` : ""}. ` +
-      `L’objectif est d’identifier le message principal, la mécanique d’accroche et les éléments à reproduire pour créer un contenu plus performant.`,
-    hook:
-      "Le hook repose probablement sur une accroche rapide dès les premières secondes pour capter l’attention et poser immédiatement le sujet.",
-    structure:
-      "1. Accroche immédiate\n2. Mise en contexte rapide\n3. Démonstration / développement\n4. Message principal\n5. Conclusion ou appel à l’action",
-    angle:
-      "Angle principal : capter l’attention rapidement avec un message simple, clair et facilement mémorisable.",
-    psychology: [
-      "Curiosité",
-      "Identification",
-      "Clarté du message",
-      "Promesse de valeur rapide",
-    ],
-    strengths: [
-      "Format exploitable pour contenu social",
-      "Base utile pour extraire un hook",
-      "Peut être retravaillé en script UGC ou ads",
-    ],
-    weaknesses: [
-      "Transcription automatique réelle non encore branchée",
-      "Certaines nuances du ton ou du visuel peuvent manquer",
-      "Analyse encore générique si le contenu du fichier n’est pas détaillé",
-    ],
-    ideas: [
-      "Renforcer l’accroche dès les 2 premières secondes",
-      "Ajouter un bénéfice utilisateur plus explicite",
-      "Finir avec un CTA plus net",
-    ],
-    similarHooks: [
-      "Attends de voir ça…",
-      "Le détail que personne ne remarque au début",
-      "Voilà pourquoi ce contenu retient l’attention",
-    ],
-    similarAngles: [
-      "Avant / après",
-      "Problème / solution",
-      "Réaction émotionnelle",
-    ],
-    recreationBrief:
-      `Crée une vidéo courte avec une accroche forte dès le début, un message simple et un déroulé fluide. ` +
-      `Mets en avant le point principal du contenu, puis termine par une conclusion claire ou un appel à l’action. ` +
-      `${contextBits.length ? `Contexte fourni : ${contextBits.join(" | ")}.` : ""}`,
-  };
+function toText(value: unknown, fallback = "-"): string {
+  return typeof value === "string" && value.trim() ? value.trim() : fallback;
 }
 
 export async function POST(req: NextRequest) {
   try {
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json(
+        {
+          error: "OPENAI_API_KEY manquante sur Vercel.",
+        },
+        { status: 500 }
+      );
+    }
+
     const formData = await req.formData();
 
     const file = formData.get("file");
-    const platform = safeString(formData.get("platform"), "");
-    const product = safeString(formData.get("product"), "");
-    const audience = safeString(formData.get("audience"), "");
-    const notes = safeString(formData.get("notes"), "");
+    const platform = String(formData.get("platform") || "TikTok");
+    const product = String(formData.get("product") || "");
+    const audience = String(formData.get("audience") || "");
+    const notes = String(formData.get("notes") || "");
 
     if (!(file instanceof File)) {
       return NextResponse.json(
-        { error: "Aucun fichier reçu." },
+        {
+          error: "Aucun fichier valide reçu.",
+        },
         { status: 400 }
       );
     }
 
-    const transcript = await fakeTranscriptFromFile(file);
+    if (file.size === 0) {
+      return NextResponse.json(
+        {
+          error: "Le fichier est vide.",
+        },
+        { status: 400 }
+      );
+    }
 
-    let analysis: AnalyzeUploadResponse | null = null;
+    const allowedTypes = [
+      "audio/mpeg",
+      "audio/mp3",
+      "audio/mp4",
+      "audio/x-m4a",
+      "audio/wav",
+      "audio/webm",
+      "audio/ogg",
+      "video/mp4",
+      "video/webm",
+      "video/quicktime",
+      "video/mpeg",
+    ];
 
-    const openaiApiKey = process.env.OPENAI_API_KEY;
+    if (file.type && !allowedTypes.includes(file.type)) {
+      return NextResponse.json(
+        {
+          error: `Format non supporté: ${file.type}`,
+          details: "Utilise mp3, mp4, m4a, wav, ogg, webm ou mov.",
+        },
+        { status: 400 }
+      );
+    }
 
-    if (openaiApiKey) {
-      try {
-        const prompt = `
-Tu es un analyste marketing UGC / Ads.
+    // 1) Transcription réelle
+    const transcriptionForm = new FormData();
+    transcriptionForm.append("file", file, file.name || "upload.mp4");
+    transcriptionForm.append("model", "gpt-4o-mini-transcribe");
 
-Analyse ce contenu uploadé à partir de sa transcription et du contexte.
-Réponds UNIQUEMENT en JSON valide avec exactement ces clés :
+    const transcriptionRes = await fetch(
+      "https://api.openai.com/v1/audio/transcriptions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: transcriptionForm,
+      }
+    );
+
+    const transcriptionRaw = await transcriptionRes.text();
+
+    let transcriptionJson: any = null;
+    try {
+      transcriptionJson = JSON.parse(transcriptionRaw);
+    } catch {
+      transcriptionJson = null;
+    }
+
+    if (!transcriptionRes.ok) {
+      console.error("TRANSCRIPTION ERROR:", transcriptionRaw);
+
+      return NextResponse.json(
+        {
+          error: "Échec de la transcription audio.",
+          details:
+            transcriptionJson?.error?.message ||
+            transcriptionRaw ||
+            "Erreur inconnue côté transcription.",
+        },
+        { status: 500 }
+      );
+    }
+
+    const transcript = toText(transcriptionJson?.text, "");
+
+    if (!transcript) {
+      return NextResponse.json(
+        {
+          error: "Aucune transcription exploitable n’a été retournée.",
+          details:
+            "Le fichier a bien été reçu, mais aucun texte n’a pu être extrait.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // 2) Analyse marketing réelle
+    const systemPrompt = `
+Tu es un expert en marketing UGC, TikTok Ads, hooks publicitaires et analyse de contenus courts.
+
+Règles strictes :
+- Tu réponds dans la langue du transcript principal.
+- Tu n’inventes pas de détails visuels non confirmés par l’audio ou les notes.
+- Si le contenu n’est pas vraiment une pub, tu le dis honnêtement.
+- Tu produis une analyse utile, concrète et crédible.
+- Tu réponds UNIQUEMENT en JSON valide.
+`;
+
+    const userPrompt = `
+Analyse ce contenu audio / vidéo à partir de sa transcription réelle.
+
+Contexte :
+- Plateforme : ${platform}
+- Produit / Offre : ${product || "non précisé"}
+- Audience : ${audience || "non précisée"}
+- Notes utilisateur : ${notes || "aucune"}
+
+Transcript :
+${transcript}
+
+Réponds avec EXACTEMENT cette structure JSON :
 {
-  "transcript": "string",
   "summary": "string",
   "hook": "string",
   "structure": "string",
@@ -152,123 +171,109 @@ Réponds UNIQUEMENT en JSON valide avec exactement ces clés :
   "recreationBrief": "string"
 }
 
-Contexte :
-- Plateforme: ${platform || "non précisée"}
-- Produit / Offre: ${product || "non précisé"}
-- Audience: ${audience || "non précisée"}
-- Notes: ${notes || "aucune"}
+Consignes :
+- summary : résumé utile et honnête
+- hook : l’accroche réelle ou probable à partir de ce qui est dit
+- structure : déroulé du contenu
+- angle : angle marketing ou angle narratif
+- psychology : mécanismes émotionnels / cognitifs
+- strengths : points forts
+- weaknesses : points faibles
+- ideas : idées à reproduire / améliorer
+- similarHooks : 3 à 5 hooks similaires
+- similarAngles : 3 angles similaires
+- recreationBrief : brief court pour recréer une vidéo similaire
+`;
 
-Transcription :
-${transcript}
-        `.trim();
+    const analysisRes = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        temperature: 0.6,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+      }),
+    });
 
-        const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${openaiApiKey}`,
+    const analysisRaw = await analysisRes.text();
+
+    let analysisOuter: any = null;
+    try {
+      analysisOuter = JSON.parse(analysisRaw);
+    } catch {
+      analysisOuter = null;
+    }
+
+    if (!analysisRes.ok) {
+      console.error("ANALYSIS ERROR:", analysisRaw);
+
+      return NextResponse.json(
+        {
+          error: "Échec de l’analyse marketing.",
+          details:
+            analysisOuter?.error?.message ||
+            analysisRaw ||
+            "Erreur inconnue côté analyse.",
+        },
+        { status: 500 }
+      );
+    }
+
+    const content = analysisOuter?.choices?.[0]?.message?.content || "";
+
+    let parsed: any = null;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      try {
+        const cleaned = String(content)
+          .replace(/^```json/i, "")
+          .replace(/^```/i, "")
+          .replace(/```$/i, "")
+          .trim();
+
+        parsed = JSON.parse(cleaned);
+      } catch {
+        console.error("PARSE ANALYSIS CONTENT ERROR:", content);
+
+        return NextResponse.json(
+          {
+            error: "Impossible de parser la réponse JSON de l’analyse.",
+            details: content || "Réponse vide.",
           },
-          body: JSON.stringify({
-            model: "gpt-4o-mini",
-            temperature: 0.7,
-            messages: [
-              {
-                role: "system",
-                content:
-                  "Tu es un expert en analyse marketing UGC, TikTok Ads, Reels et hooks publicitaires.",
-              },
-              {
-                role: "user",
-                content: prompt,
-              },
-            ],
-          }),
-        });
-
-        const rawText = await openaiRes.text();
-
-        if (!openaiRes.ok) {
-          console.error("OPENAI API ERROR:", rawText);
-          throw new Error("OpenAI request failed");
-        }
-
-        let parsedOuter: any;
-        try {
-          parsedOuter = JSON.parse(rawText);
-        } catch (e) {
-          console.error("OPENAI RAW NON-JSON:", rawText);
-          throw new Error("Invalid OpenAI outer JSON");
-        }
-
-        const content = parsedOuter?.choices?.[0]?.message?.content;
-
-        if (!content || typeof content !== "string") {
-          throw new Error("OpenAI content missing");
-        }
-
-        let parsedContent: any;
-        try {
-          parsedContent = JSON.parse(content);
-        } catch {
-          const cleaned = content
-            .replace(/^```json\s*/i, "")
-            .replace(/^```\s*/i, "")
-            .replace(/\s*```$/i, "")
-            .trim();
-
-          parsedContent = JSON.parse(cleaned);
-        }
-
-        analysis = {
-          transcript: safeString(parsedContent?.transcript, transcript),
-          summary: safeString(parsedContent?.summary),
-          hook: safeString(parsedContent?.hook),
-          structure: safeString(parsedContent?.structure),
-          angle: safeString(parsedContent?.angle),
-          psychology: safeArray(parsedContent?.psychology),
-          strengths: safeArray(parsedContent?.strengths),
-          weaknesses: safeArray(parsedContent?.weaknesses),
-          ideas: safeArray(parsedContent?.ideas),
-          similarHooks: safeArray(parsedContent?.similarHooks),
-          similarAngles: safeArray(parsedContent?.similarAngles),
-          recreationBrief: safeString(parsedContent?.recreationBrief),
-        };
-      } catch (error) {
-        console.error("ANALYZE_UPLOAD_OPENAI_FAIL:", error);
+          { status: 500 }
+        );
       }
     }
 
-    if (!analysis) {
-      analysis = buildFallbackAnalysis({
-        transcript,
-        platform,
-        product,
-        audience,
-        notes,
-        fileName: file.name || "fichier uploadé",
-      });
-    }
-
     return NextResponse.json({
-      transcript: analysis.transcript,
-      summary: analysis.summary,
-      hook: analysis.hook,
-      structure: analysis.structure,
-      angle: analysis.angle,
-      psychology: formatBulletList(analysis.psychology),
-      strengths: formatBulletList(analysis.strengths),
-      weaknesses: formatBulletList(analysis.weaknesses),
-      ideas: formatBulletList(analysis.ideas),
-      similarHooks: formatBulletList(analysis.similarHooks),
-      similarAngles: formatBulletList(analysis.similarAngles),
-      recreationBrief: analysis.recreationBrief,
+      transcript,
+      summary: toText(parsed?.summary),
+      hook: toText(parsed?.hook),
+      structure: toText(parsed?.structure),
+      angle: toText(parsed?.angle),
+      psychology: toBulletString(parsed?.psychology),
+      strengths: toBulletString(parsed?.strengths),
+      weaknesses: toBulletString(parsed?.weaknesses),
+      ideas: toBulletString(parsed?.ideas),
+      similarHooks: toBulletString(parsed?.similarHooks),
+      similarAngles: toBulletString(parsed?.similarAngles),
+      recreationBrief: toText(parsed?.recreationBrief),
     });
-  } catch (error) {
-    console.error("ANALYZE_UPLOAD_ROUTE_FATAL:", error);
+  } catch (error: any) {
+    console.error("ANALYZE_UPLOAD_FATAL:", error);
 
     return NextResponse.json(
       {
         error: "Erreur serveur pendant l’analyse du fichier.",
+        details: error?.message || "Erreur inconnue.",
       },
       { status: 500 }
     );

@@ -2,21 +2,21 @@
 
 import { useState } from "react";
 
-type AnalyzeResponse = {
-  summary?: string;
+type UploadApiResponse = {
+  error?: string;
+  details?: string;
   transcript?: string;
+  summary?: string;
   hook?: string;
   structure?: string;
   angle?: string;
-  psychology?: string[];
-  strengths?: string[];
-  weaknesses?: string[];
-  recreateIdeas?: string[];
-  similarHooks?: string[];
-  similarAngles?: string[];
-  scriptPrompt?: string;
-  error?: string;
-  details?: string;
+  psychology?: string;
+  strengths?: string;
+  weaknesses?: string;
+  ideas?: string;
+  similarHooks?: string;
+  similarAngles?: string;
+  recreationBrief?: string;
 };
 
 function cn(...v: (string | false | null | undefined)[]) {
@@ -38,21 +38,10 @@ function Block({
   );
 }
 
-function ListBlock({ items }: { items?: string[] }) {
-  if (!items || !items.length) {
-    return <div className="text-white/40">-</div>;
-  }
-
+function TextValue({ value }: { value?: string }) {
   return (
-    <div className="space-y-2">
-      {items.map((item, i) => (
-        <div
-          key={`${item}-${i}`}
-          className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/85"
-        >
-          • {item}
-        </div>
-      ))}
+    <div className="whitespace-pre-wrap text-sm text-white/85">
+      {typeof value === "string" && value.trim() ? value : "-"}
     </div>
   );
 }
@@ -62,18 +51,18 @@ export default function AnalyzeUploadPage() {
     "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-white/35 focus:border-violet-500";
 
   const [platform, setPlatform] = useState("TikTok");
-  const [offer, setOffer] = useState("");
+  const [product, setProduct] = useState("");
   const [audience, setAudience] = useState("");
-  const [extraNotes, setExtraNotes] = useState("");
+  const [notes, setNotes] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [result, setResult] = useState<AnalyzeResponse | null>(null);
+  const [result, setResult] = useState<UploadApiResponse | null>(null);
 
   async function onAnalyzeUpload() {
     if (!file) {
-      setError("Ajoute une vidéo ou un fichier audio.");
+      setError("Ajoute un fichier vidéo ou audio.");
       return;
     }
 
@@ -85,22 +74,50 @@ export default function AnalyzeUploadPage() {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("platform", platform);
-      formData.append("offer", offer);
+      formData.append("product", product);
       formData.append("audience", audience);
-      formData.append("extraNotes", extraNotes);
+      formData.append("notes", notes);
 
       const response = await fetch("/api/analyze-upload", {
         method: "POST",
         body: formData,
       });
 
-      const data: AnalyzeResponse = await response.json();
+      const text = await response.text();
+
+      let data: UploadApiResponse = {};
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(text || "Réponse serveur invalide");
+      }
 
       if (!response.ok) {
         throw new Error(data?.details || data?.error || "Analyse impossible");
       }
 
-      setResult(data);
+      setResult({
+        transcript:
+          typeof data?.transcript === "string" ? data.transcript : "-",
+        summary: typeof data?.summary === "string" ? data.summary : "-",
+        hook: typeof data?.hook === "string" ? data.hook : "-",
+        structure: typeof data?.structure === "string" ? data.structure : "-",
+        angle: typeof data?.angle === "string" ? data.angle : "-",
+        psychology:
+          typeof data?.psychology === "string" ? data.psychology : "-",
+        strengths: typeof data?.strengths === "string" ? data.strengths : "-",
+        weaknesses:
+          typeof data?.weaknesses === "string" ? data.weaknesses : "-",
+        ideas: typeof data?.ideas === "string" ? data.ideas : "-",
+        similarHooks:
+          typeof data?.similarHooks === "string" ? data.similarHooks : "-",
+        similarAngles:
+          typeof data?.similarAngles === "string" ? data.similarAngles : "-",
+        recreationBrief:
+          typeof data?.recreationBrief === "string"
+            ? data.recreationBrief
+            : "-",
+      });
     } catch (e: any) {
       setError(String(e?.message ?? e ?? "Erreur inconnue"));
     } finally {
@@ -116,8 +133,8 @@ export default function AnalyzeUploadPage() {
             Analyse vidéo upload — Ads / UGC
           </h1>
           <p className="text-white/60">
-            Uploade une vidéo ou un audio. L’app transcrit le contenu puis génère
-            une vraie analyse marketing.
+            Uploade une vidéo ou un audio. L’app transcrit le contenu puis
+            génère une vraie analyse marketing.
           </p>
         </div>
 
@@ -125,7 +142,7 @@ export default function AnalyzeUploadPage() {
           <Block title="Fichier vidéo / audio">
             <input
               type="file"
-              accept="video/*,audio/*,.mp3,.mp4,.m4a,.wav,.webm,.mpeg,.mpga"
+              accept="video/*,audio/*,.mp3,.mp4,.m4a,.wav,.webm,.mpeg,.mpga,.ogg,.mov"
               className={inputCls}
               onChange={(e) => setFile(e.target.files?.[0] || null)}
             />
@@ -148,8 +165,8 @@ export default function AnalyzeUploadPage() {
           <Block title="Produit / Offre (optionnel)">
             <input
               className={inputCls}
-              value={offer}
-              onChange={(e) => setOffer(e.target.value)}
+              value={product}
+              onChange={(e) => setProduct(e.target.value)}
               placeholder="Ex: Coque MagSafe iPhone"
             />
           </Block>
@@ -167,8 +184,8 @@ export default function AnalyzeUploadPage() {
         <Block title="Notes complémentaires (optionnel)">
           <textarea
             className={cn(inputCls, "min-h-[140px]")}
-            value={extraNotes}
-            onChange={(e) => setExtraNotes(e.target.value)}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
             placeholder="Tu peux ajouter ici le contexte, le type de vidéo, ou ce que tu veux analyser en priorité."
           />
         </Block>
@@ -183,7 +200,7 @@ export default function AnalyzeUploadPage() {
               : "bg-violet-600 hover:bg-violet-500"
           )}
         >
-          {loading ? "Transcription + analyse..." : "Analyser le fichier"}
+          {loading ? "Analyse en cours..." : "Analyser le fichier"}
         </button>
 
         {error && <div className="text-red-400">{error}</div>}
@@ -191,64 +208,52 @@ export default function AnalyzeUploadPage() {
         {result && (
           <div className="grid gap-6 md:grid-cols-2">
             <Block title="Transcript">
-              <div className="whitespace-pre-wrap text-sm text-white/85">
-                {result.transcript || "-"}
-              </div>
+              <TextValue value={result.transcript} />
             </Block>
 
             <Block title="Résumé">
-              <div className="whitespace-pre-wrap text-sm text-white/85">
-                {result.summary || "-"}
-              </div>
+              <TextValue value={result.summary} />
             </Block>
 
             <Block title="Hook">
-              <div className="whitespace-pre-wrap text-sm text-white/85">
-                {result.hook || "-"}
-              </div>
+              <TextValue value={result.hook} />
             </Block>
 
             <Block title="Structure">
-              <div className="whitespace-pre-wrap text-sm text-white/85">
-                {result.structure || "-"}
-              </div>
+              <TextValue value={result.structure} />
             </Block>
 
             <Block title="Angle">
-              <div className="whitespace-pre-wrap text-sm text-white/85">
-                {result.angle || "-"}
-              </div>
+              <TextValue value={result.angle} />
             </Block>
 
             <Block title="Psychologie">
-              <ListBlock items={result.psychology} />
+              <TextValue value={result.psychology} />
             </Block>
 
             <Block title="Points forts">
-              <ListBlock items={result.strengths} />
+              <TextValue value={result.strengths} />
             </Block>
 
             <Block title="Points faibles">
-              <ListBlock items={result.weaknesses} />
+              <TextValue value={result.weaknesses} />
             </Block>
 
             <Block title="Idées à reproduire">
-              <ListBlock items={result.recreateIdeas} />
+              <TextValue value={result.ideas} />
             </Block>
 
             <Block title="Hooks similaires">
-              <ListBlock items={result.similarHooks} />
+              <TextValue value={result.similarHooks} />
             </Block>
 
             <Block title="Angles similaires">
-              <ListBlock items={result.similarAngles} />
+              <TextValue value={result.similarAngles} />
             </Block>
 
             <div className="md:col-span-2">
               <Block title="Brief pour recréer une vidéo similaire">
-                <div className="whitespace-pre-wrap text-sm text-white/85">
-                  {result.scriptPrompt || "-"}
-                </div>
+                <TextValue value={result.recreationBrief} />
               </Block>
             </div>
           </div>

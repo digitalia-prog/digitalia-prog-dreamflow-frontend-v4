@@ -41,17 +41,39 @@ async function transcribeAudio(file: File) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  const audioFile = new File([buffer], file.name || "upload.mp4", {
+  const originalName = file.name || "upload";
+  const ext = originalName.includes(".")
+    ? originalName.split(".").pop()?.toLowerCase()
+    : "";
+
+  let safeName = originalName;
+
+  if (!ext) {
+    if (file.type.includes("mpeg")) safeName = "upload.mp3";
+    else if (file.type.includes("mp4")) safeName = "upload.mp4";
+    else if (file.type.includes("wav")) safeName = "upload.wav";
+    else if (file.type.includes("webm")) safeName = "upload.webm";
+    else if (file.type.includes("m4a")) safeName = "upload.m4a";
+    else safeName = "upload.mp3";
+  }
+
+  const audioFile = new File([buffer], safeName, {
     type: file.type || "application/octet-stream",
   });
 
-  const transcript = await openai.audio.transcriptions.create({
-    file: audioFile,
-    model: "whisper-1",
-    language: "fr",
-  });
+  try {
+    const transcript = await openai.audio.transcriptions.create({
+      file: audioFile,
+      model: "whisper-1",
+      language: "fr",
+    });
 
-  return transcript.text || "";
+    return transcript.text || "";
+  } catch (error: any) {
+    throw new Error(
+      "Le fichier audio/vidéo n’a pas pu être décodé. Essaie un fichier .mp3, .wav ou .m4a, ou réexporte ta vidéo en MP4 avec une piste audio AAC."
+    );
+  }
 }
 
 async function analyzeTranscript({

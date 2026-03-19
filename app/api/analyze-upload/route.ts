@@ -21,10 +21,12 @@ function toBullets(value: unknown, fallback: string[] = ["-"]): string[] {
   }
 
   if (typeof value === "string" && value.trim()) {
-    return value
+    const cleaned = value
       .split("\n")
       .map((line) => line.replace(/^[-•]\s*/, "").trim())
       .filter(Boolean);
+
+    return cleaned.length ? cleaned : fallback;
   }
 
   return fallback;
@@ -63,108 +65,73 @@ async function analyzeTranscript({
 }) {
   const completion = await openai.chat.completions.create({
     model: "gpt-4.1-mini",
-    temperature: 0.4,
-    response_format: {
-      type: "json_schema",
-      json_schema: {
-        name: "ugc_audio_analysis",
-        strict: true,
-        schema: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            summary: { type: "string" },
-            hook: { type: "string" },
-            structure: { type: "string" },
-            angle: { type: "string" },
-            psychology: {
-              type: "array",
-              items: { type: "string" },
-            },
-            strengths: {
-              type: "array",
-              items: { type: "string" },
-            },
-            weaknesses: {
-              type: "array",
-              items: { type: "string" },
-            },
-            recreateIdeas: {
-              type: "array",
-              items: { type: "string" },
-            },
-            similarHooks: {
-              type: "array",
-              items: { type: "string" },
-            },
-            similarAngles: {
-              type: "array",
-              items: { type: "string" },
-            },
-            scriptPrompt: { type: "string" },
-          },
-          required: [
-            "summary",
-            "hook",
-            "structure",
-            "angle",
-            "psychology",
-            "strengths",
-            "weaknesses",
-            "recreateIdeas",
-            "similarHooks",
-            "similarAngles",
-            "scriptPrompt",
-          ],
-        },
-      },
-    } as any,
+    temperature: 0.2,
     messages: [
       {
         role: "system",
         content: `
-Tu es un expert senior en analyse publicitaire UGC, ads créatives, hooks, structures vidéo courtes et psychologie de conversion.
+Tu es un expert senior en analyse de créatives UGC, publicités courtes, hooks, psychologie de conversion et structure de vidéos sociales.
 
-Tu reçois un transcript audio/vidéo.
-Tu dois faire une VRAIE analyse marketing du contenu.
+Ta mission :
+1. analyser le transcript réel
+2. produire une réponse ULTRA CONCRÈTE
+3. remplir TOUS les champs
+4. ne laisser AUCUN tableau vide
+5. éviter les phrases vagues
 
-Règles :
-- Réponds uniquement avec le JSON demandé.
-- N'invente pas des détails non présents.
-- Si un point est faible ou absent, dis-le clairement.
-- Sois concret, actionnable et orienté performance.
-- Les tableaux doivent toujours contenir au moins 3 éléments utiles si possible.
+Règles obligatoires :
+- Retourne UNIQUEMENT un JSON valide.
+- Aucune explication hors JSON.
+- Chaque tableau doit contenir exactement 3 éléments.
+- Si une information n'est pas très présente dans le transcript, déduis l'analyse marketing la plus crédible à partir du ton, du message et de la structure.
+- "hook" = la promesse ou l’accroche principale.
+- "structure" = déroulé du message.
+- "angle" = angle marketing principal.
+- "psychology" = leviers mentaux / émotionnels.
+- "strengths" = vrais points forts de la créa.
+- "weaknesses" = vraies faiblesses ou limites.
+- "recreateIdeas" = idées concrètes à refaire dans une prochaine vidéo.
+- "similarHooks" = 3 hooks alternatifs proches.
+- "similarAngles" = 3 angles marketing proches.
+- "scriptPrompt" = brief clair pour recréer une meilleure vidéo du même style.
+
+Format JSON exact :
+{
+  "summary": "string",
+  "hook": "string",
+  "structure": "string",
+  "angle": "string",
+  "psychology": ["string", "string", "string"],
+  "strengths": ["string", "string", "string"],
+  "weaknesses": ["string", "string", "string"],
+  "recreateIdeas": ["string", "string", "string"],
+  "similarHooks": ["string", "string", "string"],
+  "similarAngles": ["string", "string", "string"],
+  "scriptPrompt": "string"
+}
         `.trim(),
       },
       {
         role: "user",
         content: `
-Fichier : ${fileName}
-Plateforme : ${platform || "-"}
-Offre : ${offer || "-"}
-Audience : ${audience || "-"}
-Notes : ${extraNotes || "-"}
+Analyse cette vidéo/audio uploadée.
 
-Transcript :
+Fichier : ${fileName}
+Plateforme : ${platform}
+Offre : ${offer}
+Audience : ${audience}
+Notes complémentaires : ${extraNotes}
+
+Transcript réel :
 """
 ${transcript}
 """
 
-Analyse ce transcript comme une créa UGC / ads et retourne :
-- un résumé
-- le hook principal
-- la structure
-- l'angle
-- la psychologie utilisée
-- les points forts
-- les points faibles
-- les idées à reproduire
-- des hooks similaires
-- des angles similaires
-- un brief/scriptPrompt pour recréer une vidéo similaire mais meilleure
+Donne une vraie analyse marketing exploitable pour UGC / Ads / contenu court.
         `.trim(),
       },
     ],
+    response_format: { type: "json_object" },
   });
 
   const raw = completion.choices[0]?.message?.content || "{}";
@@ -226,34 +193,34 @@ export async function POST(req: NextRequest) {
       structure: toText(parsed?.structure),
       angle: toText(parsed?.angle),
       psychology: toBullets(parsed?.psychology, [
-        "Curiosité",
-        "Attention",
-        "Promesse implicite",
+        "Curiosité déclenchée par le ton ou l’accroche",
+        "Connexion émotionnelle avec le spectateur",
+        "Stimulation de l’attention par un message direct",
       ]),
       strengths: toBullets(parsed?.strengths, [
-        "Message clair",
-        "Base exploitable",
-        "Format compatible UGC",
+        "Message principal facile à comprendre",
+        "Base exploitable pour une créa UGC",
+        "Format adapté à du contenu court",
       ]),
       weaknesses: toBullets(parsed?.weaknesses, [
-        "Preuves à renforcer",
-        "Hook à optimiser",
-        "CTA à clarifier",
+        "Manque de preuve ou démonstration concrète",
+        "Promesse encore trop générale",
+        "CTA pas assez fort ou explicite",
       ]),
       recreateIdeas: toBullets(parsed?.recreateIdeas, [
-        "Raccourcir l’intro",
-        "Ajouter une preuve",
-        "Renforcer le CTA",
+        "Ajouter une preuve visuelle dès les premières secondes",
+        "Raccourcir l’introduction pour capter plus vite",
+        "Finir sur un CTA beaucoup plus clair",
       ]),
       similarHooks: toBullets(parsed?.similarHooks, [
-        "Stop scrolling",
-        "Tu fais peut-être cette erreur",
-        "Regarde ça avant d’acheter",
+        "Stop scrolling, regarde ça",
+        "Voilà pourquoi ce message capte l’attention",
+        "Tu dois voir ça avant de passer à côté",
       ]),
       similarAngles: toBullets(parsed?.similarAngles, [
-        "Problème / solution",
-        "Avant / après",
-        "Démo produit",
+        "Angle émotionnel centré sur la connexion",
+        "Angle curiosité avec promesse implicite",
+        "Angle démonstratif orienté engagement",
       ]),
       scriptPrompt: toText(parsed?.scriptPrompt),
     });

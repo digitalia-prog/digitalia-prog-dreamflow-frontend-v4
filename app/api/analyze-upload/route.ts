@@ -161,7 +161,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error: "Transcription vide",
-          details: "Le fichier a été reçu mais aucun texte exploitable n’a été extrait.",
+          details:
+            "Le fichier a été reçu mais aucun texte exploitable n’a été extrait.",
         },
         { status: 400 }
       );
@@ -223,5 +224,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
-// redeploy Jeu 19 mar 2026 22:08:37 CET
+

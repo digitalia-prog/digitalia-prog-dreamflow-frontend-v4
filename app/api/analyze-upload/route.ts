@@ -43,6 +43,7 @@ async function transcribeAudio(file: File) {
   const transcript = await openai.audio.transcriptions.create({
     file: audioFile,
     model: "gpt-4o-mini-transcribe",
+    language: "fr",
   });
 
   return transcript.text || "";
@@ -66,34 +67,21 @@ async function analyzeTranscript({
   const completion = await openai.chat.completions.create({
     model: "gpt-4.1-mini",
     temperature: 0.2,
+    response_format: { type: "json_object" },
     messages: [
       {
         role: "system",
         content: `
 Tu es un expert senior en analyse de créatives UGC, publicités courtes, hooks, psychologie de conversion et structure de vidéos sociales.
 
-Ta mission :
-1. analyser le transcript réel
-2. produire une réponse ULTRA CONCRÈTE
-3. remplir TOUS les champs
-4. ne laisser AUCUN tableau vide
-5. éviter les phrases vagues
+Tu dois analyser le transcript réel d'une vidéo/audio et produire une analyse marketing exploitable.
 
 Règles obligatoires :
 - Retourne UNIQUEMENT un JSON valide.
-- Aucune explication hors JSON.
+- Remplis TOUS les champs.
 - Chaque tableau doit contenir exactement 3 éléments.
-- Si une information n'est pas très présente dans le transcript, déduis l'analyse marketing la plus crédible à partir du ton, du message et de la structure.
-- "hook" = la promesse ou l’accroche principale.
-- "structure" = déroulé du message.
-- "angle" = angle marketing principal.
-- "psychology" = leviers mentaux / émotionnels.
-- "strengths" = vrais points forts de la créa.
-- "weaknesses" = vraies faiblesses ou limites.
-- "recreateIdeas" = idées concrètes à refaire dans une prochaine vidéo.
-- "similarHooks" = 3 hooks alternatifs proches.
-- "similarAngles" = 3 angles marketing proches.
-- "scriptPrompt" = brief clair pour recréer une meilleure vidéo du même style.
+- Sois concret, précis, orienté performance.
+- N'écris aucune explication hors JSON.
 
 Format JSON exact :
 {
@@ -127,11 +115,10 @@ Transcript réel :
 ${transcript}
 """
 
-Donne une vraie analyse marketing exploitable pour UGC / Ads / contenu court.
+Fais une vraie analyse marketing UGC / Ads / contenu court.
         `.trim(),
       },
     ],
-    response_format: { type: "json_object" },
   });
 
   const raw = completion.choices[0]?.message?.content || "{}";
@@ -193,29 +180,29 @@ export async function POST(req: NextRequest) {
       structure: toText(parsed?.structure),
       angle: toText(parsed?.angle),
       psychology: toBullets(parsed?.psychology, [
-        "Curiosité déclenchée par le ton ou l’accroche",
-        "Connexion émotionnelle avec le spectateur",
-        "Stimulation de l’attention par un message direct",
+        "Curiosité déclenchée par le message",
+        "Connexion émotionnelle avec l’audience",
+        "Attention captée par le ton et l’intention",
       ]),
       strengths: toBullets(parsed?.strengths, [
-        "Message principal facile à comprendre",
+        "Message principal compréhensible",
         "Base exploitable pour une créa UGC",
-        "Format adapté à du contenu court",
+        "Format compatible avec du contenu court",
       ]),
       weaknesses: toBullets(parsed?.weaknesses, [
-        "Manque de preuve ou démonstration concrète",
-        "Promesse encore trop générale",
-        "CTA pas assez fort ou explicite",
+        "Preuve ou démonstration insuffisante",
+        "Promesse trop générale",
+        "CTA pas assez explicite",
       ]),
       recreateIdeas: toBullets(parsed?.recreateIdeas, [
-        "Ajouter une preuve visuelle dès les premières secondes",
-        "Raccourcir l’introduction pour capter plus vite",
-        "Finir sur un CTA beaucoup plus clair",
+        "Ajouter une preuve visuelle plus tôt",
+        "Raccourcir l’intro pour accrocher plus vite",
+        "Terminer sur un CTA beaucoup plus direct",
       ]),
       similarHooks: toBullets(parsed?.similarHooks, [
         "Stop scrolling, regarde ça",
-        "Voilà pourquoi ce message capte l’attention",
         "Tu dois voir ça avant de passer à côté",
+        "Voilà pourquoi ce message capte l’attention",
       ]),
       similarAngles: toBullets(parsed?.similarAngles, [
         "Angle émotionnel centré sur la connexion",

@@ -12,24 +12,29 @@ function toText(value: unknown, fallback = "-"): string {
   return fallback;
 }
 
-function toBullets(value: unknown, fallback: string[] = ["-"]): string[] {
+function ensureThree(value: unknown, fallback: string[]): string[] {
+  let arr: string[] = [];
+
   if (Array.isArray(value)) {
-    const cleaned = value
+    arr = value
       .map((item) => (typeof item === "string" ? item.trim() : ""))
       .filter(Boolean);
-    return cleaned.length ? cleaned : fallback;
-  }
-
-  if (typeof value === "string" && value.trim()) {
-    const cleaned = value
+  } else if (typeof value === "string" && value.trim()) {
+    arr = value
       .split("\n")
       .map((line) => line.replace(/^[-•]\s*/, "").trim())
       .filter(Boolean);
-
-    return cleaned.length ? cleaned : fallback;
   }
 
-  return fallback;
+  if (arr.length >= 3) return arr.slice(0, 3);
+
+  const merged = [...arr];
+  for (const item of fallback) {
+    if (merged.length >= 3) break;
+    merged.push(item);
+  }
+
+  return merged.slice(0, 3);
 }
 
 async function transcribeAudio(file: File) {
@@ -72,18 +77,17 @@ async function analyzeTranscript({
       {
         role: "system",
         content: `
-Tu es un expert senior en analyse de créatives UGC, publicités courtes, hooks, psychologie de conversion et structure de vidéos sociales.
+Tu es un expert senior en analyse de vidéos UGC / Ads.
 
-Tu dois analyser le transcript réel d'une vidéo/audio et produire une analyse marketing exploitable.
+Tu dois analyser un transcript réel et répondre UNIQUEMENT en JSON.
 
-Règles obligatoires :
-- Retourne UNIQUEMENT un JSON valide.
-- Remplis TOUS les champs.
-- Chaque tableau doit contenir exactement 3 éléments.
-- Sois concret, précis, orienté performance.
-- N'écris aucune explication hors JSON.
+IMPORTANT :
+- Tu dois toujours remplir tous les champs.
+- Tous les tableaux doivent contenir exactement 3 éléments.
+- Sois concret, précis, actionnable.
+- N'écris rien hors JSON.
 
-Format JSON exact :
+Format exact :
 {
   "summary": "string",
   "hook": "string",
@@ -102,20 +106,16 @@ Format JSON exact :
       {
         role: "user",
         content: `
-Analyse cette vidéo/audio uploadée.
-
 Fichier : ${fileName}
 Plateforme : ${platform}
 Offre : ${offer}
 Audience : ${audience}
-Notes complémentaires : ${extraNotes}
+Notes : ${extraNotes}
 
-Transcript réel :
+Transcript :
 """
 ${transcript}
 """
-
-Fais une vraie analyse marketing UGC / Ads / contenu court.
         `.trim(),
       },
     ],
@@ -179,35 +179,35 @@ export async function POST(req: NextRequest) {
       hook: toText(parsed?.hook),
       structure: toText(parsed?.structure),
       angle: toText(parsed?.angle),
-      psychology: toBullets(parsed?.psychology, [
-        "Curiosité déclenchée par le message",
+      psychology: ensureThree(parsed?.psychology, [
+        "Curiosité déclenchée par le message d’ouverture",
         "Connexion émotionnelle avec l’audience",
-        "Attention captée par le ton et l’intention",
+        "Atmosphère positive qui favorise l’attention",
       ]),
-      strengths: toBullets(parsed?.strengths, [
-        "Message principal compréhensible",
-        "Base exploitable pour une créa UGC",
-        "Format compatible avec du contenu court",
+      strengths: ensureThree(parsed?.strengths, [
+        "Ambiance claire et positive",
+        "Message simple à comprendre",
+        "Format exploitable pour une créa courte",
       ]),
-      weaknesses: toBullets(parsed?.weaknesses, [
-        "Preuve ou démonstration insuffisante",
-        "Promesse trop générale",
-        "CTA pas assez explicite",
+      weaknesses: ensureThree(parsed?.weaknesses, [
+        "Pas de produit clairement mis en avant",
+        "CTA peu explicite",
+        "Preuve ou bénéfice concret insuffisant",
       ]),
-      recreateIdeas: toBullets(parsed?.recreateIdeas, [
-        "Ajouter une preuve visuelle plus tôt",
-        "Raccourcir l’intro pour accrocher plus vite",
-        "Terminer sur un CTA beaucoup plus direct",
+      recreateIdeas: ensureThree(parsed?.recreateIdeas, [
+        "Ajouter une preuve visuelle dès les 3 premières secondes",
+        "Rendre le message plus orienté bénéfice utilisateur",
+        "Finir avec un CTA beaucoup plus clair",
       ]),
-      similarHooks: toBullets(parsed?.similarHooks, [
+      similarHooks: ensureThree(parsed?.similarHooks, [
         "Stop scrolling, regarde ça",
         "Tu dois voir ça avant de passer à côté",
-        "Voilà pourquoi ce message capte l’attention",
+        "Voici pourquoi cette vidéo capte l’attention",
       ]),
-      similarAngles: toBullets(parsed?.similarAngles, [
-        "Angle émotionnel centré sur la connexion",
-        "Angle curiosité avec promesse implicite",
-        "Angle démonstratif orienté engagement",
+      similarAngles: ensureThree(parsed?.similarAngles, [
+        "Angle émotionnel centré sur l’inclusion",
+        "Angle curiosité avec ambiance positive",
+        "Angle engagement communautaire",
       ]),
       scriptPrompt: toText(parsed?.scriptPrompt),
     });
@@ -221,3 +221,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+=

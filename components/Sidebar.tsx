@@ -15,6 +15,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Campagnes", href: "/dashboard/agency" },
   { label: "Créateurs", href: "/dashboard/creator" },
   { label: "Générateur d'IA", href: "/dashboard/ai" },
+  { label: "Analyse vidéo", href: "/dashboard/analyze-upload" },
   { label: "Paramètres", href: "/dashboard/settings" },
 ];
 
@@ -63,4 +64,3 @@ export default function Sidebar() {
       </div>
     </aside>
   );
-}

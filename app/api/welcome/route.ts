@@ -1,14 +1,24 @@
 import { NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json();
+    const body = await req.json().catch(() => null);
+    const email =
+      typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
+
+    if (!email || !email.includes("@")) {
+      return NextResponse.json(
+        { ok: false, error: "Email invalide." },
+        { status: 400 }
+      );
+    }
 
     const key = process.env.RESEND_API_KEY;
-
     const from =
       process.env.WELCOME_EMAIL_FROM ||
-      "UGC Growth <onboarding@resen.dev>";
+      "UGC Growth <agency@ugcgrowth.io>";
 
     if (!key) {
       return NextResponse.json(
@@ -28,28 +38,29 @@ export async function POST(req: Request) {
         to: email,
         subject: "Bienvenue dans la bêta UGC Growth 🚀",
         html: `
-        <h2>Bienvenue dans la bêta UGC Growth</h2>
-        <p>Merci d'avoir rejoint la plateforme.</p>
-        <p>Tu peux maintenant tester le Script Engine.</p>
-        <p>Envoie ton feedback directement depuis l'app.</p>
-        <br/>
-        <strong>L'équipe UGC Growth</strong>
+          <h2>Bienvenue dans la bêta UGC Growth</h2>
+          <p>Merci d'avoir rejoint la plateforme.</p>
+          <p>Tu peux maintenant tester le Script Engine.</p>
+          <p>Envoie ton feedback directement depuis l'app.</p>
+          <br/>
+          <strong>L'équipe UGC Growth</strong>
         `,
       }),
     });
 
+    const raw = await res.text().catch(() => "");
+
     if (!res.ok) {
-      const err = await res.text().catch(() => "");
       return NextResponse.json(
-        { ok: false, error: err },
-        { status: 500 }
+        { ok: false, error: raw || "Erreur Resend" },
+        { status: res.status }
       );
     }
 
     return NextResponse.json({ ok: true });
   } catch (e: any) {
     return NextResponse.json(
-      { ok: false, error: e.message || "server error" },
+      { ok: false, error: e?.message || "server error" },
       { status: 500 }
     );
   }

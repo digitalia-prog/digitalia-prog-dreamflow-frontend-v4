@@ -101,12 +101,8 @@ const dict: Dict = {
     navFeedback: "Feedback",
     navTerms: "CGU",
 
-    premiumTitle: "Ce qui rend une publicité forte",
-    premiumSubtitle:
-      "Les meilleures créatives combinent structure, émotion et positionnement.",
-
     badge: "Bêta — 7 jours gratuits pour tester le Script Engine et l’analyse publicitaire",
-    heroTitle: "Analyse les pubs qui marchent. Génère les tiennes en quelques secondes.",
+    heroTitle: "Analyse les pubs qui marchent. Génère des scripts performants en quelques secondes.",
     heroSubtitle:
       "UGC Growth aide les créateurs, agences et marques à analyser des publicités performantes, extraire les hooks gagnants et générer des scripts publicitaires prêts à tester.",
 
@@ -172,6 +168,9 @@ const dict: Dict = {
     whoC: "Marques e-commerce (briefs + validation + organisation)",
     whoD: "Teams social media (process & qualité)",
 
+    premiumTitle: "Ce qui rend une publicité forte",
+    premiumSubtitle:
+      "Les meilleures créatives combinent structure, émotion et positionnement.",
     premiumA: "Hooks psychologiques",
     premiumB: "Émotions et désir",
     premiumC: "Positionnement et branding",
@@ -202,36 +201,40 @@ const dict: Dict = {
     navTerms: "Terms",
 
     badge: "Beta — 7 days free for testing (anti-abuse limits)",
-    heroTitle: "The UGC dashboard that generates and organizes.",
+    heroTitle: "Analyze winning ads. Generate high-performing scripts in seconds.",
     heroSubtitle:
-      "Centralize campaigns, creators, briefs, and use the Script Engine (Viral / HAK) to produce structured scripts fast — without a “fake site”.",
+      "UGC Growth helps creators, agencies and brands analyze winning ads, extract strong hooks and generate ad scripts ready to test.",
 
     ctaDashboard: "Open dashboard",
     ctaOffers: "See offers",
     ctaTerms: "Terms",
 
-    featuresTitle: "Key features",
-    featuresSubtitle: "Goal: a clean demo that works — not an “empty MVP”.",
+    featuresTitle: "What the platform actually does",
+    featuresSubtitle:
+      "Ad analysis, script generation and UGC organization in one workflow.",
 
-    f1Title: "Structured, actionable scripts",
+    f1Title: "Ad analysis",
     f1Desc:
-      "Readable output (HOOK / STORY / PROBLEM / SOLUTION / PROOF / CTA), ready to post.",
-    f2Title: "Viral mode + HAK",
-    f2Desc: "Add a “hack / twist / viral angle” without rewriting everything.",
-    f3Title: "UGC organization",
-    f3Desc: "Campaigns, creators, assets, publishing: a clean base.",
-    f4Title: "Autosave",
-    f4Desc: "Fill 2–3 fields, generate, and everything stays saved.",
-    f5Title: "Smart anti-abuse",
+      "Upload audio and detect the hook, structure, angle and ideas worth reproducing.",
+    f2Title: "Script Engine",
+    f2Desc:
+      "Generate hooks, scripts, CTAs and structures ready to record.",
+    f3Title: "Hooks & marketing angles",
+    f3Desc:
+      "Find what to say, how to say it and which angle to test faster.",
+    f4Title: "Agency / creator organization",
+    f4Desc:
+      "Centralize briefs, campaigns, creators and content in one clean space.",
+    f5Title: "Simple beta access",
     f5Desc:
-      "Simple limits to keep the beta stable (no need to explain the tech).",
+      "7 free days to test the product before full rollout.",
     f6Title: "Multi-language",
     f6Desc:
       "FR / EN / AR / ES / 中文 — ready for international teams.",
 
-    pricingTitle: "Pricing (beta)",
+    pricingTitle: "Beta offers",
     pricingSubtitle:
-      "In beta: we test with agencies & creators, 7 days free + anti-abuse limits. Then subscription.",
+      "Start free, then move to a plan built for your creative production volume.",
 
     planBetaTitle: "Beta test",
     planBetaPrice: "€0 / 7 days",
@@ -264,11 +267,12 @@ const dict: Dict = {
     whoC: "E-commerce brands (briefs + validation + organization)",
     whoD: "Social media teams (process & quality)",
 
-    premiumTitle: "Premium — when it gets serious",
-    premiumSubtitle: "When your outputs become truly:",
-    premiumA: "Psychological",
-    premiumB: "Emotional",
-    premiumC: "Branding-driven (tone + promise + differentiation)",
+    premiumTitle: "What makes a strong ad",
+    premiumSubtitle:
+      "The best creatives combine structure, emotion and positioning.",
+    premiumA: "Psychological hooks",
+    premiumB: "Emotion and desire",
+    premiumC: "Positioning and branding",
 
     faqTitle: "FAQ",
     faqQ1: "Is the beta free?",
@@ -276,7 +280,7 @@ const dict: Dict = {
       "Yes: 7 days with anti-abuse limits to keep the experience stable.",
     faqQ2: "Do I need to explain how it works?",
     faqA2:
-      "No. Sell outcomes: scripts + organization. Technical details aren’t needed.",
+      "No. Sell outcomes: ad analysis, scripts and organization. Technical details aren’t needed.",
     faqQ3: "Can I request a feature?",
     faqA3: "Yes. Beta feedback is priority: we iterate fast.",
 
@@ -295,35 +299,39 @@ const dict: Dict = {
     navTerms: "الشروط",
 
     badge: "بيتا — 7 أيام مجانًا للتجربة (قيود ضد الإساءة)",
-    heroTitle: "لوحة UGC التي تُولِّد وتُنظِّم.",
+    heroTitle: "حلّل الإعلانات التي تنجح. وأنشئ سكربتات قوية خلال ثوانٍ.",
     heroSubtitle:
-      "اجمع الحملات وصنّاع المحتوى والـ briefs، واستخدم Script Engine (Viral / HAK) لإنتاج سكربتات منظمة بسرعة — بدون “موقع وهمي” .",
+      "يساعد UGC Growth المبدعين والوكالات والعلامات التجارية على تحليل الإعلانات الناجحة، استخراج الهوكات القوية، وإنشاء سكربتات إعلانية جاهزة للاختبار.",
 
     ctaDashboard: "الدخول للوحة التحكم",
     ctaOffers: "عرض الباقات",
     ctaTerms: "الشروط",
 
-    featuresTitle: "الميزات الأساسية",
-    featuresSubtitle: "هدفنا: ديمو نظيف يعمل — ليس “MVP فارغ”.",
+    featuresTitle: "ماذا تفعل المنصة فعليًا",
+    featuresSubtitle:
+      "تحليل الإعلانات، توليد السكربتات، وتنظيم إنتاج UGC في نفس المكان.",
 
-    f1Title: "سكربتات منظمة وقابلة للتطبيق",
+    f1Title: "تحليل الإعلانات",
     f1Desc:
-      "مخرجات واضحة (HOOK / STORY / PROBLEM / SOLUTION / PROOF / CTA) جاهزة للنشر.",
-    f2Title: "Viral + HAK",
-    f2Desc: "أضف “twist / hack” بدون إعادة كتابة كل شيء.",
-    f3Title: "تنظيم UGC",
-    f3Desc: "حملات، صنّاع، ملفات، نشر: قاعدة مرتبة.",
-    f4Title: "حفظ تلقائي",
-    f4Desc: "املأ 2–3 حقول، ولِّد، وكل شيء محفوظ.",
-    f5Title: "مكافحة الإساءة",
+      "ارفع ملفًا صوتيًا واكتشف الهوك والبنية والزاوية والأفكار التي تستحق إعادة الاستخدام.",
+    f2Title: "Script Engine",
+    f2Desc:
+      "أنشئ هوكات وسكربتات وCTA وبُنى جاهزة للتصوير بسرعة.",
+    f3Title: "هوكات وزوايا تسويقية",
+    f3Desc:
+      "اعرف ماذا تقول، وكيف تقوله، وتحت أي زاوية تختبره أسرع.",
+    f4Title: "تنظيم الوكالة / المبدع",
+    f4Desc:
+      "نظّم الـ briefs والحملات والمبدعين والمحتوى في مساحة واحدة مرتبة.",
+    f5Title: "بيتا سهلة للتجربة",
     f5Desc:
-      "قيود بسيطة للحفاظ على استقرار البيتا (لا حاجة لشرح التقنية).",
+      "7 أيام مجانية لاختبار قيمة المنتج قبل الإطلاق الكامل.",
     f6Title: "تعدد اللغات",
-    f6Desc: "FR / EN / AR / ES / 中文 — جاهز للعالم.",
+    f6Desc: "FR / EN / AR / ES / 中文 — مناسب للفرق والعملاء الدوليين.",
 
-    pricingTitle: "الأسعار (بيتا)",
+    pricingTitle: "عروض البيتا",
     pricingSubtitle:
-      "في البيتا: 7 أيام مجانية + قيود ضد الإساءة. بعد ذلك اشتراك.",
+      "ابدأ مجانًا ثم انتقل إلى خطة تناسب حجم إنتاجك الإبداعي.",
 
     planBetaTitle: "تجربة البيتا",
     planBetaPrice: "0€ / 7 أيام",
@@ -356,18 +364,20 @@ const dict: Dict = {
     whoC: "متاجر إلكترونية (briefs + مراجعة + تنظيم)",
     whoD: "فرق السوشيال ميديا (جودة + نظام)",
 
-    premiumTitle: "Premium — عندما يصبح الموضوع جديًا",
-    premiumSubtitle: "عندما تصبح المخرجات فعلًا:",
-    premiumA: "نفسية",
-    premiumB: "عاطفية",
-    premiumC: "مرتبطة بالبراند (نبرة + وعد + تميّز)",
+    premiumTitle: "ما الذي يجعل الإعلان قويًا",
+    premiumSubtitle:
+      "أفضل الإبداعات تجمع بين البنية، العاطفة، والتموضع.",
+    premiumA: "هوكات نفسية",
+    premiumB: "العاطفة والرغبة",
+    premiumC: "التموضع والبراند",
 
     faqTitle: "الأسئلة الشائعة",
     faqQ1: "هل البيتا مجانية؟",
     faqA1:
       "نعم: 7 أيام مع قيود ضد الإساءة للحفاظ على الاستقرار.",
     faqQ2: "هل أشرح كيف تعمل؟",
-    faqA2: "لا. بيع النتيجة: سكربتات + تنظيم.",
+    faqA2:
+      "لا. بع النتيجة: تحليل الإعلانات، السكربتات، والتنظيم.",
     faqQ3: "هل أستطيع طلب ميزة؟",
     faqA3: "نعم. ملاحظات البيتا أولوية: نطوّر بسرعة.",
 
@@ -386,39 +396,40 @@ const dict: Dict = {
     navTerms: "Términos",
 
     badge: "Beta — 7 días gratis para pruebas (límites anti-abuso)",
-    heroTitle: "El dashboard UGC que genera y organiza.",
+    heroTitle: "Analiza los anuncios que funcionan. Genera scripts potentes en segundos.",
     heroSubtitle:
-      "Centraliza campañas, creadores, briefs, y usa el Script Engine (Viral / HAK) para crear guiones estructurados rápido — sin “sitio falso” .",
+      "UGC Growth ayuda a creadores, agencias y marcas a analizar anuncios ganadores, extraer hooks potentes y generar scripts publicitarios listos para probar.",
 
     ctaDashboard: "Entrar al dashboard",
     ctaOffers: "Ver ofertas",
     ctaTerms: "Términos",
 
-    featuresTitle: "Funciones clave",
+    featuresTitle: "Lo que hace realmente la plataforma",
     featuresSubtitle:
-      "Objetivo: una demo clara que funciona — no un “MVP vacío”.",
+      "Análisis publicitario, generación de scripts y organización UGC en un solo flujo.",
 
-    f1Title: "Guiones estructurados y accionables",
+    f1Title: "Análisis publicitario",
     f1Desc:
-      "Salida legible (HOOK / STORY / PROBLEMA / SOLUCIÓN / PRUEBA / CTA), lista para publicar.",
-    f2Title: "Modo Viral + HAK",
+      "Sube audio y detecta el hook, la estructura, el ángulo y las ideas a reproducir.",
+    f2Title: "Script Engine",
     f2Desc:
-      "Añade un “hack / giro / ángulo viral” sin reescribir todo.",
-    f3Title: "Organización UGC",
+      "Genera hooks, scripts, CTA y estructuras listas para grabar.",
+    f3Title: "Hooks y ángulos de marketing",
     f3Desc:
-      "Campañas, creadores, assets, publicación: base limpia.",
-    f4Title: "Autosave",
-    f4Desc: "Rellenas 2–3 campos, generas y queda guardado.",
-    f5Title: "Anti-abuso inteligente",
+      "Encuentra más rápido qué decir, cómo decirlo y qué ángulo probar.",
+    f4Title: "Organización agencia / creador",
+    f4Desc:
+      "Centraliza briefs, campañas, creadores y contenido en un espacio limpio.",
+    f5Title: "Beta simple de probar",
     f5Desc:
-      "Límites simples para mantener la beta estable (sin explicar la tecnología).",
+      "7 días gratis para probar el valor del producto antes del despliegue completo.",
     f6Title: "Multi-idioma",
     f6Desc:
-      "FR / EN / AR / ES / 中文 — listo para internacional.",
+      "FR / EN / AR / ES / 中文 — útil para equipos y clientes internacionales.",
 
-    pricingTitle: "Precio (beta)",
+    pricingTitle: "Ofertas beta",
     pricingSubtitle:
-      "En beta: 7 días gratis + límites anti-abuso. Luego suscripción.",
+      "Empieza gratis y luego pasa a un plan adaptado a tu volumen creativo.",
 
     planBetaTitle: "Test beta",
     planBetaPrice: "0€ / 7 días",
@@ -451,18 +462,20 @@ const dict: Dict = {
     whoC: "Marcas e-commerce (briefs + validación + organización)",
     whoD: "Equipos social media (proceso + calidad)",
 
-    premiumTitle: "Premium — cuando se pone serio",
-    premiumSubtitle: "Cuando tus outputs son realmente:",
-    premiumA: "Psicológicos",
-    premiumB: "Emocionales",
-    premiumC: "Branding (tono + promesa + diferenciación)",
+    premiumTitle: "Qué hace fuerte a un anuncio",
+    premiumSubtitle:
+      "Las mejores creatividades combinan estructura, emoción y posicionamiento.",
+    premiumA: "Hooks psicológicos",
+    premiumB: "Emoción y deseo",
+    premiumC: "Posicionamiento y branding",
 
     faqTitle: "FAQ",
     faqQ1: "¿La beta es gratis?",
     faqA1:
       "Sí: 7 días con límites anti-abuso para mantener estabilidad.",
     faqQ2: "¿Debo explicar cómo funciona?",
-    faqA2: "No. Vendes resultado: guiones + organización.",
+    faqA2:
+      "No. Vendes resultado: análisis publicitario, guiones y organización.",
     faqQ3: "¿Puedo pedir una función?",
     faqA3: "Sí. Feedback prioritario en beta: iteramos rápido.",
 
@@ -481,37 +494,40 @@ const dict: Dict = {
     navTerms: "条款",
 
     badge: "测试版 — 免费 7 天（防滥用限制）",
-    heroTitle: "能生成、能组织的 UGC 仪表盘。",
+    heroTitle: "分析有效广告。几秒内生成高表现脚本。",
     heroSubtitle:
-      "集中管理活动、创作者与需求说明，使用 Script Engine（Viral / HAK）快速生成结构化脚本——不需要“假网站”。",
+      "UGC Growth 帮助创作者、机构和品牌分析有效广告，提取强势 hooks，并生成可直接测试的广告脚本。",
 
     ctaDashboard: "进入仪表盘",
     ctaOffers: "查看套餐",
     ctaTerms: "条款",
 
-    featuresTitle: "核心功能",
-    featuresSubtitle: "目标：一个干净、可用的演示，不是“空 MVP”。",
+    featuresTitle: "平台真正能做什么",
+    featuresSubtitle:
+      "广告分析、脚本生成和 UGC 组织管理，集中在一个工作流中。",
 
-    f1Title: "结构化、可执行脚本",
+    f1Title: "广告分析",
     f1Desc:
-      "清晰输出（HOOK / STORY / PROBLEM / SOLUTION / PROOF / CTA），可直接发布。",
-    f2Title: "Viral + HAK",
+      "上传音频，识别 hook、结构、角度以及值得复用的创意。",
+    f2Title: "Script Engine",
     f2Desc:
-      "无需重写即可添加“hack / twist / viral angle”。",
-    f3Title: "UGC 组织管理",
+      "快速生成可直接拍摄的 hooks、scripts、CTA 和结构。",
+    f3Title: "Hooks 与营销角度",
     f3Desc:
-      "活动、创作者、素材、发布：一套清爽底座。",
-    f4Title: "自动保存",
-    f4Desc: "填 2–3 个字段即可生成并自动保存。",
-    f5Title: "防滥用机制",
+      "更快找到该说什么、怎么说、以及测试哪个角度。",
+    f4Title: "机构 / 创作者组织",
+    f4Desc:
+      "把 briefs、campaigns、creators 和内容放进一个干净空间里。",
+    f5Title: "简单易测的测试版",
     f5Desc:
-      "简单限制保证测试版稳定（无需解释技术细节）。",
+      "免费 7 天测试产品价值，再决定是否全面使用。",
     f6Title: "多语言",
     f6Desc:
-      "FR / EN / AR / ES / 中文 — 面向全球团队。",
+      "FR / EN / AR / ES / 中文 — 适合国际团队和客户。",
 
-    pricingTitle: "价格（测试版）",
-    pricingSubtitle: "测试版：免费 7 天 + 防滥用限制。之后订阅。",
+    pricingTitle: "测试版方案",
+    pricingSubtitle:
+      "先免费开始，再升级到适合你创意产能的方案。",
 
     planBetaTitle: "测试体验",
     planBetaPrice: "€0 / 7 天",
@@ -544,18 +560,20 @@ const dict: Dict = {
     whoC: "电商品牌（需求说明 + 审核 + 组织）",
     whoD: "社媒团队（流程 + 质量）",
 
-    premiumTitle: "Premium — 当你要开始扩张",
-    premiumSubtitle: "当输出变得真正：",
-    premiumA: "更具心理驱动",
-    premiumB: "更具情绪张力",
-    premiumC: "更强品牌感（语气 + 承诺 + 差异化）",
+    premiumTitle: "什么让广告更强",
+    premiumSubtitle:
+      "最好的创意结合了结构、情绪和定位。",
+    premiumA: "心理型 hooks",
+    premiumB: "情绪与欲望",
+    premiumC: "定位与品牌感",
 
     faqTitle: "常见问题",
     faqQ1: "测试版免费吗？",
     faqA1:
       "是的：免费 7 天并带防滥用限制，保证稳定体验。",
     faqQ2: "需要解释怎么实现的吗？",
-    faqA2: "不需要。你卖的是结果：脚本 + 组织管理。",
+    faqA2:
+      "不需要。你卖的是结果：广告分析、脚本和组织管理。",
     faqQ3: "可以提需求吗？",
     faqA3: "可以。测试版优先处理反馈，迭代很快。",
 
@@ -789,7 +807,7 @@ export default function Landing() {
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
               <div className="font-semibold">Analyse des pubs qui performent</div>
               <div className="mt-2 text-sm text-white/70">
-                Uploade un audio, détecte le hook, la structure, l’angle marketing et les idées à reproduire.
+                Upload un audio, détecte ce qui fonctionne et génère des scripts prêts à tester.
               </div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">

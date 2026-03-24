@@ -101,36 +101,45 @@ const dict: Dict = {
     navFeedback: "Feedback",
     navTerms: "CGU",
 
-    premiumTitle: "",
-    premiumSubtitle: "",
+    premiumTitle: "Ce qui rend une publicité forte",
+    premiumSubtitle:
+      "Les meilleures créatives combinent structure, émotion et positionnement.",
 
-    badge: "Bêta — 7 jours gratuit pour tests (restrictions anti-abus)",
-    heroTitle: "Le dashboard UGC qui génère et organise.",
+    badge: "Bêta — 7 jours gratuits pour tester le Script Engine et l’analyse publicitaire",
+    heroTitle: "Analyse les pubs qui marchent. Génère les tiennes en quelques secondes.",
     heroSubtitle:
-      "Centralise campagnes, créateurs, briefs, et utilise le Script Engine IA (Viral / HAK) pour produire des scripts structurés rapidement.",
+      "UGC Growth aide les créateurs, agences et marques à analyser des publicités performantes, extraire les hooks gagnants et générer des scripts publicitaires prêts à tester.",
 
     ctaDashboard: "Accéder au dashboard",
     ctaOffers: "Voir les offres",
     ctaTerms: "Conditions (CGU)",
 
-    featuresTitle: "Fonctionnalités clés",
-    featuresSubtitle: "Une démo simple et claire du dashboard UGC.",
+    featuresTitle: "Ce que la plateforme fait concrètement",
+    featuresSubtitle:
+      "Analyse publicitaire, génération de scripts et organisation UGC dans un seul workflow.",
 
-    f1Title: "Scripts structurés & actionnables",
-    f1Desc: "Output lisible (HOOK / STORY / PROBLÈME / SOLUTION / PREUVE / CTA), prêt à poster.",
-    f2Title: "Viral mode + HAK",
-    f2Desc: "Ajoute un “hack / twist / angle viral” sans tout réécrire.",
-    f3Title: "Organisation UGC",
-    f3Desc: "Campagnes, créateurs, assets, publication : une base clean.",
-    f4Title: "Autosave",
-    f4Desc: "Tu remplis 2–3 champs, tu génères, et tout reste sauvegardé.",
-    f5Title: "Anti-abus intelligent",
-    f5Desc: "Restrictions simples pour garder une bêta stable (pas besoin d’expliquer la techno).",
+    f1Title: "Analyse publicitaire",
+    f1Desc:
+      "Uploade un audio et détecte le hook, la structure, l’angle et les idées à reproduire.",
+    f2Title: "Script Engine",
+    f2Desc:
+      "Génère rapidement des hooks, scripts, CTA et structures prêtes à tourner.",
+    f3Title: "Hooks & angles marketing",
+    f3Desc:
+      "Trouve plus vite quoi dire, comment le dire et sous quel angle le tester.",
+    f4Title: "Organisation agence / créateur",
+    f4Desc:
+      "Centralise briefs, campagnes, créateurs et contenus dans un espace propre.",
+    f5Title: "Bêta simple à tester",
+    f5Desc:
+      "7 jours gratuits pour tester la valeur du produit avant déploiement complet.",
     f6Title: "Multi-langue",
-    f6Desc: "FR / EN / AR / ES / 中文 — prêt pour agences & créateurs internationaux.",
+    f6Desc:
+      "FR / EN / AR / ES / 中文 — pratique pour les équipes et clients internationaux.",
 
-    pricingTitle: "Prix (bêta)",
-    pricingSubtitle: "",
+    pricingTitle: "Offres bêta",
+    pricingSubtitle:
+      "Commence gratuitement, puis passe sur un plan conçu pour ton volume de production créative.",
 
     planBetaTitle: "Test bêta",
     planBetaPrice: "0€ / 7 jours",
@@ -153,7 +162,8 @@ const dict: Dict = {
     planAgencyB2: "Pipeline UGC + scripts",
     planAgencyB3: "Support prioritaire",
 
-    pricingFootnote: "Note : tu peux ajuster les prix après tests (selon coûts & valeur perçue).",
+    pricingFootnote:
+      "Note : tu peux ajuster les prix après tests (selon coûts & valeur perçue).",
 
     whoTitle: "Pour qui ?",
     whoSubtitle: "Quand c’est utile (et rentable) :",
@@ -162,20 +172,23 @@ const dict: Dict = {
     whoC: "Marques e-commerce (briefs + validation + organisation)",
     whoD: "Teams social media (process & qualité)",
 
-    premiumA: "Psychologiques",
-    premiumB: "Émotionnels",
-    premiumC: "Branding (ton + promesse + différenciation)",
+    premiumA: "Hooks psychologiques",
+    premiumB: "Émotions et désir",
+    premiumC: "Positionnement et branding",
 
     faqTitle: "FAQ",
     faqQ1: "La bêta est gratuite ?",
-    faqA1: "Oui : 7 jours de test avec restrictions anti-abus, pour garder une expérience stable.",
+    faqA1:
+      "Oui : 7 jours de test avec restrictions anti-abus, pour garder une expérience stable.",
     faqQ2: "Je dois expliquer comment ça fonctionne ?",
-    faqA2: "Non. Tu vends un résultat : scripts + organisation. Les détails techniques ne sont pas nécessaires.",
+    faqA2:
+      "Non. Tu vends un résultat : analyse publicitaire, scripts et organisation. Les détails techniques ne sont pas nécessaires.",
     faqQ3: "Puis-je demander une feature ?",
     faqA3: "Oui. Le feedback est prioritaire en bêta : on itère vite.",
 
     feedbackTitle: "Feedback (bêta)",
-    feedbackSubtitle: "Aide-nous à améliorer la plateforme : 1 minute, ultra précieux.",
+    feedbackSubtitle:
+      "Aide-nous à améliorer la plateforme : 1 minute, ultra précieux.",
     feedbackCTA: "Donner mon feedback",
 
     footer: "© UGC GROWTH — Bêta",
@@ -201,7 +214,8 @@ const dict: Dict = {
     featuresSubtitle: "Goal: a clean demo that works — not an “empty MVP”.",
 
     f1Title: "Structured, actionable scripts",
-    f1Desc: "Readable output (HOOK / STORY / PROBLEM / SOLUTION / PROOF / CTA), ready to post.",
+    f1Desc:
+      "Readable output (HOOK / STORY / PROBLEM / SOLUTION / PROOF / CTA), ready to post.",
     f2Title: "Viral mode + HAK",
     f2Desc: "Add a “hack / twist / viral angle” without rewriting everything.",
     f3Title: "UGC organization",
@@ -209,9 +223,11 @@ const dict: Dict = {
     f4Title: "Autosave",
     f4Desc: "Fill 2–3 fields, generate, and everything stays saved.",
     f5Title: "Smart anti-abuse",
-    f5Desc: "Simple limits to keep the beta stable (no need to explain the tech).",
+    f5Desc:
+      "Simple limits to keep the beta stable (no need to explain the tech).",
     f6Title: "Multi-language",
-    f6Desc: "FR / EN / AR / ES / 中文 — ready for international teams.",
+    f6Desc:
+      "FR / EN / AR / ES / 中文 — ready for international teams.",
 
     pricingTitle: "Pricing (beta)",
     pricingSubtitle:
@@ -238,7 +254,8 @@ const dict: Dict = {
     planAgencyB2: "UGC pipeline + scripts",
     planAgencyB3: "Priority support",
 
-    pricingFootnote: "Note: you can adjust pricing after tests (costs & perceived value).",
+    pricingFootnote:
+      "Note: you can adjust pricing after tests (costs & perceived value).",
 
     whoTitle: "Who is it for?",
     whoSubtitle: "Best use cases:",
@@ -255,9 +272,11 @@ const dict: Dict = {
 
     faqTitle: "FAQ",
     faqQ1: "Is the beta free?",
-    faqA1: "Yes: 7 days with anti-abuse limits to keep the experience stable.",
+    faqA1:
+      "Yes: 7 days with anti-abuse limits to keep the experience stable.",
     faqQ2: "Do I need to explain how it works?",
-    faqA2: "No. Sell outcomes: scripts + organization. Technical details aren’t needed.",
+    faqA2:
+      "No. Sell outcomes: scripts + organization. Technical details aren’t needed.",
     faqQ3: "Can I request a feature?",
     faqA3: "Yes. Beta feedback is priority: we iterate fast.",
 
@@ -288,7 +307,8 @@ const dict: Dict = {
     featuresSubtitle: "هدفنا: ديمو نظيف يعمل — ليس “MVP فارغ”.",
 
     f1Title: "سكربتات منظمة وقابلة للتطبيق",
-    f1Desc: "مخرجات واضحة (HOOK / STORY / PROBLEM / SOLUTION / PROOF / CTA) جاهزة للنشر.",
+    f1Desc:
+      "مخرجات واضحة (HOOK / STORY / PROBLEM / SOLUTION / PROOF / CTA) جاهزة للنشر.",
     f2Title: "Viral + HAK",
     f2Desc: "أضف “twist / hack” بدون إعادة كتابة كل شيء.",
     f3Title: "تنظيم UGC",
@@ -296,7 +316,8 @@ const dict: Dict = {
     f4Title: "حفظ تلقائي",
     f4Desc: "املأ 2–3 حقول، ولِّد، وكل شيء محفوظ.",
     f5Title: "مكافحة الإساءة",
-    f5Desc: "قيود بسيطة للحفاظ على استقرار البيتا (لا حاجة لشرح التقنية).",
+    f5Desc:
+      "قيود بسيطة للحفاظ على استقرار البيتا (لا حاجة لشرح التقنية).",
     f6Title: "تعدد اللغات",
     f6Desc: "FR / EN / AR / ES / 中文 — جاهز للعالم.",
 
@@ -325,7 +346,8 @@ const dict: Dict = {
     planAgencyB2: "Pipeline UGC + سكربتات",
     planAgencyB3: "دعم أولوية",
 
-    pricingFootnote: "ملاحظة: يمكنك تعديل السعر بعد الاختبار حسب التكلفة والقيمة.",
+    pricingFootnote:
+      "ملاحظة: يمكنك تعديل السعر بعد الاختبار حسب التكلفة والقيمة.",
 
     whoTitle: "لمن؟",
     whoSubtitle: "أفضل الاستخدامات:",
@@ -342,7 +364,8 @@ const dict: Dict = {
 
     faqTitle: "الأسئلة الشائعة",
     faqQ1: "هل البيتا مجانية؟",
-    faqA1: "نعم: 7 أيام مع قيود ضد الإساءة للحفاظ على الاستقرار.",
+    faqA1:
+      "نعم: 7 أيام مع قيود ضد الإساءة للحفاظ على الاستقرار.",
     faqQ2: "هل أشرح كيف تعمل؟",
     faqA2: "لا. بيع النتيجة: سكربتات + تنظيم.",
     faqQ3: "هل أستطيع طلب ميزة؟",
@@ -372,20 +395,26 @@ const dict: Dict = {
     ctaTerms: "Términos",
 
     featuresTitle: "Funciones clave",
-    featuresSubtitle: "Objetivo: una demo clara que funciona — no un “MVP vacío”.",
+    featuresSubtitle:
+      "Objetivo: una demo clara que funciona — no un “MVP vacío”.",
 
     f1Title: "Guiones estructurados y accionables",
-    f1Desc: "Salida legible (HOOK / STORY / PROBLEMA / SOLUCIÓN / PRUEBA / CTA), lista para publicar.",
+    f1Desc:
+      "Salida legible (HOOK / STORY / PROBLEMA / SOLUCIÓN / PRUEBA / CTA), lista para publicar.",
     f2Title: "Modo Viral + HAK",
-    f2Desc: "Añade un “hack / giro / ángulo viral” sin reescribir todo.",
+    f2Desc:
+      "Añade un “hack / giro / ángulo viral” sin reescribir todo.",
     f3Title: "Organización UGC",
-    f3Desc: "Campañas, creadores, assets, publicación: base limpia.",
+    f3Desc:
+      "Campañas, creadores, assets, publicación: base limpia.",
     f4Title: "Autosave",
     f4Desc: "Rellenas 2–3 campos, generas y queda guardado.",
     f5Title: "Anti-abuso inteligente",
-    f5Desc: "Límites simples para mantener la beta estable (sin explicar la tecnología).",
+    f5Desc:
+      "Límites simples para mantener la beta estable (sin explicar la tecnología).",
     f6Title: "Multi-idioma",
-    f6Desc: "FR / EN / AR / ES / 中文 — listo para internacional.",
+    f6Desc:
+      "FR / EN / AR / ES / 中文 — listo para internacional.",
 
     pricingTitle: "Precio (beta)",
     pricingSubtitle:
@@ -412,7 +441,8 @@ const dict: Dict = {
     planAgencyB2: "Pipeline UGC + guiones",
     planAgencyB3: "Soporte prioritario",
 
-    pricingFootnote: "Nota: puedes ajustar precios tras pruebas (coste y valor percibido).",
+    pricingFootnote:
+      "Nota: puedes ajustar precios tras pruebas (coste y valor percibido).",
 
     whoTitle: "¿Para quién?",
     whoSubtitle: "Casos ideales:",
@@ -429,7 +459,8 @@ const dict: Dict = {
 
     faqTitle: "FAQ",
     faqQ1: "¿La beta es gratis?",
-    faqA1: "Sí: 7 días con límites anti-abuso para mantener estabilidad.",
+    faqA1:
+      "Sí: 7 días con límites anti-abuso para mantener estabilidad.",
     faqQ2: "¿Debo explicar cómo funciona?",
     faqA2: "No. Vendes resultado: guiones + organización.",
     faqQ3: "¿Puedo pedir una función?",
@@ -462,17 +493,22 @@ const dict: Dict = {
     featuresSubtitle: "目标：一个干净、可用的演示，不是“空 MVP”。",
 
     f1Title: "结构化、可执行脚本",
-    f1Desc: "清晰输出（HOOK / STORY / PROBLEM / SOLUTION / PROOF / CTA），可直接发布。",
+    f1Desc:
+      "清晰输出（HOOK / STORY / PROBLEM / SOLUTION / PROOF / CTA），可直接发布。",
     f2Title: "Viral + HAK",
-    f2Desc: "无需重写即可添加“hack / twist / viral angle”。",
+    f2Desc:
+      "无需重写即可添加“hack / twist / viral angle”。",
     f3Title: "UGC 组织管理",
-    f3Desc: "活动、创作者、素材、发布：一套清爽底座。",
+    f3Desc:
+      "活动、创作者、素材、发布：一套清爽底座。",
     f4Title: "自动保存",
     f4Desc: "填 2–3 个字段即可生成并自动保存。",
     f5Title: "防滥用机制",
-    f5Desc: "简单限制保证测试版稳定（无需解释技术细节）。",
+    f5Desc:
+      "简单限制保证测试版稳定（无需解释技术细节）。",
     f6Title: "多语言",
-    f6Desc: "FR / EN / AR / ES / 中文 — 面向全球团队。",
+    f6Desc:
+      "FR / EN / AR / ES / 中文 — 面向全球团队。",
 
     pricingTitle: "价格（测试版）",
     pricingSubtitle: "测试版：免费 7 天 + 防滥用限制。之后订阅。",
@@ -498,7 +534,8 @@ const dict: Dict = {
     planAgencyB2: "UGC 流程 + 脚本",
     planAgencyB3: "优先支持",
 
-    pricingFootnote: "备注：可根据测试成本与价值感知调整价格。",
+    pricingFootnote:
+      "备注：可根据测试成本与价值感知调整价格。",
 
     whoTitle: "适合谁？",
     whoSubtitle: "最佳使用场景：",
@@ -515,7 +552,8 @@ const dict: Dict = {
 
     faqTitle: "常见问题",
     faqQ1: "测试版免费吗？",
-    faqA1: "是的：免费 7 天并带防滥用限制，保证稳定体验。",
+    faqA1:
+      "是的：免费 7 天并带防滥用限制，保证稳定体验。",
     faqQ2: "需要解释怎么实现的吗？",
     faqA2: "不需要。你卖的是结果：脚本 + 组织管理。",
     faqQ3: "可以提需求吗？",
@@ -743,21 +781,21 @@ export default function Landing() {
 
           <div className="mt-10 grid gap-4 md:grid-cols-3">
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-              <div className="font-semibold">Script Engine (Viral + HAK)</div>
+              <div className="font-semibold">Scripts prêts à tester</div>
               <div className="mt-2 text-sm text-white/70">
-                Hooks + story + objections + proof + CTA. Format clair, prêt à tourner.
+                Génère des hooks, scripts, angles marketing et CTA structurés pour lancer plus vite.
               </div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-              <div className="font-semibold">Workflow agence & créateur</div>
+              <div className="font-semibold">Analyse des pubs qui performent</div>
               <div className="mt-2 text-sm text-white/70">
-                Pipeline simple : briefs, creators, scripts, validations, publications.
+                Uploade un audio, détecte le hook, la structure, l’angle marketing et les idées à reproduire.
               </div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-              <div className="font-semibold">Multi-langue</div>
+              <div className="font-semibold">Pensé pour créateurs et agences</div>
               <div className="mt-2 text-sm text-white/70">
-                FR / EN / AR / ES / 中文
+                Un seul espace pour organiser, générer, analyser et accélérer la production UGC.
               </div>
             </div>
           </div>

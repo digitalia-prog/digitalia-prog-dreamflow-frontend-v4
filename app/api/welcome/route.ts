@@ -5,8 +5,10 @@ export async function POST(req: Request) {
     const { email } = await req.json();
 
     const key = process.env.RESEND_API_KEY;
+
     const from =
-      process.env.WELCOME_EMAIL_FROM || "UGC Growth <onboarding@resend.dev>";
+      process.env.WELCOME_EMAIL_FROM ||
+      "UGC Growth <beta@ugcgrowth.com>";
 
     if (!key) {
       return NextResponse.json(
@@ -52,4 +54,3 @@ export async function POST(req: Request) {
     );
   }
 }
-

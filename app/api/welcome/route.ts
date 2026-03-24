@@ -8,7 +8,7 @@ export async function POST(req: Request) {
 
     const from =
       process.env.WELCOME_EMAIL_FROM ||
-      "UGC Growth <beta@ugcgrowth.com>";
+      "UGC Growth <onboarding@resen.dev>";
 
     if (!key) {
       return NextResponse.json(

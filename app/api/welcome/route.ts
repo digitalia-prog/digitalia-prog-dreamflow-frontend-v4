@@ -17,9 +17,6 @@ export async function POST(req: Request) {
     }
 
     const key = process.env.RESEND_API_KEY;
-    const from =
-      process.env.WELCOME_EMAIL_FROM ||
-      "UGC Growth <agency@ugcgrowth.io>";
 
     if (!key) {
       return NextResponse.json(
@@ -35,7 +32,7 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from,
+        from: "UGC Growth <onboarding@resend.dev>",
         to: email,
         subject: "Bienvenue dans UGC Growth 🚀",
         html: `

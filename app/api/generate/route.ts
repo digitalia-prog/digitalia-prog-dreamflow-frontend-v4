@@ -96,13 +96,12 @@ Audience: ${audience}
 Product: ${offer}
 Price: ${price}
 Angle: ${angle}
+Objection: ${objection}
+Hook type: ${hookType}
+Tone: ${tone}
+Duration: ${duration}
 Platform: ${platform}
 Objective: ${objective}
-Tone: ${tone}
-Hook type: ${hookType}
-Duration: ${duration}
-Context: ${context}
-Main objection: ${objection}
 Language: ${lang}
 
 OBJECTION HANDLING
@@ -113,7 +112,6 @@ Every script must address this objection directly or indirectly.
 Turn the objection into reassurance, clarity, proof, ease, desire, or urgency.
 
 PLATFORM ADAPTATION RULES
-
 Selected platform: ${platform}
 
 If platform = TikTok:
@@ -179,6 +177,7 @@ If hook type is provided, use it as direction but do not become repetitive or me
 CREATIVE ANGLE RULES
 Generate 3 distinct creative angles.
 Each angle must feel meaningfully different.
+
 Examples of angle differences:
 - pain/problem angle
 - speed/ease angle
@@ -205,14 +204,19 @@ Every script must be genuinely different:
 SCRIPT STRUCTURE RULE
 Each script must include:
 - hook
+- hookDetected
 - script.aida.attention
 - script.aida.interest
 - script.aida.desire
 - script.aida.action
 - beats (3 to 5 items)
+- beatsTiming (3 to 5 items)
 - proof (2 to 3 items)
+- whyItWorks (2 to 4 items)
+- adsVariants (2 to 4 items)
 - shotlist (3 to 5 items)
 - cta.primary
+- cta.optimized
 - testingPlan
 - kpi
 
@@ -225,14 +229,25 @@ AIDA WRITING RULES
 SHOTLIST RULES
 Shotlists must be concrete and filmable.
 Avoid vague items.
+
 Good shotlist examples:
 - close-up of crumbs disappearing in one pass
 - creator unplugging old vacuum and switching to cordless
 - timer on screen showing how fast the room is cleaned
+
 Bad shotlist examples:
 - show product
 - show lifestyle
 - show satisfaction
+
+BEATS TIMING RULES
+Each beat timing item must be short and actionable.
+Format each item like:
+- "0-3s: hook face cam"
+- "3-7s: show pain point"
+- "7-15s: product demo"
+- "15-22s: proof/result"
+- "22-30s: CTA"
 
 TESTING PLAN RULES
 The testing plan should be useful for marketers.
@@ -242,11 +257,11 @@ Mention what to compare:
 - problem framing vs benefit framing
 - proof angle vs emotion angle
 - speed vs convenience
-etc.
 
 KPI RULES
 Return one main KPI per script.
 Choose the KPI that best matches the platform/objective.
+
 Examples:
 - CTR
 - Hook rate
@@ -281,6 +296,7 @@ Use these inputs:
 - Main objection: ${objection}
 
 Return this exact JSON shape:
+
 {
   "hookIdeas": ["", ""],
   "creativeAngles": ["", "", ""],
@@ -288,6 +304,7 @@ Return this exact JSON shape:
   "variants": [
     {
       "hook": "",
+      "hookDetected": "",
       "script": {
         "aida": {
           "attention": "",
@@ -297,10 +314,14 @@ Return this exact JSON shape:
         }
       },
       "beats": ["", "", ""],
+      "beatsTiming": ["", "", ""],
       "proof": ["", ""],
+      "whyItWorks": ["", ""],
+      "adsVariants": ["", ""],
       "shotlist": ["", "", ""],
       "cta": {
-        "primary": ""
+        "primary": "",
+        "optimized": ""
       },
       "testingPlan": "",
       "kpi": ""
@@ -314,9 +335,12 @@ STRICT OUTPUT RULES
 - testingPlanSummary must be a string
 - variants must contain exactly ${scriptsCount} items
 - beats must be an array
+- beatsTiming must be an array
 - proof must be an array
+- whyItWorks must be an array
+- adsVariants must be an array
 - shotlist must be an array
-- cta must be an object with "primary"
+- cta must be an object with "primary" and "optimized"
 - JSON only
 `;
 
@@ -372,10 +396,13 @@ STRICT OUTPUT RULES
       typeof parsed?.testingPlanSummary === "string"
         ? parsed.testingPlanSummary
         : "";
+
     let variants = Array.isArray(parsed?.variants) ? parsed.variants : [];
 
     variants = variants.map((variant: any) => ({
       hook: typeof variant?.hook === "string" ? variant.hook : "",
+      hookDetected:
+        typeof variant?.hookDetected === "string" ? variant.hookDetected : "",
       script: {
         aida: {
           attention:
@@ -397,11 +424,24 @@ STRICT OUTPUT RULES
         },
       },
       beats: Array.isArray(variant?.beats) ? variant.beats : [],
+      beatsTiming: Array.isArray(variant?.beatsTiming)
+        ? variant.beatsTiming
+        : [],
       proof: Array.isArray(variant?.proof) ? variant.proof : [],
+      whyItWorks: Array.isArray(variant?.whyItWorks)
+        ? variant.whyItWorks
+        : [],
+      adsVariants: Array.isArray(variant?.adsVariants)
+        ? variant.adsVariants
+        : [],
       shotlist: Array.isArray(variant?.shotlist) ? variant.shotlist : [],
       cta: {
         primary:
           typeof variant?.cta?.primary === "string" ? variant.cta.primary : "",
+        optimized:
+          typeof variant?.cta?.optimized === "string"
+            ? variant.cta.optimized
+            : "",
       },
       testingPlan:
         typeof variant?.testingPlan === "string" ? variant.testingPlan : "",
@@ -415,6 +455,7 @@ STRICT OUTPUT RULES
     while (variants.length < scriptsCount) {
       variants.push({
         hook: "",
+        hookDetected: "",
         script: {
           aida: {
             attention: "",
@@ -424,9 +465,12 @@ STRICT OUTPUT RULES
           },
         },
         beats: [],
+        beatsTiming: [],
         proof: [],
+        whyItWorks: [],
+        adsVariants: [],
         shotlist: [],
-        cta: { primary: "" },
+        cta: { primary: "", optimized: "" },
         testingPlan: "",
         kpi: "",
       });
@@ -454,4 +498,3 @@ STRICT OUTPUT RULES
       { status: 500 }
     );
   }
-}

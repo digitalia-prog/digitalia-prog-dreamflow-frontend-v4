@@ -1,75 +1,88 @@
 import { NextResponse } from "next/server";
 
-type Mode = "CREATOR" | "AGENCY";
+type Mode = "AGENCY" | "CREATOR";
+
+type GenerateBody = {
+  mode?: Mode;
+  lang?: string;
+  platform?: string;
+  objective?: string;
+  audience?: string;
+  offer?: string;
+  price?: string;
+  angle?: string;
+  objection?: string;
+  hookType?: string;
+  tone?: string;
+  duration?: string;
+  context?: string;
+};
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body: GenerateBody = await req.json();
 
-    const {
-      mode,
-      lang,
-      platform,
-      objective,
-      audience,
-      offer,
-      price,
-      angle,
-      objection,
-      hookType,
-      tone,
-      duration,
-      context,
-    } = body;
+    const mode: Mode = body.mode === "AGENCY" ? "AGENCY" : "CREATOR";
+    const lang = body.lang || "FR";
+    const platform = body.platform || "TikTok";
+    const objective = body.objective || "Vente";
+    const audience = body.audience || "";
+    const offer = body.offer || "";
+    const price = body.price || "";
+    const angle = body.angle || "";
+    const objection = body.objection || "";
+    const hookType = body.hookType || "";
+    const tone = body.tone || "";
+    const duration = body.duration || "";
+    const context = body.context || "";
 
     const scriptsCount = mode === "AGENCY" ? 10 : 4;
 
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(
-        { error: "Missing OPENAI_API_KEY" },
+        { error: "Missing OPENAI_API_KEY in environment variables." },
         { status: 500 }
       );
     }
 
     const systemPrompt = `
-You are a professional UGC ads strategist.
-
-You generate realistic short-form ad scripts.
-
-MULTI LANGUAGE SUPPORT
-
-Supported languages:
-- Français
-- Arabic
-- Spanish
-- Chinese
-- English US
-- English UK
-
-IMPORTANT:
-Output must be in selected language only.
+You are Script Engine, a senior direct-response strategist.
 
 PSYCHOLOGICAL MARKETING RULES
 
-Use psychological persuasion:
-- fear of missing out
+Use:
+- curiosity
+- FOMO
 - social proof
 - urgency
-- curiosity
-- problem agitation
-- status desire
-- simplicity bias
-- loss aversion
+- desire
+- pain points
+- status
 
-Rules:
+PLATFORM ADAPTATION RULES
 
-- Natural spoken language
-- No corporate tone
-- No templates
-- Each script must be different
-- Each script must feel human
-- Must be realistic and filmable
-- Must adapt to platform
+TikTok:
+- fast hook
+- creator tone
+
+Facebook Ads:
+- direct response
+
+Google Ads:
+- high intent
+
+Instagram:
+- storytelling
+
+YouTube Shorts:
+- retention
+
+CREATIVE DIRECTION
+
+Identify:
+- frustration
+- desire
+- emotional angle
 
 Each script must include:
 
@@ -88,63 +101,54 @@ TESTING PLAN
 KPI
 
 Return ONLY valid JSON.
-No markdown.
-No explanations.
 `;
 
     const userPrompt = `
-Generate ${scriptsCount} scripts.
+Generate exactly ${scriptsCount} high-quality scripts in ${lang}.
 
-Language: ${lang}
 Platform: ${platform}
 Objective: ${objective}
-
+Audience: ${audience}
 Product: ${offer}
 Price: ${price}
-
-Audience: ${audience}
-
 Angle: ${angle}
-
 Objection: ${objection}
-
-Hook type: ${hookType}
-
 Tone: ${tone}
-
 Duration: ${duration}
-
 Context: ${context}
 
 Return JSON format:
 
 {
-  "variants":[
-    {
-      "hook":"",
-      "hookDetected":"",
-      "script":{
-        "aida":{
-          "attention":"",
-          "interest":"",
-          "desire":"",
-          "action":""
-        }
-      },
-      "beats":[],
-      "beatsTiming":[],
-      "proof":[],
-      "whyItWorks":[],
-      "adsVariants":[],
-      "shotlist":[],
-      "cta":{
-        "primary":"",
-        "optimized":""
-      },
-      "testingPlan":[],
-      "kpi":[]
-    }
-  ]
+"platformStrategy":"",
+"psychologicalAngle":"",
+"creativeDirection":"",
+"variants":[
+{
+"hook":"",
+"hookDetected":"",
+"script":{
+"aida":{
+"attention":"",
+"interest":"",
+"desire":"",
+"action":""
+}
+},
+"beats":[],
+"beatsTiming":[],
+"proof":[],
+"whyItWorks":[],
+"adsVariants":[],
+"shotlist":[],
+"cta":{
+"primary":"",
+"optimized":""
+},
+"testingPlan":[],
+"kpi":[]
+}
+]
 }
 `;
 
@@ -158,7 +162,7 @@ Return JSON format:
         },
         body: JSON.stringify({
           model: "gpt-4o",
-          temperature: 0.9,
+          temperature: 1,
           response_format: { type: "json_object" },
           messages: [
             { role: "system", content: systemPrompt },

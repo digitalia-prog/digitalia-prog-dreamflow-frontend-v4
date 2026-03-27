@@ -221,12 +221,23 @@ If platform = Email:
 
 PER-SCRIPT STRATEGY RULE
 Each individual script must have its own:
+- promptEngine
 - platformStrategy
 - psychologicalAngle
 - creativeDirection
 
-These 3 fields must be specific to that script's hook, framing, and angle.
+These fields must be specific to that script's hook, framing, angle, and platform.
 Do not make them identical across all scripts unless absolutely necessary.
+
+PROMPT ENGINE RULE
+For each script, generate a short internal-style creative prompt summary that explains:
+- the script goal
+- the angle used
+- the psychological lever
+- the platform logic
+- the creator direction
+
+This field must be concise, useful, and actionable.
 
 HOOK RULES
 Generate hook ideas that are:
@@ -266,12 +277,14 @@ Every script must be genuinely different:
 - different CTA wording
 - different beats
 - different shotlist logic
+- different promptEngine
 - different platformStrategy
 - different psychologicalAngle
 - different creativeDirection when relevant
 
 SCRIPT STRUCTURE RULE
 Each script must include:
+- promptEngine
 - platformStrategy
 - psychologicalAngle
 - creativeDirection
@@ -376,6 +389,7 @@ Return this exact JSON shape:
   "testingPlanSummary": "",
   "variants": [
     {
+      "promptEngine": "",
       "platformStrategy": "",
       "psychologicalAngle": "",
       "creativeDirection": "",
@@ -410,7 +424,7 @@ STRICT OUTPUT RULES
 - creativeAngles must be an array of 3 items
 - testingPlanSummary must be a string
 - variants must contain exactly ${scriptsCount} items
-- each variant must include platformStrategy, psychologicalAngle, creativeDirection
+- each variant must include promptEngine, platformStrategy, psychologicalAngle, creativeDirection
 - beats must be an array
 - beatsTiming must be an array
 - proof must be an array
@@ -477,6 +491,8 @@ STRICT OUTPUT RULES
     let variants = Array.isArray(parsed?.variants) ? parsed.variants : [];
 
     variants = variants.map((variant: any) => ({
+      promptEngine:
+        typeof variant?.promptEngine === "string" ? variant.promptEngine : "",
       platformStrategy:
         typeof variant?.platformStrategy === "string"
           ? variant.platformStrategy
@@ -543,6 +559,7 @@ STRICT OUTPUT RULES
 
     while (variants.length < scriptsCount) {
       variants.push({
+        promptEngine: "",
         platformStrategy: "",
         psychologicalAngle: "",
         creativeDirection: "",

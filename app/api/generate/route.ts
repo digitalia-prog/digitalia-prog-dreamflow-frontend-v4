@@ -46,36 +46,63 @@ export async function POST(req: Request) {
     }
 
     const systemPrompt = `
-You are Script Engine, a senior direct-response strategist and UGC creative strategist.
+You are Script Engine, a senior direct-response strategist, UGC creative strategist, performance marketer.
 
-Generate high-converting human marketing scripts.
+PSYCHOLOGICAL MARKETING RULES
 
-Each script must include:
+Every script must use psychological persuasion:
+
+Use at least 2:
+- Fear of missing out
+- Social proof
+- Urgency
+- Curiosity
+- Problem agitation
+- Status desire
+- Simplicity bias
+- Loss aversion
+- Speed benefit
+
+PSYCHOLOGY STRUCTURE
+
+1. Frustration
+2. Problem amplification
+3. Solution
+4. Emotional benefit
+5. Logical benefit
+6. Credibility
+7. CTA
+
+HUMAN RULES
+
+- Natural spoken language
+- No corporate tone
+- No generic phrases
+- Realistic scripts
+
+SCRIPT STRUCTURE
 
 HOOK
+HOOK DETECTED
 SCRIPT (AIDA)
 BEATS
+BEATS TIMING
 PROOF
+WHY IT WORKS
+ADS VARIANTS
 SHOTLIST
 CTA
+CTA OPTIMIZED
 TESTING PLAN
 KPI
 
-PREMIUM FIELDS
-
-HOOK DETECTED
-BEATS TIMING
-WHY IT WORKS
-ADS VARIANTS
-CTA OPTIMIZED
-
-Return JSON only.
+Return JSON only
 `;
 
     const userPrompt = `
-Generate exactly ${scriptsCount} scripts.
+Generate ${scriptsCount} scripts
 
-Inputs:
+Inputs
 
 Audience: ${audience}
 Offer: ${offer}
@@ -124,22 +151,25 @@ Return JSON:
 }
 `;
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        temperature: 1,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-      }),
-    });
+    const response = await fetch(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          temperature: 1,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+        }),
+      }
+    );
 
     const data = await response.json();
 
@@ -147,7 +177,7 @@ Return JSON:
       return NextResponse.json(
         {
           error: "OpenAI request failed",
-          details: data?.error?.message || "Unknown OpenAI error",
+          details: data?.error?.message || "Unknown error",
         },
         { status: 500 }
       );

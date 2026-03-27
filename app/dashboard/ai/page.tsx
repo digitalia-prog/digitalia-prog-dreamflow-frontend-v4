@@ -3,10 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 
 type Mode = "AGENCY" | "CREATOR";
-type Lang = "fr" | "en-GB" | "en-US" | "es" | "ar";
+type Lang = "FR" | "EN" | "ES" | "AR" | "ZH";
 
 type Variant = {
+  platformStrategy?: string;
+  psychologicalAngle?: string;
+  creativeDirection?: string;
+  promptEngine?: string;
   hook?: string;
+  hookDetected?: string;
   script?: {
     aida?: {
       attention?: string;
@@ -16,10 +21,14 @@ type Variant = {
     };
   };
   beats?: string[];
+  beatsTiming?: string[];
   proof?: string[];
+  whyItWorks?: string[];
+  adsVariants?: string[];
   shotlist?: string[];
   cta?: {
     primary?: string;
+    optimized?: string;
   };
   testingPlan?: string;
   kpi?: string;
@@ -140,7 +149,7 @@ export default function AiPage() {
   const textareaCls = cn(inputCls, "min-h-[96px]");
 
   const [mode, setMode] = useState<Mode>("AGENCY");
-  const [lang, setLang] = useState<Lang>("fr");
+  const [lang, setLang] = useState<Lang>("FR");
   const [platform, setPlatform] = useState<string>("TikTok");
   const [objective, setObjective] = useState<string>("Vente");
   const [audience, setAudience] = useState<string>(
@@ -326,11 +335,11 @@ export default function AiPage() {
                   value={lang}
                   onChange={(e) => setLang(e.target.value as Lang)}
                 >
-                  <option value="fr">FR</option>
-                  <option value="en-GB">EN (UK)</option>
-                  <option value="en-US">EN (US)</option>
-                  <option value="es">ES</option>
-                  <option value="ar">AR</option>
+                  <option value="FR">FR</option>
+                  <option value="EN">EN</option>
+                  <option value="ES">ES</option>
+                  <option value="AR">AR</option>
+                  <option value="ZH">ZH</option>
                 </select>
               </Field>
 
@@ -510,9 +519,44 @@ export default function AiPage() {
 
                       <div className="space-y-5">
                         <div>
+                          <SectionTitle>Prompt Engine</SectionTitle>
+                          <div className="whitespace-pre-wrap text-sm text-white/90">
+                            {activeVariant?.promptEngine || "-"}
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div className="text-sm text-white/80">
+                            <span className="font-semibold text-white">
+                              Stratégie plateforme :
+                            </span>{" "}
+                            {activeVariant?.platformStrategy || "-"}
+                          </div>
+                          <div className="text-sm text-white/80">
+                            <span className="font-semibold text-white">
+                              Angle psychologique :
+                            </span>{" "}
+                            {activeVariant?.psychologicalAngle || "-"}
+                          </div>
+                          <div className="text-sm text-white/80">
+                            <span className="font-semibold text-white">
+                              Direction créative :
+                            </span>{" "}
+                            {activeVariant?.creativeDirection || "-"}
+                          </div>
+                        </div>
+
+                        <div>
                           <SectionTitle>Hook</SectionTitle>
                           <div className="text-sm text-white">
                             {activeVariant?.hook || "-"}
+                          </div>
+                        </div>
+
+                        <div>
+                          <SectionTitle>Hook détecté</SectionTitle>
+                          <div className="text-sm text-white/90">
+                            {activeVariant?.hookDetected || "-"}
                           </div>
                         </div>
 
@@ -552,8 +596,23 @@ export default function AiPage() {
                         </div>
 
                         <div>
+                          <SectionTitle>Beats timing</SectionTitle>
+                          <ListBlock items={activeVariant?.beatsTiming} />
+                        </div>
+
+                        <div>
                           <SectionTitle>Proof</SectionTitle>
                           <ListBlock items={activeVariant?.proof} />
+                        </div>
+
+                        <div>
+                          <SectionTitle>Pourquoi ça marche</SectionTitle>
+                          <ListBlock items={activeVariant?.whyItWorks} />
+                        </div>
+
+                        <div>
+                          <SectionTitle>Variantes Ads</SectionTitle>
+                          <ListBlock items={activeVariant?.adsVariants} />
                         </div>
 
                         <div>
@@ -565,6 +624,13 @@ export default function AiPage() {
                           <SectionTitle>CTA</SectionTitle>
                           <div className="text-sm text-white/90">
                             {activeVariant?.cta?.primary || "-"}
+                          </div>
+                        </div>
+
+                        <div>
+                          <SectionTitle>CTA optimisé</SectionTitle>
+                          <div className="text-sm text-white/90">
+                            {activeVariant?.cta?.optimized || "-"}
                           </div>
                         </div>
 

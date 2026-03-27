@@ -1,86 +1,77 @@
 import { NextResponse } from "next/server";
 
-type Mode = "AGENCY" | "CREATOR";
-
-type GenerateBody = {
-  mode?: Mode;
-  lang?: string;
-  platform?: string;
-  objective?: string;
-  audience?: string;
-  offer?: string;
-  price?: string;
-  angle?: string;
-  objection?: string;
-  hookType?: string;
-  tone?: string;
-  duration?: string;
-  context?: string;
-};
+type Mode = "CREATOR" | "AGENCY";
 
 export async function POST(req: Request) {
   try {
-    const body: GenerateBody = await req.json();
+    const body = await req.json();
 
-    const mode: Mode = body.mode === "AGENCY" ? "AGENCY" : "CREATOR";
-    const lang = body.lang || "fr";
-    const platform = body.platform || "TikTok";
-    const objective = body.objective || "Vente";
-    const audience = body.audience || "";
-    const offer = body.offer || "";
-    const price = body.price || "";
-    const angle = body.angle || "";
-    const objection = body.objection || "";
-    const hookType = body.hookType || "";
-    const tone = body.tone || "";
-    const duration = body.duration || "";
-    const context = body.context || "";
+    const {
+      mode,
+      lang,
+      platform,
+      objective,
+      audience,
+      offer,
+      price,
+      angle,
+      objection,
+      hookType,
+      tone,
+      duration,
+      context,
+    } = body;
 
     const scriptsCount = mode === "AGENCY" ? 10 : 4;
 
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(
-        { error: "Missing OPENAI_API_KEY in environment variables." },
+        { error: "Missing OPENAI_API_KEY" },
         { status: 500 }
       );
     }
 
     const systemPrompt = `
-You are Script Engine, a senior direct-response strategist, UGC creative strategist, performance marketer.
+You are a professional UGC ads strategist.
+
+You generate realistic short-form ad scripts.
+
+MULTI LANGUAGE SUPPORT
+
+Supported languages:
+- Français
+- Arabic
+- Spanish
+- Chinese
+- English US
+- English UK
+
+IMPORTANT:
+Output must be in selected language only.
 
 PSYCHOLOGICAL MARKETING RULES
 
-Every script must use psychological persuasion:
+Use psychological persuasion:
+- fear of missing out
+- social proof
+- urgency
+- curiosity
+- problem agitation
+- status desire
+- simplicity bias
+- loss aversion
 
-Use at least 2:
-- Fear of missing out
-- Social proof
-- Urgency
-- Curiosity
-- Problem agitation
-- Status desire
-- Simplicity bias
-- Loss aversion
-- Speed benefit
-
-PSYCHOLOGY STRUCTURE
-
-1. Frustration
-2. Problem amplification
-3. Solution
-4. Emotional benefit
-5. Logical benefit
-6. Credibility
-7. CTA
-
-HUMAN RULES
+Rules:
 
 - Natural spoken language
 - No corporate tone
-- No generic phrases
-- Realistic scripts
+- No templates
+- Each script must be different
+- Each script must feel human
+- Must be realistic and filmable
+- Must adapt to platform
 
-SCRIPT STRUCTURE
+Each script must include:
 
 HOOK
 HOOK DETECTED
@@ -96,56 +87,62 @@ CTA OPTIMIZED
 TESTING PLAN
 KPI
 
-Return JSON only
+Return ONLY valid JSON.
+No markdown.
+No explanations.
 `;
 
     const userPrompt = `
-Generate ${scriptsCount} scripts
+Generate ${scriptsCount} scripts.
 
-Inputs
-
-Audience: ${audience}
-Offer: ${offer}
-Price: ${price}
-Angle: ${angle}
+Language: ${lang}
 Platform: ${platform}
 Objective: ${objective}
-Hook type: ${hookType}
-Tone: ${tone}
-Duration: ${duration}
-Context: ${context}
+
+Product: ${offer}
+Price: ${price}
+
+Audience: ${audience}
+
+Angle: ${angle}
+
 Objection: ${objection}
 
-Return JSON:
+Hook type: ${hookType}
+
+Tone: ${tone}
+
+Duration: ${duration}
+
+Context: ${context}
+
+Return JSON format:
 
 {
-  "hookIdeas": ["", ""],
-  "creativeAngles": ["", "", ""],
-  "testingPlanSummary": "",
-  "variants": [
+  "variants":[
     {
-      "hook": "",
-      "hookDetected": "",
-      "script": {
-        "aida": {
-          "attention": "",
-          "interest": "",
-          "desire": "",
-          "action": ""
+      "hook":"",
+      "hookDetected":"",
+      "script":{
+        "aida":{
+          "attention":"",
+          "interest":"",
+          "desire":"",
+          "action":""
         }
       },
-      "beats": [],
-      "beatsTiming": [],
-      "proof": [],
-      "whyItWorks": [],
-      "adsVariants": [],
-      "shotlist": [],
-      "cta": {
-        "primary": "",
-        "optimized": ""
+      "beats":[],
+      "beatsTiming":[],
+      "proof":[],
+      "whyItWorks":[],
+      "adsVariants":[],
+      "shotlist":[],
+      "cta":{
+        "primary":"",
+        "optimized":""
       },
-      "testingPlan": "",
-      "kpi": ""
+      "testingPlan":[],
+      "kpi":[]
     }
   ]
 }
@@ -157,11 +154,11 @@ Return JSON:
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+          Authorization: "Bearer " + process.env.OPENAI_API_KEY,
         },
         body: JSON.stringify({
           model: "gpt-4o",
-          temperature: 1,
+          temperature: 0.9,
           response_format: { type: "json_object" },
           messages: [
             { role: "system", content: systemPrompt },
@@ -183,70 +180,32 @@ Return JSON:
       );
     }
 
-    const raw = data?.choices?.[0]?.message?.content || "";
+    const raw =
+      data?.choices?.[0]?.message?.content || "";
 
-    let parsed: any;
+    let parsed = null;
 
     try {
       parsed = JSON.parse(raw);
-    } catch {
+    } catch (error) {
       return NextResponse.json(
         {
-          error: "Failed to parse AI JSON response",
+          error: "JSON parse failed",
           raw,
         },
         { status: 500 }
       );
     }
 
-    const hookIdeas = Array.isArray(parsed?.hookIdeas) ? parsed.hookIdeas : [];
-    const creativeAngles = Array.isArray(parsed?.creativeAngles)
-      ? parsed.creativeAngles
-      : [];
-    const testingPlanSummary =
-      typeof parsed?.testingPlanSummary === "string"
-        ? parsed.testingPlanSummary
-        : "";
-
-    let variants = Array.isArray(parsed?.variants) ? parsed.variants : [];
-
-    variants = variants.map((variant: any) => ({
-      hook: variant?.hook || "",
-      hookDetected: variant?.hookDetected || "",
-      script: {
-        aida: {
-          attention: variant?.script?.aida?.attention || "",
-          interest: variant?.script?.aida?.interest || "",
-          desire: variant?.script?.aida?.desire || "",
-          action: variant?.script?.aida?.action || "",
-        },
-      },
-      beats: variant?.beats || [],
-      beatsTiming: variant?.beatsTiming || [],
-      proof: variant?.proof || [],
-      whyItWorks: variant?.whyItWorks || [],
-      adsVariants: variant?.adsVariants || [],
-      shotlist: variant?.shotlist || [],
-      cta: {
-        primary: variant?.cta?.primary || "",
-        optimized: variant?.cta?.optimized || "",
-      },
-      testingPlan: variant?.testingPlan || "",
-      kpi: variant?.kpi || "",
-    }));
-
     return NextResponse.json({
-      hookIdeas,
-      creativeAngles,
-      testingPlanSummary,
-      variants,
       raw,
+      parsed,
     });
   } catch (error: any) {
     return NextResponse.json(
       {
-        error: "Unexpected server error",
-        details: error?.message || "Unknown error",
+        error: "Script generation failed",
+        details: error?.message || "unknown error",
       },
       { status: 500 }
     );

@@ -2,6 +2,35 @@ import { NextResponse } from "next/server";
 
 type Mode = "AGENCY" | "CREATOR";
 
+type Variant = {
+  promptEngine?: string;
+  platformStrategy?: string;
+  psychologicalAngle?: string;
+  creativeDirection?: string;
+  hook?: string;
+  hookDetected?: string;
+  script?: {
+    aida?: {
+      attention?: string;
+      interest?: string;
+      desire?: string;
+      action?: string;
+    };
+  };
+  beats?: string[];
+  beatsTiming?: string[];
+  proof?: string[];
+  whyItWorks?: string[];
+  adsVariants?: string[];
+  shotlist?: string[];
+  cta?: {
+    primary?: string;
+    optimized?: string;
+  };
+  testingPlan?: string;
+  kpi?: string;
+};
+
 type GenerateBody = {
   mode?: Mode;
   lang?: string;
@@ -35,6 +64,41 @@ export async function POST(req: Request) {
     const tone = body.tone || "";
     const duration = body.duration || "";
     const context = body.context || "";
+
+    const isTikTok = String(platform || "").toLowerCase().includes("tiktok");
+
+    const tiktokNaturalRules = isTikTok
+      ? `
+TIKTOK NATURAL LANGUAGE RULES
+If platform = TikTok:
+- Write like a real creator speaking naturally to camera.
+- Use human, spontaneous, conversational wording.
+- Avoid sounding like a classic ad.
+- Avoid overly polished, corporate, or robotic phrasing.
+- Avoid generic ad openings such as:
+  - "Marre de..."
+  - "Découvrez..."
+  - "Achetez..."
+  - "Cliquez sur le lien"
+- Prefer native TikTok hooks that sound spoken and authentic.
+- Add a strong pattern interrupt in the first 1 to 2 seconds.
+- The first line must feel scroll-stopping, emotionally immediate, and human.
+- When relevant, prefer first-person phrasing.
+- Prefer hook styles like:
+  - "Je vous jure..."
+  - "J’en pouvais plus..."
+  - "Attends, faut que je te montre..."
+  - "Bon, je vais être honnête..."
+  - "Je pensais pas dire ça un jour..."
+- TikTok CTA must stay natural, light, and creator-native.
+- Prefer CTA styles like:
+  - "Je te montre"
+  - "Regarde ça"
+  - "Va voir"
+  - "Franchement, teste"
+- The script must feel like native TikTok UGC, not recycled Meta ad copy.
+`
+      : "";
 
     const scriptsCount = mode === "AGENCY" ? 10 : 4;
 
@@ -82,7 +146,6 @@ HUMAN WRITING RULES
 
 PSYCHOLOGICAL MARKETING RULES
 Every script must use psychological persuasion principles naturally.
-
 Use at least 2 of these when relevant:
 - fear of missing out
 - social proof
@@ -183,6 +246,8 @@ Language: ${lang}
 Mode: ${mode}
 Context: ${context}
 
+${tiktokNaturalRules}
+
 OBJECTION HANDLING
 The main objection is:
 ${objection}
@@ -200,6 +265,19 @@ If platform = TikTok:
 - Sounds like a creator speaking to camera
 - Scroll-stopping first line
 - Dynamic, emotional, quick momentum
+- The wording must feel native TikTok, not classic ad copy.
+- Prioritize spoken language over polished marketing language.
+- Make the first line sound like something a creator would actually say out loud.
+- Prefer emotional realism, mini-story tension, and natural confession energy.
+- Use pattern interrupt logic in the opening.
+- Avoid stiff ad phrases like "discover", "buy now", "click the link", "tired of...".
+- Prefer human openings such as:
+  - "Je vous jure..."
+  - "J’en pouvais plus..."
+  - "Attends, faut que je te montre..."
+  - "Bon, je vais être honnête..."
+  - "Je pensais pas dire ça un jour..."
+- CTA must remain natural and platform-native, not overly aggressive.
 
 If platform = Instagram Reels:
 - UGC creator style
@@ -402,6 +480,7 @@ Bad shotlist examples:
 BEATS TIMING RULES
 Each beat timing item must be short and actionable.
 Add visual logic when useful.
+
 Examples:
 - "0-3s: face cam hook, direct eye contact"
 - "3-7s: show pain point in hand demo"
@@ -458,7 +537,6 @@ Use these inputs:
 - Mode: ${mode}
 
 Return this exact JSON shape:
-
 {
   "hookIdeas": ["", ""],
   "creativeAngles": ["", "", ""],
@@ -564,7 +642,7 @@ STRICT OUTPUT RULES
         ? parsed.testingPlanSummary
         : "";
 
-    let variants = Array.isArray(parsed?.variants) ? parsed.variants : [];
+    let variants: Variant[] = Array.isArray(parsed?.variants) ? parsed.variants : [];
 
     variants = variants.map((variant: any) => ({
       promptEngine:

@@ -47,6 +47,125 @@ type GenerateBody = {
   context?: string;
 };
 
+function getLanguageName(lang: string) {
+  switch ((lang || "FR").toUpperCase()) {
+    case "EN":
+      return "English";
+    case "EN-US":
+      return "American English";
+    case "EN-UK":
+      return "British English";
+    case "ES":
+      return "Spanish";
+    case "AR":
+      return "Arabic";
+    case "ZH":
+      return "Chinese";
+    case "FR":
+    default:
+      return "French";
+  }
+}
+
+function getTikTokOpeningExamples(lang: string) {
+  switch ((lang || "FR").toUpperCase()) {
+    case "EN":
+    case "EN-US":
+    case "EN-UK":
+      return [
+        "I swear...",
+        "I was so done...",
+        "Wait, let me show you this...",
+        "Okay, I’ll be honest...",
+        "I never thought I’d say this...",
+      ];
+    case "ES":
+      return [
+        "Te lo juro...",
+        "Ya no podía más...",
+        "Espera, tengo que enseñarte esto...",
+        "Vale, voy a ser sincero...",
+        "Nunca pensé que diría esto...",
+      ];
+    case "AR":
+      return [
+        "أقسم لك...",
+        "كنت فعلًا تعبت...",
+        "لحظة، لازم أوريك هذا...",
+        "بصراحة لازم أقولها...",
+        "ما توقعت يوم أقول هذا...",
+      ];
+    case "ZH":
+      return [
+        "我真的服了……",
+        "我当时真的受够了……",
+        "等等，我得给你看这个……",
+        "说真的……",
+        "我真没想到我会这么说……",
+      ];
+    case "FR":
+    default:
+      return [
+        "Je vous jure...",
+        "J’en pouvais plus...",
+        "Attends, faut que je te montre...",
+        "Bon, je vais être honnête...",
+        "Je pensais pas dire ça un jour...",
+      ];
+  }
+}
+
+function getTikTokBadOpeners(lang: string) {
+  switch ((lang || "FR").toUpperCase()) {
+    case "EN":
+    case "EN-US":
+    case "EN-UK":
+      return ['"Tired of..."', '"Discover..."', '"Buy now..."', '"Click the link"'];
+    case "ES":
+      return [
+        '"¿Cansado de...?"',
+        '"Descubre..."',
+        '"Compra ahora..."',
+        '"Haz clic en el enlace"',
+      ];
+    case "AR":
+      return [
+        '"هل سئمت من...؟"',
+        '"اكتشف..."',
+        '"اشترِ الآن..."',
+        '"اضغط على الرابط"',
+      ];
+    case "ZH":
+      return ['"你是否厌倦了……"', '"发现……"', '"立即购买……"', '"点击链接……"'];
+    case "FR":
+    default:
+      return ['"Marre de..."', '"Découvrez..."', '"Achetez..."', '"Cliquez sur le lien"'];
+  }
+}
+
+function getTikTokCtaExamples(lang: string) {
+  switch ((lang || "FR").toUpperCase()) {
+    case "EN":
+    case "EN-US":
+    case "EN-UK":
+      return [
+        '"Let me show you"',
+        '"Look at this"',
+        '"Go check it out"',
+        '"Honestly, try it"',
+      ];
+    case "ES":
+      return ['"Te enseño"', '"Mira esto"', '"Ve a verlo"', '"La verdad, pruébalo"'];
+    case "AR":
+      return ['"خليني أوريك"', '"شوف هذا"', '"روح شوفه"', '"بصراحة جرّبه"'];
+    case "ZH":
+      return ['"我给你看"', '"你看这个"', '"去看看"', '"真的可以试试"'];
+    case "FR":
+    default:
+      return ['"Je te montre"', '"Regarde ça"', '"Va voir"', '"Franchement, teste"'];
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const body: GenerateBody = await req.json();
@@ -65,7 +184,13 @@ export async function POST(req: Request) {
     const duration = body.duration || "";
     const context = body.context || "";
 
+    const scriptsCount = mode === "AGENCY" ? 10 : 4;
     const isTikTok = String(platform || "").toLowerCase().includes("tiktok");
+
+    const languageName = getLanguageName(lang);
+    const tiktokOpenings = getTikTokOpeningExamples(lang);
+    const tiktokBadOpeners = getTikTokBadOpeners(lang);
+    const tiktokCtas = getTikTokCtaExamples(lang);
 
     const tiktokNaturalRules = isTikTok
       ? `
@@ -75,32 +200,31 @@ If platform = TikTok:
 - Use human, spontaneous, conversational wording.
 - Avoid sounding like a classic ad.
 - Avoid overly polished, corporate, or robotic phrasing.
-- Avoid generic ad openings such as:
-  - "Marre de..."
-  - "Découvrez..."
-  - "Achetez..."
-  - "Cliquez sur le lien"
 - Prefer native TikTok hooks that sound spoken and authentic.
 - Add a strong pattern interrupt in the first 1 to 2 seconds.
 - The first line must feel scroll-stopping, emotionally immediate, and human.
 - When relevant, prefer first-person phrasing.
+- Avoid generic ad openings such as:
+  - ${tiktokBadOpeners[0]}
+  - ${tiktokBadOpeners[1]}
+  - ${tiktokBadOpeners[2]}
+  - ${tiktokBadOpeners[3]}
 - Prefer hook styles like:
-  - "Je vous jure..."
-  - "J’en pouvais plus..."
-  - "Attends, faut que je te montre..."
-  - "Bon, je vais être honnête..."
-  - "Je pensais pas dire ça un jour..."
+  - ${tiktokOpenings[0]}
+  - ${tiktokOpenings[1]}
+  - ${tiktokOpenings[2]}
+  - ${tiktokOpenings[3]}
+  - ${tiktokOpenings[4]}
 - TikTok CTA must stay natural, light, and creator-native.
 - Prefer CTA styles like:
-  - "Je te montre"
-  - "Regarde ça"
-  - "Va voir"
-  - "Franchement, teste"
+  - ${tiktokCtas[0]}
+  - ${tiktokCtas[1]}
+  - ${tiktokCtas[2]}
+  - ${tiktokCtas[3]}
+- Never use cliché ad wording for TikTok.
 - The script must feel like native TikTok UGC, not recycled Meta ad copy.
 `
       : "";
-
-    const scriptsCount = mode === "AGENCY" ? 10 : 4;
 
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(
@@ -133,6 +257,11 @@ DO NOT USE OVERUSED GENERIC PHRASES SUCH AS
 - "Game changer"
 - "Discover the future"
 unless they sound truly natural in context.
+
+ADDITIONAL PHRASE RULE
+- Avoid using "Imagine..." as an opening or as the Desire line unless it is absolutely necessary and feels completely natural.
+- Prefer concrete desire wording instead of fantasy cliché wording.
+- Prefer real-life payoff over vague projection.
 
 HUMAN WRITING RULES
 - Prefer concrete everyday situations over vague claims.
@@ -204,6 +333,7 @@ Never mix product types.
 
 LANGUAGE RULES
 Selected language: ${lang}
+Selected language name: ${languageName}
 
 SUPPORTED LANGUAGE INTENT
 - FR = French
@@ -225,6 +355,10 @@ IMPORTANT LANGUAGE RULE
 - If selected language is EN-UK, everything must be in British English.
 - If selected language is EN-US, everything must be in American English.
 - Hooks, AIDA, beats, proof, shotlist, CTA, testing plan, KPI labels content, and premium fields must all follow the selected language.
+- promptEngine, platformStrategy, psychologicalAngle, creativeDirection, testingPlan, and all script content must be in the selected language too.
+- Do not output English text when the selected language is FR.
+- Do not output French text when the selected language is EN.
+- Do not mix localized examples from another language.
 
 PRONOUN RULE
 - If selected language is FR and platform is TikTok, Instagram Reels, YouTube Shorts, or Facebook Ads: default to "tu" for a more human creator-native tone.
@@ -271,12 +405,8 @@ If platform = TikTok:
 - Prefer emotional realism, mini-story tension, and natural confession energy.
 - Use pattern interrupt logic in the opening.
 - Avoid stiff ad phrases like "discover", "buy now", "click the link", "tired of...".
-- Prefer human openings such as:
-  - "Je vous jure..."
-  - "J’en pouvais plus..."
-  - "Attends, faut que je te montre..."
-  - "Bon, je vais être honnête..."
-  - "Je pensais pas dire ça un jour..."
+- Avoid using "Imagine..." as a lazy desire shortcut.
+- Prefer human openings adapted to the selected language.
 - CTA must remain natural and platform-native, not overly aggressive.
 
 If platform = Instagram Reels:
@@ -459,6 +589,9 @@ AIDA WRITING RULES
 - Interest = concrete reason to care
 - Desire = emotional + practical payoff
 - Action = clear next step
+- Do not write generic desire lines.
+- Avoid "Imagine..." unless it is exceptionally natural.
+- Prefer desire lines based on relief, ease, outcome, confidence, speed, or proof.
 
 SHOTLIST RULES
 Shotlists must be concrete and filmable.
@@ -520,7 +653,7 @@ No code fences.
 `;
 
     const userPrompt = `
-Generate exactly ${scriptsCount} high-quality scripts in ${lang}.
+Generate exactly ${scriptsCount} high-quality scripts in ${languageName}.
 
 Use these inputs:
 - Audience: ${audience}
@@ -535,6 +668,12 @@ Use these inputs:
 - Context: ${context}
 - Main objection: ${objection}
 - Mode: ${mode}
+
+Critical output language rule:
+- Output everything only in ${languageName}.
+- Do not mix languages.
+- If the selected language is FR, every field must be in French.
+- This includes promptEngine, platformStrategy, psychologicalAngle, creativeDirection, hook, AIDA, beats, proof, whyItWorks, adsVariants, shotlist, CTA, testingPlan, and KPI wording.
 
 Return this exact JSON shape:
 {

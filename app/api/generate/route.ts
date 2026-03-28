@@ -189,8 +189,16 @@ export async function POST(req: Request) {
     const context = sanitizeString(body.context);
 
     const scriptsCount = mode === "AGENCY" ? 10 : 4;
-    const isTikTok = String(platform || "").toLowerCase().includes("tiktok");
+    const lowerPlatform = platform.toLowerCase();
+    const isTikTok = lowerPlatform.includes("tiktok");
+    const isReels = lowerPlatform.includes("instagram") || lowerPlatform.includes("reels");
+    const isShorts = lowerPlatform.includes("youtube") || lowerPlatform.includes("shorts");
+    const isFacebookAds = lowerPlatform.includes("facebook");
+    const isGoogleAds = lowerPlatform.includes("google");
+    const isLandingPage = lowerPlatform.includes("landing");
+    const isEmail = lowerPlatform.includes("email");
     const hasContext = context.length > 0;
+
     const languageName = getLanguageName(lang);
     const tiktokOpenings = getTikTokOpeningExamples(lang);
     const tiktokBadOpeners = getTikTokBadOpeners(lang);
@@ -428,6 +436,98 @@ If platform = TikTok:
 `
       : "";
 
+    const reelsRules = isReels
+      ? `
+INSTAGRAM REELS RULES
+If platform = Instagram Reels:
+- Keep the script human and creator-native.
+- Make it slightly cleaner, more aesthetic, and more polished than TikTok.
+- Keep the rhythm smooth and visually elegant.
+- Favor visually pleasing actions, beauty of frame, product feel, lifestyle integration, and clean storytelling.
+- Hooks should feel attractive and natural, not too chaotic.
+- Avoid aggressive or overly pushy CTA wording.
+- CTA should feel soft, stylish, and easy to follow.
+- Shotlist should reflect visual neatness, intentional framing, and aesthetic coherence.
+- Avoid overdoing slang or rough phrasing unless the user context clearly calls for it.
+`
+      : "";
+
+    const shortsRules = isShorts
+      ? `
+YOUTUBE SHORTS RULES
+If platform = YouTube Shorts:
+- Prioritize retention and clean progression.
+- The hook must create immediate curiosity or tension.
+- The script should feel more structured than TikTok.
+- Use a mini-story or mini-progression that pays off clearly.
+- Keep the viewer moving from hook -> reason -> proof -> result -> CTA.
+- Avoid messy or overly chaotic phrasing.
+- Favor clarity, retention, and narrative momentum.
+- beatsTiming should support continuous viewer retention.
+`
+      : "";
+
+    const facebookAdsRules = isFacebookAds
+      ? `
+FACEBOOK ADS RULES
+If platform = Facebook Ads:
+- Prioritize direct response performance.
+- The hook can be direct if it improves conversion clarity.
+- Quickly establish the problem or benefit.
+- Move fast toward solution and proof.
+- Trust, credibility, reassurance, and clarity matter more than trendiness.
+- Use proof, objection handling, and practical benefit strongly.
+- CTA can be more direct than TikTok or Reels.
+- Avoid being vague, artsy, or purely entertainment-focused.
+- AdsVariants should feel genuinely testable for performance marketing.
+`
+      : "";
+
+    const googleAdsRules = isGoogleAds
+      ? `
+GOOGLE ADS RULES
+If platform = Google Ads:
+- Prioritize clarity over style.
+- Write with strong buyer-intent logic.
+- Avoid vague storytelling, fluff, or overly creator-like language.
+- Lead with direct relevance, problem/solution, or immediate benefit.
+- Every line should feel useful, specific, and conversion-oriented.
+- Hooks should be sharp and clear, not poetic.
+- Proof and whyItWorks should be practical and grounded.
+- CTA should be direct and friction-reducing.
+- Testing plans should reflect performance logic, not creative fluff.
+`
+      : "";
+
+    const landingPageRules = isLandingPage
+      ? `
+LANDING PAGE RULES
+If platform = Landing page:
+- Be more explanatory and persuasive.
+- Build trust clearly and progressively.
+- Address objections more explicitly.
+- Use proof, reassurance, and benefit stacking.
+- The hook can be slightly longer if it improves clarity.
+- Keep the writing human, but more structured than short-form video.
+- CTA should be confident, clear, and conversion-friendly.
+`
+      : "";
+
+    const emailRules = isEmail
+      ? `
+EMAIL RULES
+If platform = Email:
+- Write with conversational persuasion.
+- The opening should feel like a strong email opener or subject-line energy.
+- Keep the tone human and readable.
+- Use benefit-driven copy with clear progression.
+- Avoid sounding like a banner ad.
+- The action line should feel natural for email, not like TikTok.
+- Prioritize clarity, emotional relevance, and easy reading.
+- AIDA should feel adapted to email persuasion, not video scripting only.
+`
+      : "";
+
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(
         { error: "Missing OPENAI_API_KEY in environment variables." },
@@ -601,6 +701,18 @@ ${angleRules}
 
 ${tiktokNaturalRules}
 
+${reelsRules}
+
+${shortsRules}
+
+${facebookAdsRules}
+
+${googleAdsRules}
+
+${landingPageRules}
+
+${emailRules}
+
 ${objectionRules}
 
 PLATFORM ADAPTATION RULES
@@ -629,12 +741,17 @@ If platform = Instagram Reels:
 - Still natural and human
 - Good visual storytelling rhythm
 - Short impactful phrasing
+- Prioritize visual attractiveness and aesthetic coherence
+- Keep the style clean, smooth, and modern
+- CTA should feel soft, stylish, and natural
 
 If platform = YouTube Shorts:
 - Strong retention hook
 - Clear mini-story progression
 - More structured than TikTok
 - Still fast and creator-native
+- Prioritize payoff and clean narrative progression
+- Support viewer retention throughout the beats
 
 If platform = Facebook Ads:
 - Direct-response style
@@ -642,6 +759,9 @@ If platform = Facebook Ads:
 - Benefit clarity matters
 - Product understanding must be immediate
 - Trust and conversion matter more than trendiness
+- Strong objection handling
+- Strong practical proof
+- CTA can be more direct than short-form organic platforms
 
 If platform = Google Ads:
 - High clarity
@@ -653,18 +773,22 @@ If platform = Google Ads:
 - No vague storytelling
 - No creator fluff
 - Conversion intent first
+- Every major line should feel specific and useful
 
 If platform = Landing page:
 - More explanatory and persuasive
 - Build trust clearly
 - Still human, not robotic
 - Emphasize objections, proof, desire, CTA
+- More persuasive depth is allowed when it improves clarity
 
 If platform = Email:
 - Conversational persuasion
 - Subject-line style energy in the beginning
 - Emotional but clear
 - Benefit-driven and action-oriented
+- Easy to read
+- Action should feel email-native, not social-video-native
 
 PER-SCRIPT STRATEGY RULE
 Each individual script must have its own:
@@ -878,6 +1002,9 @@ Examples:
 - CPC
 - ROAS
 - Watch time
+- Open rate
+- Reply rate
+- Click rate
 
 FINAL IMPORTANT OUTPUT RULE
 Return valid JSON only.
@@ -918,6 +1045,13 @@ Critical promptEngine rule:
 
 Critical context rule:
 ${hasContext ? `- The provided context must clearly influence the hook, promptEngine, beats, beatsTiming, creativeDirection, and shotlist.` : "- No extra context was provided."}
+
+Critical platform rule:
+- The output must feel natively adapted to ${platform}.
+- Do not generate TikTok-style writing for Email or Google Ads.
+- Do not generate Google Ads-style writing for TikTok.
+- Do not generate Facebook Ads-style CTA for Reels unless it feels natural.
+- Platform adaptation must be obvious.
 
 Return this exact JSON shape:
 {

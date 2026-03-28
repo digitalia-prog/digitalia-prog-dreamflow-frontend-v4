@@ -166,31 +166,233 @@ function getTikTokCtaExamples(lang: string) {
   }
 }
 
+function sanitizeString(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
 export async function POST(req: Request) {
   try {
     const body: GenerateBody = await req.json();
 
     const mode: Mode = body.mode === "AGENCY" ? "AGENCY" : "CREATOR";
-    const lang = body.lang || "FR";
-    const platform = body.platform || "TikTok";
-    const objective = body.objective || "Vente";
-    const audience = body.audience || "";
-    const offer = body.offer || "";
-    const price = body.price || "";
-    const angle = body.angle || "";
-    const objection = body.objection || "";
-    const hookType = body.hookType || "";
-    const tone = body.tone || "";
-    const duration = body.duration || "";
-    const context = body.context || "";
+    const lang = sanitizeString(body.lang) || "FR";
+    const platform = sanitizeString(body.platform) || "TikTok";
+    const objective = sanitizeString(body.objective) || "Vente";
+    const audience = sanitizeString(body.audience);
+    const offer = sanitizeString(body.offer);
+    const price = sanitizeString(body.price);
+    const angle = sanitizeString(body.angle);
+    const objection = sanitizeString(body.objection);
+    const hookType = sanitizeString(body.hookType);
+    const tone = sanitizeString(body.tone);
+    const duration = sanitizeString(body.duration);
+    const context = sanitizeString(body.context);
 
     const scriptsCount = mode === "AGENCY" ? 10 : 4;
     const isTikTok = String(platform || "").toLowerCase().includes("tiktok");
-
+    const hasContext = context.length > 0;
     const languageName = getLanguageName(lang);
     const tiktokOpenings = getTikTokOpeningExamples(lang);
     const tiktokBadOpeners = getTikTokBadOpeners(lang);
     const tiktokCtas = getTikTokCtaExamples(lang);
+
+    const contextPriorityRules = hasContext
+      ? `
+CONTEXT PRIORITY RULE
+A context has been provided by the user:
+${context}
+
+This context is NOT optional for generation quality.
+You must use it as a strong creative constraint across the output.
+
+If context is provided:
+- adapt the hook using the context
+- adapt promptEngine using the context
+- adapt platformStrategy using the context
+- adapt creativeDirection using the context
+- adapt beats using the context
+- adapt beatsTiming using the context
+- adapt shotlist using the context
+- adapt proof examples using the context when relevant
+- adapt the scene, environment, creator posture, and filming logic using the context
+- adapt the tone and realism using the context
+- if the context mentions a place, that place should appear in the script logic
+- if the context mentions face cam, the script should reflect face cam delivery
+- if the context mentions a real pet, person, object, kitchen, desk, car, mirror, etc., the visual direction must use it concretely
+- context must have visible impact in multiple sections, not only one line
+
+Do NOT ignore the context.
+Do NOT treat it like a weak note.
+Make it structurally visible in the final output.
+`
+      : `
+CONTEXT PRIORITY RULE
+No extra context was provided.
+Generate using the other inputs only.
+`;
+
+    const hookTypeRules = hookType
+      ? `
+HOOK TYPE PRIORITY RULE
+Requested hook type: ${hookType}
+
+You must strongly respect this requested hook type.
+
+Hook type guidance:
+- Question choc = direct shocking or intriguing question
+- Story = personal story opening, lived moment, anecdotal entry
+- Pain point = direct pain/frustration/problem opening
+- Contrarian = surprising opposite opinion or unexpected claim
+- Direct claim = clear strong benefit/result statement
+- Curiosity = information gap, tease, unexpected reveal, unanswered tension
+
+IMPORTANT:
+- The generated hook must actually match the requested type.
+- The "hookDetected" field must match the real hook used.
+- Do not label a pain point hook as curiosity.
+- Do not label a story hook as direct claim.
+- Hook logic must be coherent.
+`
+      : `
+HOOK TYPE PRIORITY RULE
+No explicit hook type was provided.
+Choose the strongest hook type for the platform and objective.
+`;
+
+    const toneRules = tone
+      ? `
+TONE PRIORITY RULE
+Requested tone: ${tone}
+
+You must respect this tone in the writing style.
+
+Tone guidance:
+- UGC naturel (simple) = simple, spoken, creator-native, human, not polished
+- Direct response = more direct, persuasive, benefit-first, conversion-oriented
+- Storytelling = stronger narrative flow, scene, progression, personal feel
+- Premium = elegant, polished, aspirational, credible, refined
+- Funny = light, playful, relatable, humorous without losing clarity
+
+The tone must be visible in:
+- hook
+- AIDA
+- promptEngine
+- creativeDirection
+- CTA
+- overall voice
+`
+      : `
+TONE PRIORITY RULE
+No explicit tone was provided.
+Choose the most effective tone for the platform and objective.
+`;
+
+    const durationRules = duration
+      ? `
+DURATION PRIORITY RULE
+Requested duration: ${duration}
+
+You must adapt the output to this duration.
+
+Duration guidance:
+- 15s = ultra concise, fast pacing, few beats, one main idea
+- 30s = balanced structure, concise hook, quick proof, clear CTA
+- 45s = more detail, stronger progression, more proof or context
+- 60s = more narrative space, richer storytelling, fuller proof and explanation
+
+IMPORTANT:
+- beatsTiming must match the requested duration
+- the amount of information must fit the duration
+- do not write a 60s script disguised as 15s
+- do not make timing too thin for 45s or 60s
+`
+      : `
+DURATION PRIORITY RULE
+No explicit duration was provided.
+Use the most natural pacing for the platform.
+`;
+
+    const objectiveRules = objective
+      ? `
+OBJECTIVE PRIORITY RULE
+Requested objective: ${objective}
+
+You must adapt script logic to the objective.
+
+Objective guidance:
+- Vente = stronger conversion intent, benefit, objection handling, CTA
+- Lead = curiosity + trust + interest + action to learn more
+- Awareness = attention, memorability, relatability, retention, lighter CTA
+- UGC = native creator style, authenticity, lifestyle proof, realism
+- Conversion = strongest persuasion logic, clarity, trust, action
+
+The chosen KPI should reflect the objective.
+`
+      : "";
+
+    const priceRules = price
+      ? `
+PRICE RULE
+The price provided is: ${price}
+Use it only if it helps credibility or conversion.
+Do not force the price unnaturally.
+If used, it must sound natural in the selected language and platform style.
+`
+      : `
+PRICE RULE
+No price was provided.
+Do not invent a price.
+`;
+
+    const audienceRules = audience
+      ? `
+AUDIENCE RULE
+Audience provided: ${audience}
+
+The script must feel written specifically for this audience.
+Use their reality, frustrations, desires, tone, and context.
+Avoid generic messaging.
+`
+      : `
+AUDIENCE RULE
+No specific audience was provided.
+Use the broadest relevant audience for the product.
+`;
+
+    const objectionRules = objection
+      ? `
+OBJECTION HANDLING
+The main objection is:
+${objection}
+
+Every script must address this objection directly or indirectly.
+Turn the objection into reassurance, clarity, proof, ease, desire, or urgency.
+`
+      : `
+OBJECTION HANDLING
+No explicit objection was provided.
+Use the most likely objection for the product and audience.
+`;
+
+    const angleRules = angle
+      ? `
+ANGLE PRIORITY RULE
+Main marketing angle provided:
+${angle}
+
+This angle must influence:
+- hook framing
+- creative angles
+- AIDA
+- proof
+- CTA logic
+Do not ignore it.
+`
+      : `
+ANGLE PRIORITY RULE
+No explicit angle was provided.
+Choose strong angles based on product, audience, and platform.
+`;
 
     const tiktokNaturalRules = isTikTok
       ? `
@@ -320,6 +522,7 @@ Detect product type first:
 - digital product
 - service
 - SaaS
+- information/content theme if the user input is more conceptual than productized
 
 Then adapt:
 - promptEngine
@@ -380,14 +583,25 @@ Language: ${lang}
 Mode: ${mode}
 Context: ${context}
 
+${contextPriorityRules}
+
+${hookTypeRules}
+
+${toneRules}
+
+${durationRules}
+
+${objectiveRules}
+
+${priceRules}
+
+${audienceRules}
+
+${angleRules}
+
 ${tiktokNaturalRules}
 
-OBJECTION HANDLING
-The main objection is:
-${objection}
-
-Every script must address this objection directly or indirectly.
-Turn the objection into reassurance, clarity, proof, ease, desire, or urgency.
+${objectionRules}
 
 PLATFORM ADAPTATION RULES
 Selected platform: ${platform}
@@ -467,9 +681,16 @@ promptEngine must:
 - be specific to product
 - be specific to platform
 - be specific to psychology
+- be specific to tone
+- be specific to duration
+- be specific to context when provided
 - be concise but actionable
 - feel like a creator/director brief
-- include camera angle and creator positioning guidance in one compact sentence or two short sentences
+- include camera angle and creator positioning guidance
+- be formatted as 6 to 10 short lines maximum
+- each line must be useful and scannable
+- avoid one-line promptEngine outputs
+- avoid giant paragraphs
 
 CAMERA DIRECTION RULE
 For each script, think visually:
@@ -478,6 +699,7 @@ For each script, think visually:
 - creator position
 - movement
 - rhythm
+- scene environment
 
 Use realistic UGC video language such as:
 - face cam
@@ -490,6 +712,10 @@ Use realistic UGC video language such as:
 - standing face cam
 - walking shot
 - POV angle
+- kitchen shot
+- floor shot
+- reaction shot
+- before/after shot
 
 If relevant, incorporate camera logic into:
 - promptEngine
@@ -516,7 +742,8 @@ Generate hook ideas that are:
 - non-repetitive
 - adapted to the selected platform
 
-If hook type is provided, use it as direction but do not become repetitive or mechanical.
+If hook type is provided, use it as direction and respect it strongly.
+Do not become repetitive or mechanical.
 
 HOOK DETECTION RULE
 Possible hook types:
@@ -529,6 +756,7 @@ Possible hook types:
 
 Choose the closest match.
 Do not invent new categories.
+The label must accurately match the hook.
 
 CREATIVE ANGLE RULES
 Generate 3 distinct creative angles.
@@ -597,6 +825,7 @@ SHOTLIST RULES
 Shotlists must be concrete and filmable.
 Avoid vague items.
 Each shotlist should feel like a creator can film it immediately.
+If context gives a location or scene, use it concretely.
 
 Good shotlist examples:
 - face cam close-up asking the hook directly
@@ -604,6 +833,9 @@ Good shotlist examples:
 - over-the-shoulder view showing the product in use
 - close-up of product texture in hand
 - mirror shot showing the product in context
+- face cam in kitchen with the cat in background
+- floor close-up showing the problem area
+- reaction shot after showing the result
 
 Bad shotlist examples:
 - show product
@@ -613,6 +845,7 @@ Bad shotlist examples:
 BEATS TIMING RULES
 Each beat timing item must be short and actionable.
 Add visual logic when useful.
+The total pacing must fit the selected duration.
 
 Examples:
 - "0-3s: face cam hook, direct eye contact"
@@ -630,6 +863,8 @@ Mention what to compare:
 - proof angle vs emotion angle
 - speed vs convenience
 - face cam hook vs product-first hook when relevant
+- story opening vs direct result opening when relevant
+Avoid awkward or abstract language.
 
 KPI RULES
 Return one main KPI per script.
@@ -674,6 +909,15 @@ Critical output language rule:
 - Do not mix languages.
 - If the selected language is FR, every field must be in French.
 - This includes promptEngine, platformStrategy, psychologicalAngle, creativeDirection, hook, AIDA, beats, proof, whyItWorks, adsVariants, shotlist, CTA, testingPlan, and KPI wording.
+
+Critical promptEngine rule:
+- promptEngine must be formatted as 6 to 10 short lines maximum.
+- Each line should be compact, actionable, and easy to scan.
+- Do not return a one-line promptEngine.
+- Do not return a large paragraph.
+
+Critical context rule:
+${hasContext ? `- The provided context must clearly influence the hook, promptEngine, beats, beatsTiming, creativeDirection, and shotlist.` : "- No extra context was provided."}
 
 Return this exact JSON shape:
 {

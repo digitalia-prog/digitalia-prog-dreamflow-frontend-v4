@@ -47,6 +47,77 @@ type GenerateBody = {
   context?: string;
 };
 
+function sanitizeString(value: unknown): string {
+  if (!value) return "";
+  return String(value).trim();
+}
+
+function normalizePlatform(platform?: string) {
+  const lower = String(platform || "").toLowerCase();
+
+  return {
+    isTikTok: lower.includes("tiktok"),
+    isReels: lower.includes("instagram") || lower.includes("reels"),
+    isShorts: lower.includes("youtube") || lower.includes("shorts"),
+    isFacebookAds: lower.includes("facebook"),
+    isGoogleAds: lower.includes("google"),
+    isLandingPage: lower.includes("landing"),
+    isEmail: lower.includes("email"),
+  };
+}
+
+function getHumanVoiceRules() {
+  return `
+HUMAN WRITING RULES
+
+- Write like a real human
+- Avoid robotic phrasing
+- Avoid generic marketing tone
+- Prefer natural language
+- Avoid exaggerated claims
+- Avoid corporate tone
+- Keep writing credible and realistic
+- Keep output usable by agencies, freelancers, brands and creators
+
+STYLE RULES
+
+- Natural sentences
+- Conversational tone
+- No AI sounding phrases
+- No generic copywriting clichés
+`;
+}
+  };
+  beats?: string[];
+  beatsTiming?: string[];
+  proof?: string[];
+  whyItWorks?: string[];
+  adsVariants?: string[];
+  shotlist?: string[];
+  cta?: {
+    primary?: string;
+    optimized?: string;
+  };
+  testingPlan?: string;
+  kpi?: string;
+};
+
+type GenerateBody = {
+  mode?: Mode;
+  lang?: string;
+  platform?: string;
+  objective?: string;
+  audience?: string;
+  offer?: string;
+  price?: string;
+  angle?: string;
+  objection?: string;
+  hookType?: string;
+  tone?: string;
+  duration?: string;
+  context?: string;
+};
+
 function getLanguageName(lang: string) {
   switch ((lang || "FR").toUpperCase()) {
     case "EN":

@@ -48,8 +48,7 @@ type GenerateBody = {
 };
 
 function sanitizeString(value: unknown): string {
-  if (!value) return "";
-  return String(value).trim();
+  return typeof value === "string" ? value.trim() : "";
 }
 
 function normalizePlatform(platform?: string) {
@@ -65,58 +64,6 @@ function normalizePlatform(platform?: string) {
     isEmail: lower.includes("email"),
   };
 }
-
-function getHumanVoiceRules() {
-  return `
-HUMAN WRITING RULES
-
-- Write like a real human
-- Avoid robotic phrasing
-- Avoid generic marketing tone
-- Prefer natural language
-- Avoid exaggerated claims
-- Avoid corporate tone
-- Keep writing credible and realistic
-- Keep output usable by agencies, freelancers, brands and creators
-
-STYLE RULES
-
-- Natural sentences
-- Conversational tone
-- No AI sounding phrases
-- No generic copywriting clichés
-`;
-}
-  };
-  beats?: string[];
-  beatsTiming?: string[];
-  proof?: string[];
-  whyItWorks?: string[];
-  adsVariants?: string[];
-  shotlist?: string[];
-  cta?: {
-    primary?: string;
-    optimized?: string;
-  };
-  testingPlan?: string;
-  kpi?: string;
-};
-
-type GenerateBody = {
-  mode?: Mode;
-  lang?: string;
-  platform?: string;
-  objective?: string;
-  audience?: string;
-  offer?: string;
-  price?: string;
-  angle?: string;
-  objection?: string;
-  hookType?: string;
-  tone?: string;
-  duration?: string;
-  context?: string;
-};
 
 function getLanguageName(lang: string) {
   switch ((lang || "FR").toUpperCase()) {
@@ -136,6 +83,69 @@ function getLanguageName(lang: string) {
     default:
       return "French";
   }
+}
+
+function getHumanVoiceRules() {
+  return `
+UNIVERSAL HUMAN WRITING RULES
+For every platform and every user type (creator, agency, freelancer, brand):
+- Write like a real human, not like an AI assistant, not like a generic copywriter, and not like a stiff consultant.
+- Keep the writing natural, credible, specific, and easy to say, read, or use directly.
+- Favor concrete wording over abstract marketing language.
+- Prefer believable observations, real-life phrasing, and natural transitions.
+- Keep the writing commercially useful, but never robotic.
+
+NATURAL LANGUAGE RULES
+- Use simple, clear language.
+- Prefer short to medium-length sentences unless longer structure improves clarity.
+- Make the rhythm feel human, not mechanically optimized line after line.
+- Avoid over-explaining.
+- Avoid sounding overly polished, corporate, or artificially perfect.
+- If the platform is spoken/video-based, the text should sound speakable out loud.
+- If the platform is written/conversion-based, the text should still feel human and fluid, not sterile.
+
+ANTI-AI / ANTI-GENERIC RULES
+Do not sound like:
+- an AI assistant
+- a generic ad generator
+- a fake visionary marketer
+- a hollow performance-marketing cliché machine
+
+Avoid wording such as:
+- "revolutionary"
+- "game-changing"
+- "unlock"
+- "transform your life"
+- "ultimate solution"
+- "in today's world"
+- "take your business to the next level"
+- "seamless experience"
+- "innovative solution"
+
+Avoid:
+- empty hype
+- vague benefits with no real feeling
+- robotic persuasion transitions
+- repeating the same sentence pattern across scripts
+- generic hooks that could apply to anything
+- fake enthusiasm
+- overusing exclamation marks
+- forced slang
+- unnatural creator wording when the platform or audience does not justify it
+
+CREDIBILITY RULES
+- The output must feel believable for the product, audience, and platform.
+- Claims should feel grounded, not inflated.
+- Emotions should feel real, not exaggerated for no reason.
+- The voice should feel native to the platform, but also usable by agencies, freelancers, brands, and creators.
+- The script should feel like something a competent human would actually write or say.
+
+STYLE BALANCE RULE
+- Keep performance intent strong.
+- Keep conversion logic strong.
+- But never sacrifice human believability for marketing intensity.
+- "High-performing" must still feel "human-usable".
+`;
 }
 
 function getTikTokOpeningExamples(lang: string) {
@@ -237,10 +247,6 @@ function getTikTokCtaExamples(lang: string) {
   }
 }
 
-function sanitizeString(value: unknown) {
-  return typeof value === "string" ? value.trim() : "";
-}
-
 export async function POST(req: Request) {
   try {
     const body: GenerateBody = await req.json();
@@ -260,17 +266,19 @@ export async function POST(req: Request) {
     const context = sanitizeString(body.context);
 
     const scriptsCount = mode === "AGENCY" ? 10 : 4;
-    const lowerPlatform = platform.toLowerCase();
-    const isTikTok = lowerPlatform.includes("tiktok");
-    const isReels = lowerPlatform.includes("instagram") || lowerPlatform.includes("reels");
-    const isShorts = lowerPlatform.includes("youtube") || lowerPlatform.includes("shorts");
-    const isFacebookAds = lowerPlatform.includes("facebook");
-    const isGoogleAds = lowerPlatform.includes("google");
-    const isLandingPage = lowerPlatform.includes("landing");
-    const isEmail = lowerPlatform.includes("email");
+    const {
+      isTikTok,
+      isReels,
+      isShorts,
+      isFacebookAds,
+      isGoogleAds,
+      isLandingPage,
+      isEmail,
+    } = normalizePlatform(platform);
     const hasContext = context.length > 0;
 
     const languageName = getLanguageName(lang);
+    const humanVoiceRules = getHumanVoiceRules();
     const tiktokOpenings = getTikTokOpeningExamples(lang);
     const tiktokBadOpeners = getTikTokBadOpeners(lang);
     const tiktokCtas = getTikTokCtaExamples(lang);
@@ -622,6 +630,8 @@ ABSOLUTE CORE RULES
 - Every script must feel like it was written by a smart marketer or creator.
 - The product being sold must always remain the user's actual product or offer.
 
+${humanVoiceRules}
+
 DO NOT USE OVERUSED GENERIC PHRASES SUCH AS
 - "Imagine..."
 - "Revolutionary"
@@ -755,35 +765,20 @@ Mode: ${mode}
 Context: ${context}
 
 ${contextPriorityRules}
-
 ${hookTypeRules}
-
 ${toneRules}
-
 ${durationRules}
-
 ${objectiveRules}
-
 ${priceRules}
-
 ${audienceRules}
-
 ${angleRules}
-
 ${tiktokNaturalRules}
-
 ${reelsRules}
-
 ${shortsRules}
-
 ${facebookAdsRules}
-
 ${googleAdsRules}
-
 ${landingPageRules}
-
 ${emailRules}
-
 ${objectionRules}
 
 PLATFORM ADAPTATION RULES

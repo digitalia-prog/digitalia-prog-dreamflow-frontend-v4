@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 type Mode = "AGENCY" | "CREATOR";
 type Lang = "FR" | "EN" | "ES" | "AR" | "ZH";
 
 type Variant = {
+  promptEngine?: string;
   platformStrategy?: string;
   psychologicalAngle?: string;
   creativeDirection?: string;
-  promptEngine?: string;
   hook?: string;
   hookDetected?: string;
   script?: {
@@ -81,21 +81,48 @@ const TONES = [
 
 const DURATIONS = ["15s", "30s", "45s", "60s"];
 
+const CONTEXT_SUGGESTIONS = [
+  "Face cam",
+  "UGC selfie",
+  "Product demo",
+  "POV",
+  "Story personnelle",
+  "Avant / Après",
+  "Avec produit en main",
+  "Filmé sur iPhone",
+  "Ton très naturel",
+  "Cuisine",
+  "Bureau",
+  "Voiture",
+];
+
 function cn(...v: (string | false | null | undefined)[]) {
   return v.filter(Boolean).join(" ");
+}
+
+function appendContextValue(current: string, value: string) {
+  const trimmedCurrent = current.trim();
+  if (!trimmedCurrent) return value;
+  if (trimmedCurrent.toLowerCase().includes(value.toLowerCase())) {
+    return trimmedCurrent;
+  }
+  return `${trimmedCurrent}, ${value}`;
 }
 
 function Field({
   label,
   children,
+  helper,
 }: {
   label: string;
-  children: React.ReactNode;
+  children: ReactNode;
+  helper?: ReactNode;
 }) {
   return (
     <div className="space-y-2">
       <div className="text-sm text-white/80">{label}</div>
       {children}
+      {helper ? <div className="text-xs leading-5 text-white/45">{helper}</div> : null}
     </div>
   );
 }
@@ -105,7 +132,7 @@ function Block({
   children,
 }: {
   title: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-[#14121c] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
@@ -134,7 +161,7 @@ function ListBlock({ items }: { items?: string[] }) {
   );
 }
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
+function SectionTitle({ children }: { children: ReactNode }) {
   return (
     <div className="mb-2 text-xs uppercase tracking-wide text-violet-300">
       {children}
@@ -147,6 +174,7 @@ export default function AiPage() {
     "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-white/35 focus:border-violet-500";
   const selectCls = inputCls;
   const textareaCls = cn(inputCls, "min-h-[96px]");
+  const contextTextareaCls = cn(inputCls, "min-h-[140px]");
 
   const [mode, setMode] = useState<Mode>("AGENCY");
   const [lang, setLang] = useState<Lang>("FR");
@@ -166,7 +194,7 @@ export default function AiPage() {
   const [hookType, setHookType] = useState<string>("Question choc");
   const [tone, setTone] = useState<string>("UGC naturel (simple)");
   const [duration, setDuration] = useState<string>("30s");
-  const [context, setContext] = useState<string>("Générer 10 scripts");
+  const [context, setContext] = useState<string>("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
@@ -250,7 +278,7 @@ export default function AiPage() {
         try {
           payload = JSON.parse(data.raw);
         } catch {
-          // on garde payload tel quel
+          // keep payload as is
         }
       }
 
@@ -303,7 +331,7 @@ export default function AiPage() {
           <h1 className="mb-2 text-3xl font-bold text-white">{title}</h1>
           <p className="text-white/65">
             Remplis les champs → Générer = hooks, script AIDA, beats, proof,
-            shotlist et CTA.
+            shotlist, CTA, testing plan et KPI.
           </p>
         </div>
 
@@ -314,15 +342,7 @@ export default function AiPage() {
                 <select
                   className={selectCls}
                   value={mode}
-                  onChange={(e) => {
-                    const nextMode = e.target.value as Mode;
-                    setMode(nextMode);
-                    setContext(
-                      nextMode === "AGENCY"
-                        ? "Générer 10 scripts"
-                        : "Générer 4 scripts"
-                    );
-                  }}
+                  onChange={(e) => setMode(e.target.value as Mode)}
                 >
                   <option value="AGENCY">AGENCY</option>
                   <option value="CREATOR">CREATOR</option>
@@ -443,12 +463,52 @@ export default function AiPage() {
                 </select>
               </Field>
 
-              <Field label="Contexte (optionnel)">
-                <textarea
-                  className={textareaCls}
-                  value={context}
-                  onChange={(e) => setContext(e.target.value)}
-                />
+              <Field
+                label="Brief créatif / Contexte (recommandé)"
+                helper={
+                  <>
+                    Pour de meilleurs résultats, ajoute le plus de détails utiles
+                    possible : lieu, style de vidéo, angle caméra, ton, personne
+                    présente, objet en main, décor, situation réelle.
+                  </>
+                }
+              >
+                <div className="space-y-3">
+                  <textarea
+                    className={contextTextareaCls}
+                    value={context}
+                    onChange={(e) => setContext(e.target.value)}
+                    placeholder={
+                      "Exemple : Face cam avec mon chat réel, vidéo tournée dans la cuisine, ton très naturel, produit en main, filmé sur iPhone, style UGC simple."
+                    }
+                  />
+
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <div className="mb-2 text-xs font-medium uppercase tracking-wide text-violet-300">
+                      Aide au prompt
+                    </div>
+                    <div className="mb-3 text-xs leading-5 text-white/55">
+                      Ajoute par exemple : lieu, type de plan, style créateur,
+                      ambiance, personne présente, scène réelle, produit en main,
+                      mouvement caméra, format UGC.
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {CONTEXT_SUGGESTIONS.map((item) => (
+                        <button
+                          key={item}
+                          type="button"
+                          onClick={() =>
+                            setContext((prev) => appendContextValue(prev, item))
+                          }
+                          className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/80 transition hover:bg-white/10"
+                        >
+                          + {item}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </Field>
 
               <button

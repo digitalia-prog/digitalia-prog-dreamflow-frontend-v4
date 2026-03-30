@@ -85,6 +85,72 @@ function getLanguageName(lang: string) {
   }
 }
 
+function inferProductType(offer: string) {
+  const lower = offer.toLowerCase();
+
+  const saasKeywords = [
+    "saas",
+    "software",
+    "logiciel",
+    "app",
+    "application",
+    "platform",
+    "plateforme",
+    "crm",
+    "automation",
+    "automatisation",
+    "dashboard",
+    "tool",
+    "outil",
+  ];
+
+  const digitalKeywords = [
+    "ebook",
+    "e-book",
+    "formation",
+    "course",
+    "cours",
+    "template",
+    "guide",
+    "pdf",
+    "checklist",
+    "masterclass",
+    "workbook",
+    "prompt pack",
+    "fichier digital",
+    "digital product",
+  ];
+
+  const serviceKeywords = [
+    "service",
+    "agency",
+    "agence",
+    "coaching",
+    "consulting",
+    "consultation",
+    "freelance",
+    "done for you",
+    "dfy",
+    "audit",
+    "mentoring",
+    "accompagnement",
+  ];
+
+  if (saasKeywords.some((keyword) => lower.includes(keyword))) {
+    return "SaaS";
+  }
+
+  if (digitalKeywords.some((keyword) => lower.includes(keyword))) {
+    return "digital product";
+  }
+
+  if (serviceKeywords.some((keyword) => lower.includes(keyword))) {
+    return "service";
+  }
+
+  return "physical product";
+}
+
 function getHumanVoiceRules() {
   return `
 UNIVERSAL HUMAN WRITING RULES
@@ -278,6 +344,7 @@ export async function POST(req: Request) {
     const hasContext = context.length > 0;
 
     const languageName = getLanguageName(lang);
+    const inferredProductType = inferProductType(offer);
     const humanVoiceRules = getHumanVoiceRules();
     const tiktokOpenings = getTikTokOpeningExamples(lang);
     const tiktokBadOpeners = getTikTokBadOpeners(lang);
@@ -304,7 +371,7 @@ If context is provided:
 - adapt the scene, environment, creator posture, and filming logic using the context
 - adapt the tone and realism using the context
 - if the context mentions a place, that place should appear in the script logic
-- if the context mentions face cam, the script should reflect face cam delivery
+- if the context mentions face cam, the script should reflect face cam delivery only for video-native platforms
 - if the context mentions a real pet, person, object, kitchen, desk, car, mirror, etc., the visual direction must use it concretely
 - context must have visible impact in multiple sections, not only one line
 
@@ -449,11 +516,19 @@ Use the broadest relevant audience for the product.
     const objectionRules = objection
       ? `
 OBJECTION HANDLING
-The main objection is:
+The main objection provided is:
 ${objection}
 
-Every script must address this objection directly or indirectly.
-Turn the objection into reassurance, clarity, proof, ease, desire, or urgency.
+You may use it only if it truly makes sense for the actual product and audience.
+
+If the objection is clearly mismatched with the real product:
+- reinterpret it in the most believable product-specific way
+- do not force the objection literally
+- do not make the script sound like a SaaS, service, creator tool, or marketing tool if the product is not that
+
+Examples:
+- for a physical product, prefer believable objections such as price, usefulness, style, comfort, trust, durability, fit, quality, need, convenience, or skepticism
+- for a SaaS or service, productivity and ROI objections can be valid
 `
       : `
 OBJECTION HANDLING
@@ -467,13 +542,18 @@ ANGLE PRIORITY RULE
 Main marketing angle provided:
 ${angle}
 
-This angle must influence:
+This angle should influence:
 - hook framing
 - creative angles
 - AIDA
 - proof
 - CTA logic
-Do not ignore it.
+
+However:
+- do not force the angle literally if it conflicts with the real product
+- reinterpret the angle in the most believable way for the product type
+- for physical products, prefer realistic product benefits over marketing-tool language
+- for SaaS/services, ROI and productivity language can be stronger
 `
       : `
 ANGLE PRIORITY RULE
@@ -575,6 +655,9 @@ If platform = Google Ads:
 - Proof and whyItWorks should be practical and grounded.
 - CTA should be direct and friction-reducing.
 - Testing plans should reflect performance logic, not creative fluff.
+- Do not write like a UGC filming script unless the product itself is a creator tool or the context explicitly requires it.
+- promptEngine should behave like a messaging/creative brief, not a face-cam shooting script.
+- shotlist should behave like an asset/content sequence for ad creative, not a creator vlog.
 `
       : "";
 
@@ -589,6 +672,8 @@ If platform = Landing page:
 - The hook can be slightly longer if it improves clarity.
 - Keep the writing human, but more structured than short-form video.
 - CTA should be confident, clear, and conversion-friendly.
+- promptEngine should behave like a conversion copy brief, not a filming brief.
+- shotlist should behave like page sections or visual blocks if needed.
 `
       : "";
 
@@ -604,6 +689,8 @@ If platform = Email:
 - The action line should feel natural for email, not like TikTok.
 - Prioritize clarity, emotional relevance, and easy reading.
 - AIDA should feel adapted to email persuasion, not video scripting only.
+- promptEngine should behave like an email persuasion brief, not a shooting brief.
+- shotlist should behave like content sequence or sections if needed, not camera directions.
 `
       : "";
 
@@ -698,7 +785,11 @@ Always focus on:
 - the actual customer outcome of that product
 
 PRODUCT TYPE DETECTION RULE
-Detect product type first:
+Detect product type first.
+User product: ${offer}
+Inferred product type hint: ${inferredProductType}
+
+Possible product types:
 - physical product
 - digital product
 - service
@@ -714,6 +805,7 @@ Then adapt:
 - CTA
 
 Never mix product types.
+Use the inferred product type as the default unless the other inputs clearly prove a different type.
 
 PRODUCT COHERENCE RULE
 The script must remain coherent with the real product.
@@ -722,7 +814,8 @@ If the product is a physical product:
 - focus on real product benefits
 - avoid marketing service style promises
 - avoid "boost your business" unless the product actually does that
-- focus on lifestyle, usage, transformation, convenience, comfort, style, protection, desirability, or practical result
+- focus on lifestyle, usage, transformation, convenience, comfort, style, protection, desirability, identity, confidence, or practical result
+- do not talk like the product is a SaaS, a script engine, a creator tool, or a coaching offer unless it really is
 
 If the product is a digital product:
 - focus on learning, saving time, achieving results, solving problems, clarity, or transformation
@@ -757,9 +850,9 @@ If the angle or objection sounds mismatched with the actual product:
 - reinterpret it in the most believable way for the real product
 - keep the final script commercially coherent
 
-Example:
+Examples:
 - if the product is sunglasses, do not write like it is a SaaS or creator tool
-- if the product is a simple physical e-commerce item, focus on style, utility, comfort, problem solved, social proof, desirability, convenience, or identity
+- if the product is a simple physical e-commerce item, focus on style, utility, comfort, quality, fit, protection, confidence, convenience, social proof, desirability, identity, gifting, or problem solved
 - if the product is a creator tool, then productivity, scripts, and ROI language can be valid
 
 LANGUAGE RULES
@@ -887,6 +980,8 @@ If platform = Google Ads:
 - No creator fluff
 - Conversion intent first
 - Every major line should feel specific and useful
+- Do not write like a face-cam creator brief unless the product itself requires that
+- Do not turn a physical product into a marketing tool
 
 If platform = Landing page:
 - More explanatory and persuasive
@@ -902,6 +997,14 @@ If platform = Email:
 - Benefit-driven and action-oriented
 - Easy to read
 - Action should feel email-native, not social-video-native
+
+NON-VIDEO PLATFORM EXECUTION RULE
+If platform = Google Ads, Landing page, or Email:
+- promptEngine must become a messaging brief, copy brief, or creative brief, not a creator filming brief
+- do not force face cam, iPhone filming, creator posture, or camera movement unless the context explicitly demands it and it still fits
+- shotlist should become an asset/content sequence, message sequence, or visual block sequence if needed
+- beats should follow persuasion or message progression, not a video vlog rhythm
+- keep the output native to the platform first
 
 PER-SCRIPT STRATEGY RULE
 Each individual script must have its own:
@@ -922,15 +1025,16 @@ promptEngine must:
 - be specific to duration
 - be specific to context when provided
 - be concise but actionable
-- feel like a creator/director brief
-- include camera angle and creator positioning guidance
+- feel like a useful brief
+- include camera angle and creator positioning guidance only for video-native platforms
+- include message structure, asset logic, or conversion brief logic for non-video platforms
 - be formatted as 6 to 10 short lines maximum
 - each line must be useful and scannable
 - avoid one-line promptEngine outputs
 - avoid giant paragraphs
 
 CAMERA DIRECTION RULE
-For each script, think visually:
+For video-native platforms, think visually:
 - camera angle
 - framing
 - creator position
@@ -954,20 +1058,25 @@ Use realistic UGC video language such as:
 - reaction shot
 - before/after shot
 
-If relevant, incorporate camera logic into:
+For non-video platforms:
+- replace camera logic with asset logic, message structure, copy block order, headline-support-proof flow, or visual content block logic
+
+If relevant, incorporate this into:
 - promptEngine
 - beatsTiming
 - shotlist
 - creativeDirection
 
 CREATOR POSITIONING RULE
-Mention how the creator should appear when relevant:
+Mention how the creator should appear only when the platform and product make that relevant:
 - face cam direct to viewer
 - seated expert angle
 - casual authentic angle
 - testimonial angle
 - demo angle
 - problem/solution angle
+
+Do not force creator positioning for Google Ads, Landing page, or Email when it does not fit.
 
 HOOK RULES
 Generate hook ideas that are:
@@ -978,6 +1087,7 @@ Generate hook ideas that are:
 - human
 - non-repetitive
 - adapted to the selected platform
+- coherent with the actual product
 
 If hook type is provided, use it as direction and respect it strongly.
 Do not become repetitive or mechanical.
@@ -997,7 +1107,7 @@ The label must accurately match the hook.
 
 CREATIVE ANGLE RULES
 Generate 3 distinct creative angles.
-Each angle must feel meaningfully different.
+Each angle must feel meaningfully different and product-coherent.
 
 Examples of angle differences:
 - pain/problem angle
@@ -1056,15 +1166,21 @@ AIDA WRITING RULES
 - Action = clear next step
 - Do not write generic desire lines.
 - Avoid "Imagine..." unless it is exceptionally natural.
-- Prefer desire lines based on relief, ease, outcome, confidence, speed, or proof.
+- Prefer desire lines based on relief, ease, outcome, confidence, speed, proof, style, comfort, trust, identity, or product result depending on the product.
 
 SHOTLIST RULES
-Shotlists must be concrete and filmable.
+Shotlists must be concrete and usable.
 Avoid vague items.
-Each shotlist should feel like a creator can film it immediately.
-If context gives a location or scene, use it concretely.
 
-Good shotlist examples:
+If the platform is video-native:
+- each shotlist should feel like a creator can film it immediately
+
+If the platform is not video-native:
+- each shotlist item should become a concrete asset/content block sequence or ad component sequence
+
+If context gives a location or scene, use it concretely only when it fits the platform.
+
+Good video-native shotlist examples:
 - face cam close-up asking the hook directly
 - top shot opening the package on a desk
 - over-the-shoulder view showing the product in use
@@ -1073,6 +1189,13 @@ Good shotlist examples:
 - face cam in kitchen with the cat in background
 - floor close-up showing the problem area
 - reaction shot after showing the result
+
+Good non-video shotlist examples:
+- headline asset with direct problem-aware claim
+- product visual with benefit overlay
+- trust/proof block with review or credibility cue
+- CTA block with clear low-friction action
+- comparison asset highlighting practical benefit
 
 Bad shotlist examples:
 - show product
@@ -1083,6 +1206,8 @@ BEATS TIMING RULES
 Each beat timing item must be short and actionable.
 Add visual logic when useful.
 The total pacing must fit the selected duration.
+
+For non-video platforms, beatsTiming can reflect sequence/progression rather than literal second-by-second filming if that is more coherent.
 
 Examples:
 - "0-3s: face cam hook, direct eye contact"
@@ -1133,6 +1258,7 @@ Generate exactly ${scriptsCount} high-quality scripts in ${languageName}.
 Use these inputs:
 - Audience: ${audience}
 - Offer/Product: ${offer}
+- Inferred product type: ${inferredProductType}
 - Price: ${price}
 - Angle: ${angle}
 - Platform: ${platform}
@@ -1143,6 +1269,12 @@ Use these inputs:
 - Context: ${context}
 - Main objection: ${objection}
 - Mode: ${mode}
+
+Critical product coherence rule:
+- The actual product is the source of truth.
+- If the angle or objection sounds like SaaS, service, creator-tool, or marketing language but the product is a physical product, reinterpret the angle and objection so the output stays believable for the physical product.
+- Do not write as if sunglasses are a script tool, marketing tool, SaaS, or business growth system.
+- For a physical product, prefer real buyer motivations such as style, comfort, utility, fit, identity, convenience, protection, gifting, confidence, quality, or social proof.
 
 Critical output language rule:
 - Output everything only in ${languageName}.
@@ -1157,7 +1289,7 @@ Critical promptEngine rule:
 - Do not return a large paragraph.
 
 Critical context rule:
-${hasContext ? `- The provided context must clearly influence the hook, promptEngine, beats, beatsTiming, creativeDirection, and shotlist.` : "- No extra context was provided."}
+${hasContext ? `- The provided context must clearly influence the hook, promptEngine, beats, beatsTiming, creativeDirection, and shotlist when it fits the selected platform.` : "- No extra context was provided."}
 
 Critical platform rule:
 - The output must feel natively adapted to ${platform}.

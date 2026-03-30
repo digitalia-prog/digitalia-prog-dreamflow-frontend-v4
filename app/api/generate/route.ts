@@ -715,6 +715,53 @@ Then adapt:
 
 Never mix product types.
 
+PRODUCT COHERENCE RULE
+The script must remain coherent with the real product.
+
+If the product is a physical product:
+- focus on real product benefits
+- avoid marketing service style promises
+- avoid "boost your business" unless the product actually does that
+- focus on lifestyle, usage, transformation, convenience, comfort, style, protection, desirability, or practical result
+
+If the product is a digital product:
+- focus on learning, saving time, achieving results, solving problems, clarity, or transformation
+
+If the product is a SaaS:
+- focus on automation, speed, efficiency, growth, ROI, workflow simplification, or operational clarity
+
+If the product is a service:
+- focus on expertise, transformation, results, reassurance, trust, and outcome
+
+IMPORTANT:
+- Do not mix product categories
+- Do not use SaaS-style messaging for physical products
+- Do not use service messaging for simple e-commerce products
+- Do not use creator-tool messaging unless the actual product is a creator tool
+- Promises must stay realistic and believable for the product
+- If the user inputs are partially inconsistent, prioritize the real product and write the most believable script possible
+
+INPUT COHERENCE RULE
+When several inputs conflict, use this priority order:
+1. real product / offer
+2. platform
+3. audience
+4. objective
+5. angle
+6. objection
+7. tone
+8. hook type
+
+If the angle or objection sounds mismatched with the actual product:
+- do not force the mismatch literally
+- reinterpret it in the most believable way for the real product
+- keep the final script commercially coherent
+
+Example:
+- if the product is sunglasses, do not write like it is a SaaS or creator tool
+- if the product is a simple physical e-commerce item, focus on style, utility, comfort, problem solved, social proof, desirability, convenience, or identity
+- if the product is a creator tool, then productivity, scripts, and ROI language can be valid
+
 LANGUAGE RULES
 Selected language: ${lang}
 Selected language name: ${languageName}

@@ -17,18 +17,10 @@ export async function POST(req: Request) {
     }
 
     const key = process.env.RESEND_API_KEY;
-    const from = process.env.DE_MAIL_DE_BIENVENUE;
 
     if (!key) {
       return NextResponse.json(
         { ok: false, error: "RESEND_API_KEY manquante" },
-        { status: 500 }
-      );
-    }
-
-    if (!from) {
-      return NextResponse.json(
-        { ok: false, error: "DE_MAIL_DE_BIENVENUE manquante" },
         { status: 500 }
       );
     }
@@ -40,7 +32,7 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from,
+        from: "UGC Growth <agency@ugcgrowth.io>",
         to: email,
         subject: "Bienvenue dans UGC Growth 🚀",
         html: `

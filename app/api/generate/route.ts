@@ -88,28 +88,62 @@ function getLanguageName(lang: string) {
 function inferProductType(offer: string) {
   const lower = offer.toLowerCase();
 
+  const contentKeywords = [
+    "mon chat",
+    "mon chien",
+    "mon bébé",
+    "mon enfant",
+    "mon copain",
+    "ma copine",
+    "ma vie",
+    "mon histoire",
+    "story",
+    "histoire",
+    "anecdote",
+    "expérience",
+    "vlog",
+    "témoignage",
+    "temoignage",
+    "problème",
+    "probleme",
+    "situation",
+    "drama",
+    "drôle",
+    "drole",
+    "fait pipi",
+    "fait caca",
+    "il m'est arrivé",
+    "il m est arrive",
+    "quand mon",
+    "quand ma",
+  ];
+
   const saasKeywords = [
     "saas",
     "software",
     "logiciel",
     "app",
     "application",
-    "platform",
     "plateforme",
+    "platform",
     "crm",
     "automation",
     "automatisation",
     "dashboard",
     "tool",
     "outil",
+    "script engine",
+    "generator",
+    "générateur",
+    "generateur",
   ];
 
   const digitalKeywords = [
     "ebook",
     "e-book",
     "formation",
-    "course",
     "cours",
+    "course",
     "template",
     "guide",
     "pdf",
@@ -117,8 +151,8 @@ function inferProductType(offer: string) {
     "masterclass",
     "workbook",
     "prompt pack",
-    "fichier digital",
     "digital product",
+    "produit digital",
   ];
 
   const serviceKeywords = [
@@ -135,6 +169,10 @@ function inferProductType(offer: string) {
     "mentoring",
     "accompagnement",
   ];
+
+  if (contentKeywords.some((keyword) => lower.includes(keyword))) {
+    return "content";
+  }
 
   if (saasKeywords.some((keyword) => lower.includes(keyword))) {
     return "SaaS";
@@ -368,11 +406,11 @@ If context is provided:
 - adapt beatsTiming using the context
 - adapt shotlist using the context
 - adapt proof examples using the context when relevant
-- adapt the scene, environment, creator posture, and filming logic using the context
+- adapt the scene, environment, creator posture, and filming logic using the context only if it fits the selected platform and content type
 - adapt the tone and realism using the context
-- if the context mentions a place, that place should appear in the script logic
-- if the context mentions face cam, the script should reflect face cam delivery only for video-native platforms
-- if the context mentions a real pet, person, object, kitchen, desk, car, mirror, etc., the visual direction must use it concretely
+- if the context mentions a place, that place should appear in the script logic when relevant
+- if the context mentions face cam, the script should reflect face cam delivery only for video-native formats
+- if the context mentions a real pet, person, object, kitchen, desk, car, mirror, etc., the visual direction must use it concretely when relevant
 - context must have visible impact in multiple sections, not only one line
 
 Do NOT ignore the context.
@@ -488,9 +526,16 @@ The chosen KPI should reflect the objective.
       ? `
 PRICE RULE
 The price provided is: ${price}
-Use it only if it helps credibility or conversion.
-Do not force the price unnaturally.
-If used, it must sound natural in the selected language and platform style.
+
+If inferred product type = content:
+- ignore the price if it does not make sense
+- do not invent a product because a price exists
+- do not force commerce language into story content
+
+If inferred product type != content:
+- use the price only if it helps credibility or conversion
+- do not force the price unnaturally
+- if used, it must sound natural in the selected language and platform style
 `
       : `
 PRICE RULE
@@ -510,7 +555,7 @@ Avoid generic messaging.
       : `
 AUDIENCE RULE
 No specific audience was provided.
-Use the broadest relevant audience for the product.
+Use the broadest relevant audience for the product or content theme.
 `;
 
     const objectionRules = objection
@@ -519,21 +564,22 @@ OBJECTION HANDLING
 The main objection provided is:
 ${objection}
 
-You may use it only if it truly makes sense for the actual product and audience.
+You may use it only if it truly makes sense for the actual product/content and audience.
 
-If the objection is clearly mismatched with the real product:
-- reinterpret it in the most believable product-specific way
+If inferred product type = content:
+- do not turn the content into something to buy
+- reinterpret the objection as a creator/content tension if needed
+- the output can focus on relatability, attention, story clarity, or emotional connection
+
+If the objection is clearly mismatched with the real product/content:
+- reinterpret it in the most believable way
 - do not force the objection literally
-- do not make the script sound like a SaaS, service, creator tool, or marketing tool if the product is not that
-
-Examples:
-- for a physical product, prefer believable objections such as price, usefulness, style, comfort, trust, durability, fit, quality, need, convenience, or skepticism
-- for a SaaS or service, productivity and ROI objections can be valid
+- do not make the script sound like a SaaS, service, creator tool, or marketing tool if it is not that
 `
       : `
 OBJECTION HANDLING
 No explicit objection was provided.
-Use the most likely objection for the product and audience.
+Use the most likely objection, tension, or audience friction for the product or content theme.
 `;
 
     const angleRules = angle
@@ -550,15 +596,16 @@ This angle should influence:
 - CTA logic
 
 However:
-- do not force the angle literally if it conflicts with the real product
-- reinterpret the angle in the most believable way for the product type
+- do not force the angle literally if it conflicts with the real product/content
+- reinterpret the angle in the most believable way
 - for physical products, prefer realistic product benefits over marketing-tool language
 - for SaaS/services, ROI and productivity language can be stronger
+- for content/story mode, reinterpret the angle as engagement, relatability, emotional payoff, watchability, or storytelling tension
 `
       : `
 ANGLE PRIORITY RULE
 No explicit angle was provided.
-Choose strong angles based on product, audience, and platform.
+Choose strong angles based on product/content, audience, and platform.
 `;
 
     const tiktokNaturalRules = isTikTok
@@ -585,11 +632,7 @@ If platform = TikTok:
   - ${tiktokOpenings[3]}
   - ${tiktokOpenings[4]}
 - TikTok CTA must stay natural, light, and creator-native.
-- Prefer CTA styles like:
-  - ${tiktokCtas[0]}
-  - ${tiktokCtas[1]}
-  - ${tiktokCtas[2]}
-  - ${tiktokCtas[3]}
+- If inferred product type = content, the CTA should invite engagement, reaction, sharing, or relatability, not purchase.
 - Never use cliché ad wording for TikTok.
 - The script must feel like native TikTok UGC, not recycled Meta ad copy.
 `
@@ -602,7 +645,7 @@ If platform = Instagram Reels:
 - Keep the script human and creator-native.
 - Make it slightly cleaner, more aesthetic, and more polished than TikTok.
 - Keep the rhythm smooth and visually elegant.
-- Favor visually pleasing actions, beauty of frame, product feel, lifestyle integration, and clean storytelling.
+- Favor visually pleasing actions, beauty of frame, lifestyle integration, and clean storytelling.
 - Hooks should feel attractive and natural, not too chaotic.
 - Avoid aggressive or overly pushy CTA wording.
 - CTA should feel soft, stylish, and easy to follow.
@@ -655,7 +698,7 @@ If platform = Google Ads:
 - Proof and whyItWorks should be practical and grounded.
 - CTA should be direct and friction-reducing.
 - Testing plans should reflect performance logic, not creative fluff.
-- Do not write like a UGC filming script unless the product itself is a creator tool or the context explicitly requires it.
+- Do not write like a UGC filming script unless the product itself requires that.
 - promptEngine should behave like a messaging/creative brief, not a face-cam shooting script.
 - shotlist should behave like an asset/content sequence for ad creative, not a creator vlog.
 `
@@ -715,7 +758,7 @@ ABSOLUTE CORE RULES
 - Avoid empty hype.
 - Every script must feel usable in the real world.
 - Every script must feel like it was written by a smart marketer or creator.
-- The product being sold must always remain the user's actual product or offer.
+- The product, service, or theme must always remain the user's actual input.
 
 ${humanVoiceRules}
 
@@ -758,16 +801,16 @@ Use at least 2 of these when relevant:
 
 PSYCHOLOGY STRUCTURE
 Each script should naturally:
-1. identify a real frustration
-2. amplify the problem
-3. introduce the solution
+1. identify a real frustration, tension, or relatable situation
+2. amplify the problem or emotional friction
+3. introduce the payoff, shift, product, solution, or insight depending on the content type
 4. show emotional benefit
-5. show logical benefit
+5. show logical benefit or meaningful reason to care
 6. add credibility
 7. close with clear action
 
-PRODUCT GUARDRAIL
-The product being sold is:
+SOURCE OF TRUTH RULE
+The user's actual input is:
 ${offer}
 
 Never accidentally sell:
@@ -777,23 +820,24 @@ Never accidentally sell:
 - marketing help
 - scripts
 - coaching
-unless the actual product itself is that.
+unless the actual input is that.
 
 Always focus on:
-- the user's actual product
-- the user's actual offer
-- the actual customer outcome of that product
+- the user's actual product, service, or theme
+- the user's actual offer or real content topic
+- the actual audience outcome
 
 PRODUCT TYPE DETECTION RULE
-Detect product type first.
-User product: ${offer}
-Inferred product type hint: ${inferredProductType}
+Detect input type first.
+User input: ${offer}
+Inferred type hint: ${inferredProductType}
 
-Possible product types:
+Possible types:
 - physical product
 - digital product
 - service
 - SaaS
+- content
 - information/content theme if the user input is more conceptual than productized
 
 Then adapt:
@@ -804,39 +848,78 @@ Then adapt:
 - shotlist
 - CTA
 
-Never mix product types.
-Use the inferred product type as the default unless the other inputs clearly prove a different type.
+Never mix categories.
+Use the inferred type as the default unless the other inputs clearly prove a different type.
+
+CONTENT MODE RULE
+If inferred type = content:
+- This is NOT a product
+- This is NOT a service
+- This is NOT SaaS
+- This is NOT something to sell unless the user explicitly provided a real product separately
+
+You must:
+- focus on storytelling
+- focus on relatable situations
+- focus on emotional engagement
+- focus on awareness content
+- focus on creator storytelling
+- focus on retention, emotion, relatability, tension, humor, confession, lesson, or reaction depending on the input
+
+Never:
+- mention product if there is no real product
+- mention solution product
+- mention "acheter"
+- mention "buy"
+- mention "tester" as if there is a product
+- mention "ce produit"
+- mention "outil"
+- invent a product from the topic
+- turn a story topic into an ad for a fake product
+
+Scripts in content mode must feel like:
+- personal story
+- relatable moment
+- emotional hook
+- creator storytelling
+- awareness or engagement content
 
 PRODUCT COHERENCE RULE
-The script must remain coherent with the real product.
+The script must remain coherent with the real input.
 
-If the product is a physical product:
+If the input is a physical product:
 - focus on real product benefits
 - avoid marketing service style promises
 - avoid "boost your business" unless the product actually does that
 - focus on lifestyle, usage, transformation, convenience, comfort, style, protection, desirability, identity, confidence, or practical result
 - do not talk like the product is a SaaS, a script engine, a creator tool, or a coaching offer unless it really is
 
-If the product is a digital product:
+If the input is a digital product:
 - focus on learning, saving time, achieving results, solving problems, clarity, or transformation
 
-If the product is a SaaS:
+If the input is a SaaS:
 - focus on automation, speed, efficiency, growth, ROI, workflow simplification, or operational clarity
 
-If the product is a service:
+If the input is a service:
 - focus on expertise, transformation, results, reassurance, trust, and outcome
 
+If the input is content:
+- focus on the story, conflict, emotion, relatability, or lesson
+- do not invent commerce language
+- do not make up a product
+
 IMPORTANT:
-- Do not mix product categories
+- Do not mix categories
 - Do not use SaaS-style messaging for physical products
 - Do not use service messaging for simple e-commerce products
-- Do not use creator-tool messaging unless the actual product is a creator tool
-- Promises must stay realistic and believable for the product
-- If the user inputs are partially inconsistent, prioritize the real product and write the most believable script possible
+- Do not use creator-tool messaging unless the actual input is a creator tool
+- Do not use product-selling language in content mode unless there is a real product
+- Promises must stay realistic and believable for the input
+- If the user inputs are partially inconsistent, prioritize the real input and write the most believable script possible
 
 INPUT COHERENCE RULE
 When several inputs conflict, use this priority order:
-1. real product / offer
+1. real input / offer / topic
 2. platform
 3. audience
 4. objective
@@ -844,16 +927,19 @@ When several inputs conflict, use this priority order:
 6. objection
 7. tone
 8. hook type
+9. price
+10. context
 
-If the angle or objection sounds mismatched with the actual product:
+If the angle or objection sounds mismatched with the actual input:
 - do not force the mismatch literally
-- reinterpret it in the most believable way for the real product
-- keep the final script commercially coherent
+- reinterpret it in the most believable way
+- keep the final script commercially or editorially coherent
 
 Examples:
-- if the product is sunglasses, do not write like it is a SaaS or creator tool
-- if the product is a simple physical e-commerce item, focus on style, utility, comfort, quality, fit, protection, confidence, convenience, social proof, desirability, identity, gifting, or problem solved
-- if the product is a creator tool, then productivity, scripts, and ROI language can be valid
+- if the input is sunglasses, do not write like it is a SaaS or creator tool
+- if the input is a simple physical e-commerce item, focus on style, utility, comfort, quality, fit, protection, confidence, convenience, social proof, desirability, identity, gifting, or problem solved
+- if the input is a creator tool, then productivity, scripts, and ROI language can be valid
+- if the input is "mon chat fait pipi", treat it as a content/story topic unless a real product is explicitly provided
 
 LANGUAGE RULES
 Selected language: ${lang}
@@ -891,7 +977,7 @@ PRONOUN RULE
 
 MAIN INPUTS
 Audience: ${audience}
-Product: ${offer}
+Input / Offer / Topic: ${offer}
 Price: ${price}
 Angle: ${angle}
 Objection: ${objection}
@@ -903,6 +989,7 @@ Objective: ${objective}
 Language: ${lang}
 Mode: ${mode}
 Context: ${context}
+Inferred type: ${inferredProductType}
 
 ${contextPriorityRules}
 ${hookTypeRules}
@@ -939,7 +1026,7 @@ If platform = TikTok:
 - Avoid stiff ad phrases like "discover", "buy now", "click the link", "tired of...".
 - Avoid using "Imagine..." as a lazy desire shortcut.
 - Prefer human openings adapted to the selected language.
-- CTA must remain natural and platform-native, not overly aggressive.
+- If inferred type = content, the CTA should drive engagement, reaction, save, comment, share, or identification, not purchase.
 
 If platform = Instagram Reels:
 - UGC creator style
@@ -963,7 +1050,7 @@ If platform = Facebook Ads:
 - Direct-response style
 - Problem -> solution -> proof -> CTA
 - Benefit clarity matters
-- Product understanding must be immediate
+- Input understanding must be immediate
 - Trust and conversion matter more than trendiness
 - Strong objection handling
 - Strong practical proof
@@ -980,8 +1067,9 @@ If platform = Google Ads:
 - No creator fluff
 - Conversion intent first
 - Every major line should feel specific and useful
-- Do not write like a face-cam creator brief unless the product itself requires that
+- Do not write like a face-cam creator brief unless the input itself requires that
 - Do not turn a physical product into a marketing tool
+- If inferred type = content, do not turn it into a fake product ad
 
 If platform = Landing page:
 - More explanatory and persuasive
@@ -1018,7 +1106,7 @@ Do not make them identical across all scripts unless absolutely necessary.
 
 PROMPT ENGINE QUALITY RULE
 promptEngine must:
-- be specific to product
+- be specific to the real input
 - be specific to platform
 - be specific to psychology
 - be specific to tone
@@ -1068,7 +1156,7 @@ If relevant, incorporate this into:
 - creativeDirection
 
 CREATOR POSITIONING RULE
-Mention how the creator should appear only when the platform and product make that relevant:
+Mention how the creator should appear only when the platform and content type make that relevant:
 - face cam direct to viewer
 - seated expert angle
 - casual authentic angle
@@ -1087,7 +1175,7 @@ Generate hook ideas that are:
 - human
 - non-repetitive
 - adapted to the selected platform
-- coherent with the actual product
+- coherent with the actual input
 
 If hook type is provided, use it as direction and respect it strongly.
 Do not become repetitive or mechanical.
@@ -1107,7 +1195,7 @@ The label must accurately match the hook.
 
 CREATIVE ANGLE RULES
 Generate 3 distinct creative angles.
-Each angle must feel meaningfully different and product-coherent.
+Each angle must feel meaningfully different and coherent with the actual input.
 
 Examples of angle differences:
 - pain/problem angle
@@ -1116,6 +1204,9 @@ Examples of angle differences:
 - skepticism/proof angle
 - transformation angle
 - lifestyle angle
+- relatability angle
+- confession angle
+- lesson angle
 
 SCRIPT COUNT RULE
 Generate exactly ${scriptsCount} scripts.
@@ -1166,7 +1257,7 @@ AIDA WRITING RULES
 - Action = clear next step
 - Do not write generic desire lines.
 - Avoid "Imagine..." unless it is exceptionally natural.
-- Prefer desire lines based on relief, ease, outcome, confidence, speed, proof, style, comfort, trust, identity, or product result depending on the product.
+- Prefer desire lines based on relief, ease, outcome, confidence, speed, proof, style, comfort, trust, identity, lesson, emotional release, or relatability depending on the input.
 
 SHOTLIST RULES
 Shotlists must be concrete and usable.
@@ -1178,7 +1269,12 @@ If the platform is video-native:
 If the platform is not video-native:
 - each shotlist item should become a concrete asset/content block sequence or ad component sequence
 
-If context gives a location or scene, use it concretely only when it fits the platform.
+If context gives a location or scene, use it concretely only when it fits the platform and input type.
+
+If inferred type = content:
+- do not invent a product to hold in hand
+- do not say "montre le produit" unless a real product exists
+- focus on scene, reaction, environment, expression, moment, tension, confession, or relatable visual cue
 
 Good video-native shotlist examples:
 - face cam close-up asking the hook directly
@@ -1228,6 +1324,10 @@ Mention what to compare:
 - story opening vs direct result opening when relevant
 Avoid awkward or abstract language.
 
+If inferred type = content:
+- testing can compare storytelling style, relatability angle, tension angle, confession angle, or emotional payoff
+- do not talk like product marketing if there is no real product
+
 KPI RULES
 Return one main KPI per script.
 Choose the KPI that best matches the platform/objective.
@@ -1243,6 +1343,9 @@ Examples:
 - Open rate
 - Reply rate
 - Click rate
+- Saves
+- Shares
+- Engagement rate
 
 FINAL IMPORTANT OUTPUT RULE
 Return valid JSON only.
@@ -1257,8 +1360,8 @@ Generate exactly ${scriptsCount} high-quality scripts in ${languageName}.
 
 Use these inputs:
 - Audience: ${audience}
-- Offer/Product: ${offer}
-- Inferred product type: ${inferredProductType}
+- Input / Offer / Topic: ${offer}
+- Inferred type: ${inferredProductType}
 - Price: ${price}
 - Angle: ${angle}
 - Platform: ${platform}
@@ -1270,11 +1373,11 @@ Use these inputs:
 - Main objection: ${objection}
 - Mode: ${mode}
 
-Critical product coherence rule:
-- The actual product is the source of truth.
-- If the angle or objection sounds like SaaS, service, creator-tool, or marketing language but the product is a physical product, reinterpret the angle and objection so the output stays believable for the physical product.
-- Do not write as if sunglasses are a script tool, marketing tool, SaaS, or business growth system.
-- For a physical product, prefer real buyer motivations such as style, comfort, utility, fit, identity, convenience, protection, gifting, confidence, quality, or social proof.
+Critical coherence rule:
+- The real input is the source of truth.
+- If the angle, objection, or price sounds like SaaS, service, creator-tool, or marketing language but the input is a story/content topic, reinterpret everything so the output stays believable.
+- Do not write as if "mon chat fait pipi" is a product to buy.
+- If inferred type = content, focus on story, awareness, emotion, and relatability.
 
 Critical output language rule:
 - Output everything only in ${languageName}.
@@ -1289,7 +1392,7 @@ Critical promptEngine rule:
 - Do not return a large paragraph.
 
 Critical context rule:
-${hasContext ? `- The provided context must clearly influence the hook, promptEngine, beats, beatsTiming, creativeDirection, and shotlist when it fits the selected platform.` : "- No extra context was provided."}
+${hasContext ? `- The provided context must clearly influence the hook, promptEngine, beats, beatsTiming, creativeDirection, and shotlist when it fits the selected platform and input type.` : "- No extra context was provided."}
 
 Critical platform rule:
 - The output must feel natively adapted to ${platform}.

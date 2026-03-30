@@ -32,7 +32,7 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "UGC Growth <UGC GROWTH <hello@ugcgrowth.io>",
+        from: "UGC Growth <UGC GROWTH <onboarding@resend.dev>",
         to: email,
         subject: "Bienvenue dans UGC Growth 🚀",
         html: `

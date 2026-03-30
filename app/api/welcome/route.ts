@@ -32,7 +32,7 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "UGC Growth <UGC GROWTH <onboarding@resend.dev>",
+        from: "UGC Growth <hello@ugcgrowth.io>",
         to: email,
         subject: "Bienvenue dans UGC Growth 🚀",
         html: `
@@ -58,8 +58,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   } catch (error: any) {
     return NextResponse.json(
-      { ok: false, error: error?.message || "server error" },
+      { ok: false, error: "Erreur serveur" },
       { status: 500 }
     );
   }
 }
+

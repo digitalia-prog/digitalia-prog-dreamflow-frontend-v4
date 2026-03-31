@@ -207,3 +207,4 @@ export default function CreatorDashboardPage() {
       </div>
     </div>
   );
+}

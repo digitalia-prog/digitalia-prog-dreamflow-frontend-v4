@@ -1,374 +1,196 @@
 "use client";
 
-import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 
-type ScriptItem = {
-  id: string;
-  title: string;
-  createdAt: number;
-  lang?: string;
-  platform?: string;
+type Lang = "FR" | "EN" | "ES" | "AR" | "ZH";
+
+type GenerateResponse = {
+  hookIdeas?: string[];
+  creativeAngles?: string[];
+  variants?: Array<{
+    script?: {
+      aida?: {
+        attention?: string;
+        interest?: string;
+        desire?: string;
+        action?: string;
+      };
+    };
+    shotlist?: string[];
+    cta?: {
+      primary?: string;
+      optimized?: string;
+    };
+  }>;
+  raw?: string;
 };
 
-type CampaignItem = {
-  id: string;
-  name: string;
-  status?: "active" | "paused" | "draft";
-  createdAt: number;
-};
+export default function CreatorEnginePage() {
+  const [product, setProduct] = useState("");
+  const [audience, setAudience] = useState("");
+  const [platform, setPlatform] = useState("TikTok");
+  const [lang, setLang] = useState<Lang>("FR");
+  const [brief, setBrief] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<GenerateResponse | null>(null);
+  const [error, setError] = useState("");
 
-const LS_SCRIPTS_KEY = "ugc_growth:scripts";
-const LS_CAMPAIGNS_KEY = "ugc_growth:campaigns";
+  const handleGenerate = async () => {
+    setLoading(true);
+    setError("");
+    setResult(null);
 
-function safeJsonParse<T>(value: string | null, fallback: T): T {
-  if (!value) return fallback;
-  try {
-    return JSON.parse(value) as T;
-  } catch {
-    return fallback;
-  }
-}
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mode: "CREATOR",
+          product,
+          audience,
+          platform,
+          lang,
+          brief,
+        }),
+      });
 
-function formatDate(ts: number) {
-  try {
-    return new Date(ts).toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-    });
-  } catch {
-    return "";
-  }
-}
+      const data = await res.json();
 
-function cx(...classes: Array<string | false | null | undefined>) {
-  return classes.filter(Boolean).join(" ");
-}
+      if (!res.ok) {
+        setError(data?.error || "Erreur génération");
+        return;
+      }
 
-function Card({
-  title,
-  subtitle,
-  right,
-  children,
-}: {
-  title: string;
-  subtitle?: string;
-  right?: React.ReactNode;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="text-sm text-white/60">{title}</div>
-          {subtitle ? (
-            <div className="mt-1 text-xl font-semibold">{subtitle}</div>
-          ) : null}
-        </div>
-        {right ? <div className="shrink-0">{right}</div> : null}
-      </div>
-      {children ? <div className="mt-4">{children}</div> : null}
-    </div>
-  );
-}
-
-function EmptyState({
-  title,
-  desc,
-  actions,
-}: {
-  title: string;
-  desc: string;
-  actions: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-black/20 p-6">
-      <div className="text-lg font-semibold">{title}</div>
-      <p className="mt-2 text-sm text-white/70">{desc}</p>
-      <div className="mt-4 flex flex-wrap gap-3">{actions}</div>
-    </div>
-  );
-}
-
-export default function CreatorDashboardPage() {
-  const [scripts, setScripts] = React.useState<ScriptItem[]>([]);
-  const [campaigns, setCampaigns] = React.useState<CampaignItem[]>([]);
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-
-    const s = safeJsonParse<ScriptItem[]>(
-      localStorage.getItem(LS_SCRIPTS_KEY),
-      []
-    );
-    const c = safeJsonParse<CampaignItem[]>(
-      localStorage.getItem(LS_CAMPAIGNS_KEY),
-      []
-    );
-
-    s.sort((a, b) => b.createdAt - a.createdAt);
-    c.sort((a, b) => b.createdAt - a.createdAt);
-
-    setScripts(s);
-    setCampaigns(c);
-  }, []);
-
-  const activeCampaigns = campaigns.filter(
-    (c) => (c.status ?? "active") === "active"
-  );
-  const latestScripts = scripts.slice(0, 5);
-
-  if (!mounted) {
-    return (
-      <div className="p-6 md:p-10">
-        <div className="text-white/60">Chargement…</div>
-      </div>
-    );
-  }
+      setResult(data);
+    } catch (err) {
+      console.error(err);
+      setError("Erreur réseau ou API");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="p-6 md:p-10">
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <div className="text-sm text-white/60">
-              UGC Growth • Creator
-            </div>
-            <h1 className="mt-2 text-3xl font-bold">
-              Creator Dashboard
-            </h1>
-            <p className="mt-2 max-w-2xl text-white/70">
-              Ton cockpit : scripts, campagnes, contenus — sans blabla.
-              Tout ce qui est affiché ici vient de tes données.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/dashboard/creator/engine"
-              className="rounded-xl bg-purple-600 px-5 py-2.5 text-sm font-semibold hover:bg-purple-700"
-            >
-              Générer un script
-            </Link>
-
-            <Link
-              href="/dashboard/campaigns"
-              className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold hover:bg-white/10"
-            >
-              Créer / gérer une campagne
-            </Link>
-
-            <Link
-              href="/dashboard/creators"
-              className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold hover:bg-white/10"
-            >
-              Ajouter un créateur
-            </Link>
-          </div>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card
-            title="Scripts générés"
-            subtitle={`${scripts.length}`}
-            right={
-              <span className="text-xs text-white/50">
-                Total
-              </span>
-            }
-          >
-            <div className="text-sm text-white/60">
-              Basé sur tes scripts enregistrés.
-            </div>
-          </Card>
-
-          <Card
-            title="Campagnes actives"
-            subtitle={`${activeCampaigns.length}`}
-            right={
-              <span className="text-xs text-white/50">
-                En cours
-              </span>
-            }
-          >
-            <div className="text-sm text-white/60">
-              Aucune campagne ? Crée la première et le dashboard
-              se remplit.
-            </div>
-          </Card>
-
-          <Card
-            title="Protection anti-abus"
-            subtitle="Active"
-            right={
-              <span className="text-xs text-white/50">
-                Bêta
-              </span>
-            }
-          >
-            <div className="text-sm text-white/60">
-              Limites d’usage + contrôle bêta.
-            </div>
-          </Card>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <div className="text-sm text-white/60">
-                  Derniers scripts
-                </div>
-                <div className="mt-1 text-xl font-semibold">
-                  Récents
-                </div>
-              </div>
-
-              <Link
-                href="/dashboard/creator/engine"
-                className="text-sm font-semibold text-purple-300 hover:text-purple-200"
-              >
-                Ouvrir l’Engine →
-              </Link>
-            </div>
-
-            {latestScripts.length === 0 ? (
-              <div className="mt-4">
-                <EmptyState
-                  title="Aucun script pour l’instant"
-                  desc="Génère ton premier script et il s’affichera ici."
-                  actions={
-                    <>
-                      <Link
-                        href="/dashboard/creator/engine"
-                        className="rounded-xl bg-purple-600 px-5 py-2.5 text-sm font-semibold hover:bg-purple-700"
-                      >
-                        Générer un script
-                      </Link>
-
-                      <Link
-                        href="/dashboard/campaigns"
-                        className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold hover:bg-white/10"
-                      >
-                        Créer une campagne
-                      </Link>
-                    </>
-                  }
-                />
-              </div>
-            ) : (
-              <ul className="mt-4 space-y-3">
-                {latestScripts.map((s) => (
-                  <li
-                    key={s.id}
-                    className="rounded-xl border border-white/10 bg-black/20 p-4"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <div className="font-semibold">
-                          {s.title || "Script"}
-                        </div>
-
-                        <div className="mt-1 text-xs text-white/60">
-                          {formatDate(s.createdAt)}
-                          {s.platform ? ` • ${s.platform}` : ""}
-                          {s.lang ? ` • ${s.lang}` : ""}
-                        </div>
-                      </div>
-
-                      <Link
-                        href="/dashboard/creator/engine"
-                        className="shrink-0 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold hover:bg-white/10"
-                      >
-                        Re-générer
-                      </Link>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <div className="text-sm text-white/60">
-              Workflow créateur
-            </div>
-
-            <div className="mt-1 text-xl font-semibold">
-              Pipeline clair
-            </div>
-
-            <div className="mt-4 space-y-3">
-              {[
-                {
-                  step: "1",
-                  title: "Brief",
-                  desc: "Objectif, niche, angle, contraintes, format.",
-                },
-                {
-                  step: "2",
-                  title: "Génération",
-                  desc: "Script simple, prêt à tourner, pensé créateur.",
-                },
-                {
-                  step: "3",
-                  title: "Publication",
-                  desc: "Validation, publication, suivi.",
-                },
-              ].map((x) => (
-                <div
-                  key={x.step}
-                  className="flex gap-3 rounded-xl border border-white/10 bg-black/20 p-4"
-                >
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-600/70 text-sm font-bold">
-                    {x.step}
-                  </div>
-
-                  <div>
-                    <div className="font-semibold">
-                      {x.title}
-                    </div>
-
-                    <div className="mt-1 text-sm text-white/70">
-                      {x.desc}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="pt-6">
-              <Link
-                href="/dashboard/creator/engine"
-                className={cx(
-                  "inline-flex items-center justify-center rounded-xl",
-                  "bg-purple-600 px-5 py-2.5 text-sm font-semibold hover:bg-purple-700"
-                )}
-              >
-                Ouvrir l’Engine maintenant
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-          <div className="text-sm text-white/60">
-            Mode Premium (Agency)
-          </div>
-
-          <div className="mt-1 text-lg font-semibold">
-            Effet WOW
-          </div>
-
-          <p className="mt-2 text-sm text-white/70">
-            Quand tu passes en version agence : multi-clients,
-            validations, historique, export, reporting. Ici on
-            garde un dashboard créateur clean, rapide et crédible.
+        <div>
+          <div className="text-sm text-white/60">UGC Growth • Creator</div>
+          <h1 className="mt-2 text-3xl font-bold">Creator Script Engine</h1>
+          <p className="mt-2 max-w-2xl text-white/70">
+            Version simple pour générer rapidement un script prêt à filmer.
           </p>
         </div>
+
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+          <div className="grid gap-4 md:grid-cols-2">
+            <input
+              value={product}
+              onChange={(e) => setProduct(e.target.value)}
+              placeholder="Produit"
+              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+            />
+
+            <input
+              value={audience}
+              onChange={(e) => setAudience(e.target.value)}
+              placeholder="Audience"
+              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+            />
+
+            <select
+              value={platform}
+              onChange={(e) => setPlatform(e.target.value)}
+              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+            >
+              <option value="TikTok">TikTok</option>
+              <option value="Instagram">Instagram</option>
+              <option value="YouTube">YouTube</option>
+            </select>
+
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value as Lang)}
+              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+            >
+              <option value="FR">Français</option>
+              <option value="EN">English</option>
+              <option value="ES">Español</option>
+              <option value="AR">Arabic</option>
+              <option value="ZH">Chinese</option>
+            </select>
+
+            <textarea
+              value={brief}
+              onChange={(e) => setBrief(e.target.value)}
+              placeholder="Brief / angle / objectif"
+              rows={5}
+              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 md:col-span-2"
+            />
+
+            <button
+              onClick={handleGenerate}
+              disabled={loading}
+              className="rounded-xl bg-purple-600 px-5 py-3 font-semibold hover:bg-purple-700 disabled:opacity-60 md:col-span-2"
+            >
+              {loading ? "Génération..." : "Générer un script"}
+            </button>
+          </div>
+
+          {error ? (
+            <div className="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+              {error}
+            </div>
+          ) : null}
+        </div>
+
+        {result ? (
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <div className="space-y-6">
+              <div>
+                <div className="text-lg font-semibold">Hook</div>
+                <div className="mt-2 text-white/80">
+                  {result.hookIdeas?.[0] || "—"}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-lg font-semibold">Script</div>
+                <div className="mt-2 whitespace-pre-wrap text-white/80">
+                  {result.variants?.[0]?.script?.aida?.attention ||
+                    result.raw ||
+                    "—"}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-lg font-semibold">Shotlist</div>
+                <ul className="mt-2 space-y-1 text-white/80">
+                  {(result.variants?.[0]?.shotlist || []).map((item, index) => (
+                    <li key={index}>• {item}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <div className="text-lg font-semibold">CTA</div>
+                <div className="mt-2 text-white/80">
+                  {result.variants?.[0]?.cta?.primary || "—"}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-lg font-semibold">Angles créatifs</div>
+                <ul className="mt-2 space-y-1 text-white/80">
+                  {(result.creativeAngles || []).map((item, index) => (
+                    <li key={index}>• {item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );
-}

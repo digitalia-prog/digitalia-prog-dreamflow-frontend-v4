@@ -7,7 +7,14 @@ type Lang = "FR" | "EN" | "ES" | "AR" | "ZH";
 type GenerateResponse = {
   hookIdeas?: string[];
   creativeAngles?: string[];
+  testingPlanSummary?: string;
   variants?: Array<{
+    promptEngine?: string;
+    platformStrategy?: string;
+    psychologicalAngle?: string;
+    creativeDirection?: string;
+    hook?: string;
+    hookDetected?: string;
     script?: {
       aida?: {
         attention?: string;
@@ -16,24 +23,49 @@ type GenerateResponse = {
         action?: string;
       };
     };
+    beats?: string[];
+    beatsTiming?: string[];
+    proof?: string[];
+    whyItWorks?: string[];
+    adsVariants?: string[];
     shotlist?: string[];
     cta?: {
       primary?: string;
       optimized?: string;
     };
+    testingPlan?: string;
+    kpi?: string;
   }>;
   raw?: string;
 };
 
 export default function CreatorEnginePage() {
-  const [product, setProduct] = useState("");
-  const [audience, setAudience] = useState("");
-  const [platform, setPlatform] = useState("TikTok");
   const [lang, setLang] = useState<Lang>("FR");
+  const [platform, setPlatform] = useState("TikTok");
+  const [objective, setObjective] = useState("Vente");
+  const [audience, setAudience] = useState("");
+  const [product, setProduct] = useState("");
+  const [price, setPrice] = useState("");
+  const [angle, setAngle] = useState("");
+  const [objection, setObjection] = useState("");
+  const [hookType, setHookType] = useState("Direct claim");
+  const [tone, setTone] = useState("UGC naturel");
+  const [duration, setDuration] = useState("30s");
   const [brief, setBrief] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<GenerateResponse | null>(null);
   const [error, setError] = useState("");
+  const [result, setResult] = useState<GenerateResponse | null>(null);
+
+  const variant = result?.variants?.[0];
+
+  const scriptText = [
+    variant?.script?.aida?.attention,
+    variant?.script?.aida?.interest,
+    variant?.script?.aida?.desire,
+    variant?.script?.aida?.action,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 
   const handleGenerate = async () => {
     setLoading(true);
@@ -48,10 +80,17 @@ export default function CreatorEnginePage() {
         },
         body: JSON.stringify({
           mode: "CREATOR",
-          product,
-          audience,
-          platform,
           lang,
+          platform,
+          objective,
+          audience,
+          product,
+          price,
+          angle,
+          objection,
+          hookType,
+          tone,
+          duration,
           brief,
         }),
       });
@@ -85,30 +124,6 @@ export default function CreatorEnginePage() {
 
         <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
           <div className="grid gap-4 md:grid-cols-2">
-            <input
-              value={product}
-              onChange={(e) => setProduct(e.target.value)}
-              placeholder="Produit"
-              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3"
-            />
-
-            <input
-              value={audience}
-              onChange={(e) => setAudience(e.target.value)}
-              placeholder="Audience"
-              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3"
-            />
-
-            <select
-              value={platform}
-              onChange={(e) => setPlatform(e.target.value)}
-              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3"
-            >
-              <option value="TikTok">TikTok</option>
-              <option value="Instagram">Instagram</option>
-              <option value="YouTube">YouTube</option>
-            </select>
-
             <select
               value={lang}
               onChange={(e) => setLang(e.target.value as Lang)}
@@ -121,11 +136,105 @@ export default function CreatorEnginePage() {
               <option value="ZH">Chinese</option>
             </select>
 
+            <select
+              value={platform}
+              onChange={(e) => setPlatform(e.target.value)}
+              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+            >
+              <option value="TikTok">TikTok</option>
+              <option value="Instagram Reels">Instagram Reels</option>
+              <option value="YouTube Shorts">YouTube Shorts</option>
+              <option value="Facebook Ads">Facebook Ads</option>
+              <option value="Google Ads">Google Ads</option>
+            </select>
+
+            <select
+              value={objective}
+              onChange={(e) => setObjective(e.target.value)}
+              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+            >
+              <option value="Vente">Vente</option>
+              <option value="Awareness">Awareness</option>
+              <option value="Lead">Lead</option>
+              <option value="Trafic">Trafic</option>
+            </select>
+
+            <input
+              value={audience}
+              onChange={(e) => setAudience(e.target.value)}
+              placeholder="Audience"
+              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+            />
+
+            <input
+              value={product}
+              onChange={(e) => setProduct(e.target.value)}
+              placeholder="Produit / Offre"
+              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+            />
+
+            <input
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="Prix"
+              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+            />
+
+            <input
+              value={angle}
+              onChange={(e) => setAngle(e.target.value)}
+              placeholder="Angle marketing"
+              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+            />
+
+            <input
+              value={objection}
+              onChange={(e) => setObjection(e.target.value)}
+              placeholder="Objection principale"
+              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+            />
+
+            <select
+              value={hookType}
+              onChange={(e) => setHookType(e.target.value)}
+              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+            >
+              <option value="Direct claim">Direct claim</option>
+              <option value="Question choc">Question choc</option>
+              <option value="Pain point">Pain point</option>
+              <option value="Story">Story</option>
+              <option value="Contrarian">Contrarian</option>
+              <option value="Curiosity">Curiosity</option>
+            </select>
+
+            <select
+              value={tone}
+              onChange={(e) => setTone(e.target.value)}
+              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+            >
+              <option value="UGC naturel">UGC naturel</option>
+              <option value="Simple">Simple</option>
+              <option value="Direct">Direct</option>
+              <option value="Premium">Premium</option>
+              <option value="Convaincant">Convaincant</option>
+            </select>
+
+            <select
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 md:col-span-2"
+            >
+              <option value="15s">15s</option>
+              <option value="30s">30s</option>
+              <option value="45s">45s</option>
+              <option value="60s">60s</option>
+            </select>
+
             <textarea
               value={brief}
               onChange={(e) => setBrief(e.target.value)}
-              placeholder="Brief / angle / objectif"
               rows={5}
+              placeholder="Contexte / brief / ce que tu veux vendre / angle vidéo"
               className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 md:col-span-2"
             />
 
@@ -149,25 +258,30 @@ export default function CreatorEnginePage() {
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
             <div className="space-y-6">
               <div>
+                <div className="text-lg font-semibold">Prompt Engine</div>
+                <div className="mt-2 whitespace-pre-wrap text-white/80">
+                  {variant?.promptEngine || "—"}
+                </div>
+              </div>
+
+              <div>
                 <div className="text-lg font-semibold">Hook</div>
                 <div className="mt-2 text-white/80">
-                  {result.hookIdeas?.[0] || "—"}
+                  {variant?.hook || result.hookIdeas?.[0] || "—"}
                 </div>
               </div>
 
               <div>
                 <div className="text-lg font-semibold">Script</div>
                 <div className="mt-2 whitespace-pre-wrap text-white/80">
-                  {result.variants?.[0]?.script?.aida?.attention ||
-                    result.raw ||
-                    "—"}
+                  {scriptText || result.raw || "—"}
                 </div>
               </div>
 
               <div>
                 <div className="text-lg font-semibold">Shotlist</div>
                 <ul className="mt-2 space-y-1 text-white/80">
-                  {(result.variants?.[0]?.shotlist || []).map((item, index) => (
+                  {(variant?.shotlist || []).map((item, index) => (
                     <li key={index}>• {item}</li>
                   ))}
                 </ul>
@@ -176,7 +290,7 @@ export default function CreatorEnginePage() {
               <div>
                 <div className="text-lg font-semibold">CTA</div>
                 <div className="mt-2 text-white/80">
-                  {result.variants?.[0]?.cta?.primary || "—"}
+                  {variant?.cta?.primary || "—"}
                 </div>
               </div>
 
@@ -187,6 +301,39 @@ export default function CreatorEnginePage() {
                     <li key={index}>• {item}</li>
                   ))}
                 </ul>
+              </div>
+
+              <div>
+                <div className="text-lg font-semibold">Stratégie plateforme</div>
+                <div className="mt-2 whitespace-pre-wrap text-white/80">
+                  {variant?.platformStrategy || "—"}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-lg font-semibold">Angle psychologique</div>
+                <div className="mt-2 whitespace-pre-wrap text-white/80">
+                  {variant?.psychologicalAngle || "—"}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-lg font-semibold">Direction créative</div>
+                <div className="mt-2 whitespace-pre-wrap text-white/80">
+                  {variant?.creativeDirection || "—"}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-lg font-semibold">Plan de test</div>
+                <div className="mt-2 whitespace-pre-wrap text-white/80">
+                  {variant?.testingPlan || result.testingPlanSummary || "—"}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-lg font-semibold">KPI</div>
+                <div className="mt-2 text-white/80">{variant?.kpi || "—"}</div>
               </div>
             </div>
           </div>

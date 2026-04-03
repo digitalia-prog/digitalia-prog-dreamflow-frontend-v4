@@ -1,43 +1,60 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 type Lang = "FR" | "EN" | "ES" | "AR" | "ZH";
+
+type Variant = {
+  promptEngine?: string;
+  platformStrategy?: string;
+  psychologicalAngle?: string;
+  creativeDirection?: string;
+  hook?: string;
+  hookDetected?: string;
+  script?: {
+    aida?: {
+      attention?: string;
+      interest?: string;
+      desire?: string;
+      action?: string;
+    };
+  };
+  beats?: string[];
+  beatsTiming?: string[];
+  proof?: string[];
+  whyItWorks?: string[];
+  adsVariants?: string[];
+  shotlist?: string[];
+  cta?: {
+    primary?: string;
+    optimized?: string;
+  };
+  testingPlan?: string;
+  kpi?: string;
+};
 
 type GenerateResponse = {
   hookIdeas?: string[];
   creativeAngles?: string[];
   testingPlanSummary?: string;
-  variants?: Array<{
-    promptEngine?: string;
-    platformStrategy?: string;
-    psychologicalAngle?: string;
-    creativeDirection?: string;
-    hook?: string;
-    hookDetected?: string;
-    script?: {
-      aida?: {
-        attention?: string;
-        interest?: string;
-        desire?: string;
-        action?: string;
-      };
-    };
-    beats?: string[];
-    beatsTiming?: string[];
-    proof?: string[];
-    whyItWorks?: string[];
-    adsVariants?: string[];
-    shotlist?: string[];
-    cta?: {
-      primary?: string;
-      optimized?: string;
-    };
-    testingPlan?: string;
-    kpi?: string;
-  }>;
+  variants?: Variant[];
   raw?: string;
 };
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <div className="text-lg font-semibold">{title}</div>
+      <div className="mt-2">{children}</div>
+    </div>
+  );
+}
 
 export default function CreatorEnginePage() {
   const [lang, setLang] = useState<Lang>("FR");
@@ -55,14 +72,16 @@ export default function CreatorEnginePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<GenerateResponse | null>(null);
+  const [activeScriptIndex, setActiveScriptIndex] = useState(0);
 
-  const variant = result?.variants?.[0];
+  const variants = useMemo(() => result?.variants || [], [result]);
+  const activeVariant = variants[activeScriptIndex];
 
   const scriptText = [
-    variant?.script?.aida?.attention,
-    variant?.script?.aida?.interest,
-    variant?.script?.aida?.desire,
-    variant?.script?.aida?.action,
+    activeVariant?.script?.aida?.attention,
+    activeVariant?.script?.aida?.interest,
+    activeVariant?.script?.aida?.desire,
+    activeVariant?.script?.aida?.action,
   ]
     .filter(Boolean)
     .join("\n\n");
@@ -71,6 +90,7 @@ export default function CreatorEnginePage() {
     setLoading(true);
     setError("");
     setResult(null);
+    setActiveScriptIndex(0);
 
     try {
       const res = await fetch("/api/generate", {
@@ -118,7 +138,7 @@ export default function CreatorEnginePage() {
           <div className="text-sm text-white/60">UGC Growth • Creator</div>
           <h1 className="mt-2 text-3xl font-bold">Creator Script Engine</h1>
           <p className="mt-2 max-w-2xl text-white/70">
-            Version simple pour générer rapidement un script prêt à filmer.
+            Version simple pour générer rapidement 4 scripts prêts à filmer.
           </p>
         </div>
 
@@ -243,7 +263,7 @@ export default function CreatorEnginePage() {
               disabled={loading}
               className="rounded-xl bg-purple-600 px-5 py-3 font-semibold hover:bg-purple-700 disabled:opacity-60 md:col-span-2"
             >
-              {loading ? "Génération..." : "Générer un script"}
+              {loading ? "Génération..." : "Générer 4 scripts"}
             </button>
           </div>
 
@@ -254,87 +274,94 @@ export default function CreatorEnginePage() {
           ) : null}
         </div>
 
-        {result ? (
+        {variants.length > 0 ? (
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-            <div className="space-y-6">
-              <div>
-                <div className="text-lg font-semibold">Prompt Engine</div>
-                <div className="mt-2 whitespace-pre-wrap text-white/80">
-                  {variant?.promptEngine || "—"}
-                </div>
-              </div>
+            <div className="text-lg font-semibold">Scripts générés</div>
 
-              <div>
-                <div className="text-lg font-semibold">Hook</div>
-                <div className="mt-2 text-white/80">
-                  {variant?.hook || result.hookIdeas?.[0] || "—"}
-                </div>
-              </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {variants.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveScriptIndex(index)}
+                  className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                    activeScriptIndex === index
+                      ? "bg-purple-600 text-white"
+                      : "border border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
+                  }`}
+                >
+                  Script {index + 1}
+                </button>
+              ))}
+            </div>
 
-              <div>
-                <div className="text-lg font-semibold">Script</div>
-                <div className="mt-2 whitespace-pre-wrap text-white/80">
-                  {scriptText || result.raw || "—"}
+            <div className="mt-6 space-y-6">
+              <Section title="Prompt Engine">
+                <div className="whitespace-pre-wrap text-white/80">
+                  {activeVariant?.promptEngine || "—"}
                 </div>
-              </div>
+              </Section>
 
-              <div>
-                <div className="text-lg font-semibold">Shotlist</div>
-                <ul className="mt-2 space-y-1 text-white/80">
-                  {(variant?.shotlist || []).map((item, index) => (
+              <Section title="Hook">
+                <div className="text-white/80">
+                  {activeVariant?.hook || result?.hookIdeas?.[0] || "—"}
+                </div>
+              </Section>
+
+              <Section title="Script">
+                <div className="whitespace-pre-wrap text-white/80">
+                  {scriptText || "—"}
+                </div>
+              </Section>
+
+              <Section title="Shotlist">
+                <ul className="space-y-1 text-white/80">
+                  {(activeVariant?.shotlist || []).map((item, index) => (
                     <li key={index}>• {item}</li>
                   ))}
                 </ul>
-              </div>
+              </Section>
 
-              <div>
-                <div className="text-lg font-semibold">CTA</div>
-                <div className="mt-2 text-white/80">
-                  {variant?.cta?.primary || "—"}
+              <Section title="CTA">
+                <div className="text-white/80">
+                  {activeVariant?.cta?.primary || "—"}
                 </div>
-              </div>
+              </Section>
 
-              <div>
-                <div className="text-lg font-semibold">Angles créatifs</div>
-                <ul className="mt-2 space-y-1 text-white/80">
-                  {(result.creativeAngles || []).map((item, index) => (
+              <Section title="Angles créatifs">
+                <ul className="space-y-1 text-white/80">
+                  {(result?.creativeAngles || []).map((item, index) => (
                     <li key={index}>• {item}</li>
                   ))}
                 </ul>
-              </div>
+              </Section>
 
-              <div>
-                <div className="text-lg font-semibold">Stratégie plateforme</div>
-                <div className="mt-2 whitespace-pre-wrap text-white/80">
-                  {variant?.platformStrategy || "—"}
+              <Section title="Stratégie plateforme">
+                <div className="whitespace-pre-wrap text-white/80">
+                  {activeVariant?.platformStrategy || "—"}
                 </div>
-              </div>
+              </Section>
 
-              <div>
-                <div className="text-lg font-semibold">Angle psychologique</div>
-                <div className="mt-2 whitespace-pre-wrap text-white/80">
-                  {variant?.psychologicalAngle || "—"}
+              <Section title="Angle psychologique">
+                <div className="whitespace-pre-wrap text-white/80">
+                  {activeVariant?.psychologicalAngle || "—"}
                 </div>
-              </div>
+              </Section>
 
-              <div>
-                <div className="text-lg font-semibold">Direction créative</div>
-                <div className="mt-2 whitespace-pre-wrap text-white/80">
-                  {variant?.creativeDirection || "—"}
+              <Section title="Direction créative">
+                <div className="whitespace-pre-wrap text-white/80">
+                  {activeVariant?.creativeDirection || "—"}
                 </div>
-              </div>
+              </Section>
 
-              <div>
-                <div className="text-lg font-semibold">Plan de test</div>
-                <div className="mt-2 whitespace-pre-wrap text-white/80">
-                  {variant?.testingPlan || result.testingPlanSummary || "—"}
+              <Section title="Plan de test">
+                <div className="whitespace-pre-wrap text-white/80">
+                  {activeVariant?.testingPlan || result?.testingPlanSummary || "—"}
                 </div>
-              </div>
+              </Section>
 
-              <div>
-                <div className="text-lg font-semibold">KPI</div>
-                <div className="mt-2 text-white/80">{variant?.kpi || "—"}</div>
-              </div>
+              <Section title="KPI">
+                <div className="text-white/80">{activeVariant?.kpi || "—"}</div>
+              </Section>
             </div>
           </div>
         ) : null}

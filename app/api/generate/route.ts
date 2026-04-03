@@ -18,6 +18,8 @@ type GenerateBody = {
   duration?: string;
   context?: string;
   brief?: string;
+  market?: string;
+  adsBudget?: string;
 };
 
 export async function POST(req: Request) {
@@ -37,6 +39,8 @@ export async function POST(req: Request) {
     const tone = body.tone || "";
     const duration = body.duration || "";
     const context = body.context || body.brief || "";
+    const market = body.market || "";
+    const adsBudget = body.adsBudget || "";
 
     const scriptsCount = mode === "AGENCY" ? 10 : 4;
 
@@ -67,12 +71,11 @@ ABSOLUTE RULES
 - Every script must feel obviously generated from the exact inputs.
 
 NO FAKE RULE
-- Never invent a brand
-- Never invent a company
-- Never invent a product origin
-- Never say "notre produit"
-- Never say "notre marque"
-- Only use what the user provided
+- Never invent a brand.
+- Never invent a company.
+- Never invent a product origin.
+- Never say "notre produit" or "notre marque" unless the user explicitly provided a brand voice using "nous".
+- Only use what the user provided.
 
 ANTI-TEMPLATE RULE
 Do not generate copy that could work for any random product.
@@ -104,9 +107,32 @@ Every script must strictly reflect:
 - tone
 - duration
 - context
+- market
+- ads budget
 
 Never ignore the grid.
 Never replace the user's product with a generic business/productivity offer.
+
+STRICT COHERENCE RULE
+The generated output must stay fully coherent with the generator selections.
+That means:
+- if hookType = "Question choc", the main hook must clearly be a question
+- if tone = "Direct response", the copy must feel conversion-focused and direct
+- if tone = "Storytelling", the copy must open like a story
+- if tone = "Premium", the copy must feel elevated, refined, aspirational
+- if tone = "Funny", the copy must contain a light humorous angle
+- if tone = "Performance Ads", the copy must feel ad-driven, conversion-first, practical
+- if tone = "Authority / Expert", the copy must sound credible, expert, educational
+- if tone = "Emotional", the copy must lean on feelings, transformation, identity
+- if platform = TikTok / Reels / Shorts, the script must sound creator-native
+- if platform = Google Ads, the copy must sound intent-driven and direct-response
+- if market = USA, the phrasing must match US marketing expectations
+- if market = UK, the phrasing must match UK marketing expectations
+- if market = Arabic, the phrasing must feel adapted to Arabic-speaking audiences
+- if adsBudget is high, the testing logic can be broader and more performance-driven
+- if adsBudget is low, the script must prioritize clarity, speed, and simple angles
+
+If the output is not coherent with the selected generator options, it is wrong.
 
 INPUT ANCHORING RULE
 The output must clearly reflect:
@@ -116,6 +142,10 @@ The output must clearly reflect:
 - the exact price when relevant
 - the main objection
 - the exact angle
+- the selected tone
+- the selected hook type
+- the selected market
+- the selected ads budget when relevant
 
 PRICE RULE
 If a price is provided, use it strategically when relevant:
@@ -191,6 +221,18 @@ Google Ads:
 - strong buying logic
 - immediate clarity
 
+Landing page:
+- explanatory
+- persuasive
+- objection handling
+- trust-building
+
+Email:
+- conversational persuasion
+- benefit-first
+- more readable rhythm
+- CTA-focused
+
 Do not mix platform styles.
 
 PROMPT ENGINE RULE
@@ -199,7 +241,7 @@ promptEngine must be:
 - concrete
 - useful
 - multi-line
-- specific to product, platform, audience, price, and objection
+- specific to product, platform, audience, price, objection, market, and tone
 - directly usable by a creator
 
 promptEngine must include:
@@ -294,13 +336,26 @@ Inputs:
 - Duration: ${duration}
 - Context: ${context}
 - Main objection: ${objection}
+- Market: ${market}
+- Ads budget: ${adsBudget}
 - Mode: ${mode}
 
 IMPORTANT
 Every script must be tightly anchored to the selected form inputs.
 Never use fake brand voice.
-Never say "notre".
+Never say "notre" unless explicitly provided in the user's own brand tone.
 In French Creator mode, use "tu" only.
+
+COHERENCE CHECK
+Before answering, verify internally:
+1. does the hook style match the selected hookType?
+2. does the writing style match the selected tone?
+3. does the CTA fit the objective?
+4. does the platformStrategy fit the selected platform?
+5. does the psychological angle fit the audience + objection?
+6. does the output reflect market and ads budget when relevant?
+
+If not, rewrite before final output.
 
 Return this exact JSON shape:
 

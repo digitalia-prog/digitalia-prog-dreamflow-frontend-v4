@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
+type UploadKind = "video" | "audio";
 
 type AnalyzeResponse = {
   transcript?: string;
@@ -69,6 +71,7 @@ export default function AnalyzeUploadPage() {
   const inputCls =
     "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-white/35 focus:border-violet-500";
 
+  const [uploadType, setUploadType] = useState<UploadKind>("video");
   const [platform, setPlatform] = useState("TikTok");
   const [offer, setOffer] = useState("");
   const [audience, setAudience] = useState("");
@@ -79,9 +82,19 @@ export default function AnalyzeUploadPage() {
   const [error, setError] = useState("");
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
 
+  const acceptValue = useMemo(() => {
+    return uploadType === "video"
+      ? "video/*,.mp4,.mov,.webm,.mkv,.avi,.mpeg"
+      : "audio/*,.mp3,.wav,.m4a,.mpga,.mpeg,.webm";
+  }, [uploadType]);
+
   async function onAnalyzeUpload() {
     if (!file) {
-      setError("Ajoute une vidéo ou un fichier audio.");
+      setError(
+        uploadType === "video"
+          ? "Ajoute une vidéo."
+          : "Ajoute un fichier audio."
+      );
       return;
     }
 
@@ -96,6 +109,7 @@ export default function AnalyzeUploadPage() {
       formData.append("offer", offer);
       formData.append("audience", audience);
       formData.append("extraNotes", extraNotes);
+      formData.append("uploadType", uploadType);
 
       const response = await fetch("/api/analyze-upload", {
         method: "POST",
@@ -103,8 +117,6 @@ export default function AnalyzeUploadPage() {
       });
 
       const data = await response.json();
-
-      console.log("API RESPONSE =", data);
 
       if (!response.ok) {
         throw new Error(data?.details || data?.error || "Analyse impossible");
@@ -136,22 +148,81 @@ export default function AnalyzeUploadPage() {
       <div className="mx-auto max-w-6xl space-y-8">
         <div className="rounded-2xl border border-white/10 bg-[#14121c] p-6">
           <h1 className="mb-2 text-3xl font-bold text-white">
-            Analyse vidéo upload — Ads / UGC
+            Analyse upload — Vidéo / Audio
           </h1>
           <p className="text-white/60">
-            Uploade une vidéo ou un audio. L’app transcrit le contenu puis génère
-            une vraie analyse marketing.
+            Choisis un mode, importe ton fichier, puis récupère une analyse
+            marketing IA complète : hook, structure, angle, psychologie,
+            points forts, points faibles et brief à recréer.
           </p>
         </div>
 
+        <Block title="Mode d’analyse">
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setUploadType("video");
+                setFile(null);
+              }}
+              className={cn(
+                "rounded-xl px-4 py-3 text-sm font-semibold transition",
+                uploadType === "video"
+                  ? "bg-violet-600 text-white"
+                  : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+              )}
+            >
+              Vidéo
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setUploadType("audio");
+                setFile(null);
+              }}
+              className={cn(
+                "rounded-xl px-4 py-3 text-sm font-semibold transition",
+                uploadType === "audio"
+                  ? "bg-violet-600 text-white"
+                  : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+              )}
+            >
+              Audio
+            </button>
+          </div>
+
+          <p className="mt-4 text-sm text-white/55">
+            Mode actuel :{" "}
+            <span className="font-medium text-white/80">
+              {uploadType === "video" ? "Upload vidéo" : "Upload audio"}
+            </span>
+          </p>
+        </Block>
+
         <div className="grid gap-6 md:grid-cols-2">
-          <Block title="Fichier vidéo / audio">
+          <Block
+            title={
+              uploadType === "video"
+                ? "Fichier vidéo"
+                : "Fichier audio"
+            }
+          >
             <input
+              key={uploadType}
               type="file"
-              accept="video/*,audio/*,.mp3,.mp4,.m4a,.wav,.webm,.mpeg,.mpga"
+              accept={acceptValue}
               className={inputCls}
               onChange={(e) => setFile(e.target.files?.[0] || null)}
             />
+
+            <div className="mt-3 text-sm text-white/50">
+              {file
+                ? `Fichier sélectionné : ${file.name}`
+                : uploadType === "video"
+                ? "Formats conseillés : .mp4, .mov, .webm"
+                : "Formats conseillés : .mp3, .wav, .m4a"}
+            </div>
           </Block>
 
           <Block title="Plateforme">
@@ -192,7 +263,7 @@ export default function AnalyzeUploadPage() {
             className={cn(inputCls, "min-h-[140px]")}
             value={extraNotes}
             onChange={(e) => setExtraNotes(e.target.value)}
-            placeholder="Tu peux ajouter ici le contexte, le type de vidéo, ou ce que tu veux analyser en priorité."
+            placeholder="Ajoute ici le contexte, le type de créa, ce que tu veux analyser en priorité, l’angle marketing, etc."
           />
         </Block>
 
@@ -206,7 +277,11 @@ export default function AnalyzeUploadPage() {
               : "bg-violet-600 hover:bg-violet-500"
           )}
         >
-          {loading ? "Transcription + analyse..." : "Analyser le fichier"}
+          {loading
+            ? "Transcription + analyse..."
+            : uploadType === "video"
+            ? "Analyser la vidéo"
+            : "Analyser l’audio"}
         </button>
 
         {error && <div className="text-red-400">{error}</div>}

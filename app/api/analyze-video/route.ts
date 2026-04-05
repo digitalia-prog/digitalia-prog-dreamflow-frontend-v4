@@ -40,7 +40,9 @@ async function downloadTikTokMedia(url: string, outDir: string) {
     process.env.YT_DLP_PYTHON_BIN ||
     path.join(process.cwd(), ".venv", "bin", "python3");
 
-  await execFileAsync(pythonBin, [
+  const certFile = process.env.SSL_CERT_FILE;
+
+  const args = [
     "-m",
     "yt_dlp",
     "--no-playlist",
@@ -49,7 +51,25 @@ async function downloadTikTokMedia(url: string, outDir: string) {
     "-o",
     outputTemplate,
     url,
-  ]);
+  ];
+
+  await execFileAsync(
+    pythonBin,
+    args,
+    certFile
+      ? {
+          env: {
+            ...process.env,
+            SSL_CERT_FILE: certFile,
+            REQUESTS_CA_BUNDLE: certFile,
+          },
+        }
+      : {
+          env: {
+            ...process.env,
+          },
+        }
+  );
 
   const files = await fs.promises.readdir(outDir);
   const mediaFile = files.find((file) => file.startsWith("source."));

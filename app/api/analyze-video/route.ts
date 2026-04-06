@@ -33,13 +33,40 @@ async function safeRm(dirPath: string) {
   } catch {}
 }
 
+function getPythonCandidates() {
+  const candidates: string[] = [];
+
+  if (process.env.YT_DLP_PYTHON_BIN) {
+    candidates.push(process.env.YT_DLP_PYTHON_BIN);
+  }
+
+  candidates.push(path.join(process.cwd(), ".venv", "bin", "python3"));
+  candidates.push("python3");
+  candidates.push("/usr/bin/python3");
+
+  return [...new Set(candidates)];
+}
+
+async function runYtDlpWithPython(
+  pythonBin: string,
+  args: string[],
+  certFile?: string
+) {
+  return execFileAsync(pythonBin, args, {
+    env: certFile
+      ? {
+          ...process.env,
+          SSL_CERT_FILE: certFile,
+          REQUESTS_CA_BUNDLE: certFile,
+        }
+      : {
+          ...process.env,
+        },
+  });
+}
+
 async function downloadTikTokMedia(url: string, outDir: string) {
   const outputTemplate = path.join(outDir, "source.%(ext)s");
-
-  const pythonBin =
-    process.env.YT_DLP_PYTHON_BIN ||
-    path.join(process.cwd(), ".venv", "bin", "python3");
-
   const certFile = process.env.SSL_CERT_FILE;
 
   const args = [
@@ -53,32 +80,31 @@ async function downloadTikTokMedia(url: string, outDir: string) {
     url,
   ];
 
-  await execFileAsync(
-    pythonBin,
-    args,
-    certFile
-      ? {
-          env: {
-            ...process.env,
-            SSL_CERT_FILE: certFile,
-            REQUESTS_CA_BUNDLE: certFile,
-          },
-        }
-      : {
-          env: {
-            ...process.env,
-          },
-        }
-  );
+  const pythonCandidates = getPythonCandidates();
 
-  const files = await fs.promises.readdir(outDir);
-  const mediaFile = files.find((file) => file.startsWith("source."));
+  let lastError: any = null;
 
-  if (!mediaFile) {
-    throw new Error("Impossible de télécharger la vidéo depuis ce lien.");
+  for (const pythonBin of pythonCandidates) {
+    try {
+      await runYtDlpWithPython(pythonBin, args, certFile);
+
+      const files = await fs.promises.readdir(outDir);
+      const mediaFile = files.find((file) => file.startsWith("source."));
+
+      if (!mediaFile) {
+        throw new Error("Téléchargement terminé mais aucun fichier vidéo trouvé.");
+      }
+
+      return path.join(outDir, mediaFile);
+    } catch (error: any) {
+      lastError = error;
+    }
   }
 
-  return path.join(outDir, mediaFile);
+  throw new Error(
+    lastError?.message ||
+      "Impossible de lancer yt-dlp. Vérifie Python / yt-dlp sur l’environnement."
+  );
 }
 
 async function extractAudioToMp3(inputPath: string, outDir: string) {

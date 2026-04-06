@@ -130,8 +130,7 @@ async function analyzeTranscript({
   const prompt = `
 Tu es un expert senior en creative strategy, UGC ads et performance marketing.
 
-Ta mission :
-analyser une vidéo courte de façon concrète et non générique.
+Analyse cette vidéo TikTok comme une agence marketing professionnelle.
 
 Contexte utilisateur :
 - URL : ${url}
@@ -150,6 +149,7 @@ Consignes :
 - Si certaines infos manquent, dis-le honnêtement.
 - N'invente pas des détails visuels précis si le transcript ne les prouve pas.
 - Réponds en français.
+- Analyse comme une agence UGC / performance.
 - Retourne UNIQUEMENT un JSON valide, sans markdown.
 
 Format attendu :
@@ -165,7 +165,12 @@ Format attendu :
   "recreateIdeas": ["", ""],
   "similarHooks": ["", ""],
   "similarAngles": ["", ""],
-  "scriptPrompt": ""
+  "scriptPrompt": "",
+  "viralScore": "",
+  "whyItWorks": ["", ""],
+  "howToBeat": ["", ""],
+  "adsAngles": ["", ""],
+  "creativeType": ""
 }
 `;
 
@@ -217,6 +222,12 @@ Format attendu :
       : [],
     scriptPrompt:
       typeof parsed?.scriptPrompt === "string" ? parsed.scriptPrompt : "",
+    viralScore: typeof parsed?.viralScore === "string" ? parsed.viralScore : "",
+    whyItWorks: Array.isArray(parsed?.whyItWorks) ? parsed.whyItWorks : [],
+    howToBeat: Array.isArray(parsed?.howToBeat) ? parsed.howToBeat : [],
+    adsAngles: Array.isArray(parsed?.adsAngles) ? parsed.adsAngles : [],
+    creativeType:
+      typeof parsed?.creativeType === "string" ? parsed.creativeType : "",
   };
 }
 
@@ -260,6 +271,11 @@ export async function POST(req: Request) {
           similarHooks: [],
           similarAngles: [],
           scriptPrompt: "",
+          viralScore: "",
+          whyItWorks: [],
+          howToBeat: [],
+          adsAngles: [],
+          creativeType: "",
           error: "Transcript vide après transcription.",
         },
         { status: 200 }

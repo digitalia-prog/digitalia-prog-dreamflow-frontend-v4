@@ -17,6 +17,11 @@ type AnalyzeResponse = {
   similarHooks?: string[];
   similarAngles?: string[];
   scriptPrompt?: string;
+  viralScore?: string;
+  whyItWorks?: string[];
+  howToBeat?: string[];
+  adsAngles?: string[];
+  creativeType?: string;
   error?: string;
   details?: string;
 };
@@ -74,6 +79,7 @@ export default function AnalyzeUploadPage() {
   const [mode, setMode] = useState<AnalyzeMode>("video_url");
   const [url, setUrl] = useState("");
   const [platform, setPlatform] = useState("TikTok");
+  const [language, setLanguage] = useState("Français");
   const [offer, setOffer] = useState("");
   const [audience, setAudience] = useState("");
   const [extraNotes, setExtraNotes] = useState("");
@@ -114,6 +120,7 @@ export default function AnalyzeUploadPage() {
           body: JSON.stringify({
             url,
             platform,
+            language,
             offer,
             audience,
             notes: extraNotes,
@@ -139,6 +146,11 @@ export default function AnalyzeUploadPage() {
           similarHooks: Array.isArray(data?.similarHooks) ? data.similarHooks : [],
           similarAngles: Array.isArray(data?.similarAngles) ? data.similarAngles : [],
           scriptPrompt: data?.scriptPrompt,
+          viralScore: data?.viralScore,
+          whyItWorks: Array.isArray(data?.whyItWorks) ? data.whyItWorks : [],
+          howToBeat: Array.isArray(data?.howToBeat) ? data.howToBeat : [],
+          adsAngles: Array.isArray(data?.adsAngles) ? data.adsAngles : [],
+          creativeType: data?.creativeType,
         });
 
         return;
@@ -155,6 +167,7 @@ export default function AnalyzeUploadPage() {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("platform", platform);
+      formData.append("language", language);
       formData.append("offer", offer);
       formData.append("audience", audience);
       formData.append("extraNotes", extraNotes);
@@ -184,6 +197,11 @@ export default function AnalyzeUploadPage() {
         similarHooks: Array.isArray(data?.similarHooks) ? data.similarHooks : [],
         similarAngles: Array.isArray(data?.similarAngles) ? data.similarAngles : [],
         scriptPrompt: data?.scriptPrompt,
+        viralScore: data?.viralScore,
+        whyItWorks: Array.isArray(data?.whyItWorks) ? data.whyItWorks : [],
+        howToBeat: Array.isArray(data?.howToBeat) ? data.howToBeat : [],
+        adsAngles: Array.isArray(data?.adsAngles) ? data.adsAngles : [],
+        creativeType: data?.creativeType,
       });
     } catch (e: any) {
       setError(String(e?.message ?? e ?? "Erreur inconnue"));
@@ -201,7 +219,7 @@ export default function AnalyzeUploadPage() {
           </h1>
           <p className="text-white/60">
             Analyse marketing IA complète : hook, structure, angle, psychologie,
-            points forts, points faibles et brief à recréer.
+            points forts, points faibles, score viral et brief à recréer.
           </p>
         </div>
 
@@ -303,8 +321,38 @@ export default function AnalyzeUploadPage() {
               <option>TikTok</option>
               <option>Instagram Reels</option>
               <option>YouTube Shorts</option>
+              <option>YouTube</option>
               <option>Facebook Ads</option>
+              <option>Facebook</option>
               <option>Google Ads</option>
+              <option>Snapchat</option>
+              <option>Snapchat Spotlight</option>
+              <option>Pinterest</option>
+              <option>LinkedIn</option>
+              <option>X / Twitter</option>
+              <option>Threads</option>
+              <option>Rednote</option>
+              <option>Telegram</option>
+              <option>WhatsApp</option>
+              <option>Twitch</option>
+              <option>VSL</option>
+              <option>Landing Page Video</option>
+              <option>Autre</option>
+            </select>
+          </Block>
+
+          <Block title="Langue">
+            <select
+              className={inputCls}
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+            >
+              <option>Français</option>
+              <option>Anglais UK</option>
+              <option>Anglais US</option>
+              <option>Espagnol</option>
+              <option>Arabe</option>
+              <option>Chinois</option>
             </select>
           </Block>
 
@@ -401,6 +449,26 @@ export default function AnalyzeUploadPage() {
 
             <Block title="Angles similaires">
               <ListBlock items={result.similarAngles} />
+            </Block>
+
+            <Block title="Score viral">
+              <TextBlock value={result.viralScore} />
+            </Block>
+
+            <Block title="Pourquoi ça performe">
+              <ListBlock items={result.whyItWorks} />
+            </Block>
+
+            <Block title="Comment battre cette créa">
+              <ListBlock items={result.howToBeat} />
+            </Block>
+
+            <Block title="Angles Ads">
+              <ListBlock items={result.adsAngles} />
+            </Block>
+
+            <Block title="Type de créa">
+              <TextBlock value={result.creativeType} />
             </Block>
 
             <div className="md:col-span-2">

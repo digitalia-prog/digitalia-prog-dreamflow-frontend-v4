@@ -102,9 +102,9 @@ const dict: Dict = {
     navTerms: "CGU",
 
     badge: "Bêta — Analyse vidéo Bêta — 7 jours gratuits pour tester le Script Engine et l’analyse publicitaire audio • Score viral • Script Engine",
-    heroTitle: "Analyse les publicités gagnantes. Génère des scripts avec intelligence artificielle en quelques secondes.",
+    heroTitle: "Analyse les publicités performantes. Génère des scripts avec intelligence artificielle en quelques secondes.",
     heroSubtitle:
-      "UGC Growth aide les créateurs, agences et marques à analyser des publicités performantes en vidéo et audio, extraire les hooks gagnants et générer des scripts publicitaires prêts à tester.",
+      "UGC Growth aide les créateurs, agences et marques à analyser des publicités performantes en vidéo et audio, identifier les angles gagnants et générer des scripts publicitaires prêts à tester. Pensé pour créateurs, agences et marques e-commerce.",
 
     ctaDashboard: "Accéder au dashboard",
     ctaOffers: "Voir les offres",

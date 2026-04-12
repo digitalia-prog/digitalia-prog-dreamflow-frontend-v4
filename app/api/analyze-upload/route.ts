@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { checkQuota } from "@/lib/security";
 
 export const runtime = "nodejs";
 
@@ -22,7 +23,6 @@ function safeJsonParse(text: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    // 🔑 Vérif API key
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(
         { error: "OPENAI_API_KEY manquante" },
@@ -37,6 +37,24 @@ export async function POST(req: NextRequest) {
     const product = toText(formData.get("product"), "-");
     const audience = toText(formData.get("audience"), "-");
     const notes = toText(formData.get("notes"), "-");
+    const mode = toText(formData.get("mode"), "CREATOR");
+
+    const requestMode = mode === "AGENCY" ? "AGENCY" : "CREATOR";
+    const forwardedFor = req.headers.get("x-forwarded-for") || "";
+    const ip = forwardedFor.split(",")[0]?.trim() || "unknown";
+    const betaLimit = requestMode === "AGENCY" ? 10 : 5;
+
+    const allowed = await checkQuota(
+      `beta:analyze-upload:${ip}:${requestMode}`,
+      betaLimit
+    );
+
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Quota bêta dépassé pour l’analyse upload." },
+        { status: 403 }
+      );
+    }
 
     if (!file) {
       return NextResponse.json(
@@ -45,7 +63,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ✅ AUDIO ONLY (pour éviter les erreurs)
     const allowedTypes = [
       "audio/mpeg",
       "audio/mp3",
@@ -76,7 +93,6 @@ export async function POST(req: NextRequest) {
       type: file.type,
     });
 
-    // 🎧 TRANSCRIPTION
     const transcription = await openai.audio.transcriptions.create({
       file: audioFile,
       model: "gpt-4o-transcribe",
@@ -91,7 +107,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 🧠 PROMPT ANALYSE
     const prompt = `
 Tu es un expert en publicité UGC TikTok Ads.
 
@@ -139,7 +154,6 @@ Réponds en JSON strict :
     });
 
     const content = completion.choices[0]?.message?.content || "";
-
     const parsed = safeJsonParse(content);
 
     if (!parsed) {

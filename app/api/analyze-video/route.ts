@@ -6,6 +6,7 @@ import path from "path";
 import os from "os";
 import { execFile } from "child_process";
 import { promisify } from "util";
+import { checkQuota } from "@/lib/security";
 
 export const runtime = "nodejs";
 
@@ -47,14 +48,7 @@ async function downloadVideoFromUrl(url: string, workDir: string) {
 
   await execFileAsync(
     pythonBin,
-    [
-      "-m",
-      "yt_dlp",
-      "--no-playlist",
-      "-o",
-      outputTemplate,
-      url,
-    ],
+    ["-m", "yt_dlp", "--no-playlist", "-o", outputTemplate, url],
     {
       env: {
         ...process.env,
@@ -203,15 +197,23 @@ Format :
     psychology: Array.isArray(parsed?.psychology) ? parsed.psychology : [],
     strengths: Array.isArray(parsed?.strengths) ? parsed.strengths : [],
     weaknesses: Array.isArray(parsed?.weaknesses) ? parsed.weaknesses : [],
-    recreateIdeas: Array.isArray(parsed?.recreateIdeas) ? parsed.recreateIdeas : [],
-    similarHooks: Array.isArray(parsed?.similarHooks) ? parsed.similarHooks : [],
-    similarAngles: Array.isArray(parsed?.similarAngles) ? parsed.similarAngles : [],
-    scriptPrompt: typeof parsed?.scriptPrompt === "string" ? parsed.scriptPrompt : "",
+    recreateIdeas: Array.isArray(parsed?.recreateIdeas)
+      ? parsed.recreateIdeas
+      : [],
+    similarHooks: Array.isArray(parsed?.similarHooks)
+      ? parsed.similarHooks
+      : [],
+    similarAngles: Array.isArray(parsed?.similarAngles)
+      ? parsed.similarAngles
+      : [],
+    scriptPrompt:
+      typeof parsed?.scriptPrompt === "string" ? parsed.scriptPrompt : "",
     viralScore: typeof parsed?.viralScore === "string" ? parsed.viralScore : "",
     whyItWorks: Array.isArray(parsed?.whyItWorks) ? parsed.whyItWorks : [],
     howToBeat: Array.isArray(parsed?.howToBeat) ? parsed.howToBeat : [],
     adsAngles: Array.isArray(parsed?.adsAngles) ? parsed.adsAngles : [],
-    creativeType: typeof parsed?.creativeType === "string" ? parsed.creativeType : "",
+    creativeType:
+      typeof parsed?.creativeType === "string" ? parsed.creativeType : "",
   };
 }
 
@@ -220,7 +222,24 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { url, platform, language, offer, audience, notes } = body ?? {};
+    const { url, platform, language, offer, audience, notes, mode } = body ?? {};
+
+    const requestMode = mode === "AGENCY" ? "AGENCY" : "CREATOR";
+    const forwardedFor = req.headers.get("x-forwarded-for") || "";
+    const ip = forwardedFor.split(",")[0]?.trim() || "unknown";
+    const betaLimit = requestMode === "AGENCY" ? 10 : 5;
+
+    const allowed = await checkQuota(
+      `beta:analyze-video:${ip}:${requestMode}`,
+      betaLimit
+    );
+
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Quota bêta dépassé pour l’analyse vidéo." },
+        { status: 403 }
+      );
+    }
 
     if (!url || typeof url !== "string") {
       return NextResponse.json(

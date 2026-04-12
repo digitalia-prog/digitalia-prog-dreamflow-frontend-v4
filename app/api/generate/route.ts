@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkQuota } from "@/lib/security";
 
 type Mode = "AGENCY" | "CREATOR";
 
@@ -27,6 +28,21 @@ export async function POST(req: Request) {
     const body: GenerateBody = await req.json();
 
     const mode: Mode = body.mode === "AGENCY" ? "AGENCY" : "CREATOR";
+
+    const forwardedFor = req.headers.get("x-forwarded-for") || "";
+    const ip = forwardedFor.split(",")[0]?.trim() || "unknown";
+
+    const betaLimit = mode === "AGENCY" ? 20 : 4;
+
+    const allowed = await checkQuota(`beta:scripts:${ip}:${mode}`, betaLimit);
+
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Quota bêta dépassé pour les scripts." },
+        { status: 403 }
+      );
+    }
+
     const lang = body.lang || "FR";
     const platform = body.platform || "TikTok";
     const objective = body.objective || "Vente";

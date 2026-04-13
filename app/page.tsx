@@ -101,13 +101,15 @@ const dict: Dict = {
     navFeedback: "Feedback",
     navTerms: "CGU",
 
-    badge: "Bêta — Analyse vidéo Bêta — 7 jours gratuits pour tester le Script Engine et l’analyse publicitaire audio • Score viral • Script Engine",
-    heroTitle: "Analyse les publicités performantes. Génère des scripts avec intelligence artificielle en quelques secondes.",
+    badge:
+      "Accès bêta privé — 7 jours gratuits • Analyse vidéo & audio • Script Engine",
+    heroTitle:
+      "Trouve les publicités qui performent. Génère des scripts prêts à tourner en quelques secondes.",
     heroSubtitle:
       "UGC Growth aide les créateurs, agences et marques à analyser des publicités performantes en vidéo et audio, identifier les angles gagnants et générer des scripts publicitaires prêts à tester. Pensé pour créateurs, agences et marques e-commerce.",
 
-    ctaDashboard: "Accéder au dashboard",
-    ctaOffers: "Voir les offres",
+    ctaDashboard: "Tester gratuitement",
+    ctaOffers: "Voir les fonctionnalités",
     ctaTerms: "Conditions (CGU)",
 
     featuresTitle: "Ce que la plateforme fait concrètement",
@@ -145,14 +147,14 @@ const dict: Dict = {
     planBetaB3: "Feedback prioritaire",
 
     planCreatorTitle: "Creator",
-    planCreatorPrice: "À partir de 99€",
+    planCreatorPrice: "Bientôt disponible",
     planCreatorNote: "Pour créateurs qui postent beaucoup",
     planCreatorB1: "Plus de générations / mois",
     planCreatorB2: "Templates scripts",
     planCreatorB3: "Export facile",
 
     planAgencyTitle: "Agency",
-    planAgencyPrice: "À partir de 299€",
+    planAgencyPrice: "Bientôt disponible",
     planAgencyNote: "Pour équipes & gestion multi-clients",
     planAgencyB1: "Workspace agence",
     planAgencyB2: "Pipeline UGC + scripts",
@@ -200,13 +202,15 @@ const dict: Dict = {
     navFeedback: "Feedback",
     navTerms: "Terms",
 
-    badge: "Beta — 7 days free for testing (anti-abuse limits)",
-    heroTitle: "Analyze winning ads. Generate high-performing scripts in seconds.",
+    badge:
+      "Private beta access — 7 days free • Video & audio analysis • Script Engine • Agency workflow",
+    heroTitle:
+      "Find ads that perform. Generate ready-to-film scripts in seconds.",
     heroSubtitle:
-      "UGC Growth helps creators, agencies and brands analyze winning ads, extract strong hooks and generate ad scripts ready to test.",
+      "UGC Growth helps creators, agencies and brands analyze high-performing video and audio ads, identify winning angles and generate ad scripts ready to test.",
 
-    ctaDashboard: "Open dashboard",
-    ctaOffers: "See offers",
+    ctaDashboard: "Start free",
+    ctaOffers: "See features",
     ctaTerms: "Terms",
 
     featuresTitle: "What the platform actually does",
@@ -217,8 +221,7 @@ const dict: Dict = {
     f1Desc:
       "Upload audio and detect the hook, structure, angle and ideas worth reproducing.",
     f2Title: "Script Engine",
-    f2Desc:
-      "Generate hooks, scripts, CTAs and structures ready to record.",
+    f2Desc: "Generate hooks, scripts, CTAs and structures ready to record.",
     f3Title: "Hooks & marketing angles",
     f3Desc:
       "Find what to say, how to say it and which angle to test faster.",
@@ -226,11 +229,9 @@ const dict: Dict = {
     f4Desc:
       "Centralize briefs, campaigns, creators and content in one clean space.",
     f5Title: "Simple beta access",
-    f5Desc:
-      "7 free days to test the product before full rollout.",
+    f5Desc: "7 free days to test the product before full rollout.",
     f6Title: "Multi-language",
-    f6Desc:
-      "FR / EN / AR / ES / 中文 — ready for international teams.",
+    f6Desc: "FR / EN / AR / ES / 中文 — ready for international teams.",
 
     pricingTitle: "Beta offers",
     pricingSubtitle:
@@ -298,13 +299,13 @@ const dict: Dict = {
     navFeedback: "ملاحظات",
     navTerms: "الشروط",
 
-    badge: "بيتا — 7 أيام مجانًا للتجربة (قيود ضد الإساءة)",
-    heroTitle: "حلّل الإعلانات التي تنجح. وأنشئ سكربتات قوية خلال ثوانٍ.",
+    badge: "دخول بيتا خاص — 7 أيام مجانًا",
+    heroTitle: "اكتشف الإعلانات التي تنجح. وأنشئ سكربتات جاهزة للتصوير خلال ثوانٍ.",
     heroSubtitle:
-      "يساعد UGC Growth المبدعين والوكالات والعلامات التجارية على تحليل الإعلانات الناجحة، استخراج الهوكات القوية، وإنشاء سكربتات إعلانية جاهزة للاختبار.",
+      "يساعد UGC Growth المبدعين والوكالات والعلامات التجارية على تحليل الإعلانات الناجحة وإنشاء سكربتات جاهزة للاختبار.",
 
-    ctaDashboard: "الدخول للوحة التحكم",
-    ctaOffers: "عرض الباقات",
+    ctaDashboard: "ابدأ مجانًا",
+    ctaOffers: "عرض الميزات",
     ctaTerms: "الشروط",
 
     featuresTitle: "ماذا تفعل المنصة فعليًا",
@@ -315,8 +316,7 @@ const dict: Dict = {
     f1Desc:
       "ارفع ملفًا صوتيًا واكتشف الهوك والبنية والزاوية والأفكار التي تستحق إعادة الاستخدام.",
     f2Title: "Script Engine",
-    f2Desc:
-      "أنشئ هوكات وسكربتات وCTA وبُنى جاهزة للتصوير بسرعة.",
+    f2Desc: "أنشئ هوكات وسكربتات وCTA وبُنى جاهزة للتصوير بسرعة.",
     f3Title: "هوكات وزوايا تسويقية",
     f3Desc:
       "اعرف ماذا تقول، وكيف تقوله، وتحت أي زاوية تختبره أسرع.",
@@ -324,8 +324,7 @@ const dict: Dict = {
     f4Desc:
       "نظّم الـ briefs والحملات والمبدعين والمحتوى في مساحة واحدة مرتبة.",
     f5Title: "بيتا سهلة للتجربة",
-    f5Desc:
-      "7 أيام مجانية لاختبار قيمة المنتج قبل الإطلاق الكامل.",
+    f5Desc: "7 أيام مجانية لاختبار قيمة المنتج قبل الإطلاق الكامل.",
     f6Title: "تعدد اللغات",
     f6Desc: "FR / EN / AR / ES / 中文 — مناسب للفرق والعملاء الدوليين.",
 
@@ -376,8 +375,7 @@ const dict: Dict = {
     faqA1:
       "نعم: 7 أيام مع قيود ضد الإساءة للحفاظ على الاستقرار.",
     faqQ2: "هل أشرح كيف تعمل؟",
-    faqA2:
-      "لا. بع النتيجة: تحليل الإعلانات، السكربتات، والتنظيم.",
+    faqA2: "لا. بع النتيجة: تحليل الإعلانات، السكربتات، والتنظيم.",
     faqQ3: "هل أستطيع طلب ميزة؟",
     faqA3: "نعم. ملاحظات البيتا أولوية: نطوّر بسرعة.",
 
@@ -395,13 +393,15 @@ const dict: Dict = {
     navFeedback: "Feedback",
     navTerms: "Términos",
 
-    badge: "Beta — 7 días gratis para pruebas (límites anti-abuso)",
-    heroTitle: "Analiza los anuncios que funcionan. Genera scripts potentes en segundos.",
+    badge:
+      "Acceso beta privado — 7 días gratis • Análisis de video y audio • Script Engine • Workflow agencia",
+    heroTitle:
+      "Encuentra anuncios que funcionan. Genera scripts listos para grabar en segundos.",
     heroSubtitle:
-      "UGC Growth ayuda a creadores, agencias y marcas a analizar anuncios ganadores, extraer hooks potentes y generar scripts publicitarios listos para probar.",
+      "UGC Growth ayuda a creadores, agencias y marcas a analizar anuncios de alto rendimiento, identificar ángulos ganadores y generar scripts listos para probar.",
 
-    ctaDashboard: "Entrar al dashboard",
-    ctaOffers: "Ver ofertas",
+    ctaDashboard: "Probar gratis",
+    ctaOffers: "Ver funciones",
     ctaTerms: "Términos",
 
     featuresTitle: "Lo que hace realmente la plataforma",
@@ -412,8 +412,7 @@ const dict: Dict = {
     f1Desc:
       "Sube audio y detecta el hook, la estructura, el ángulo y las ideas a reproducir.",
     f2Title: "Script Engine",
-    f2Desc:
-      "Genera hooks, scripts, CTA y estructuras listas para grabar.",
+    f2Desc: "Genera hooks, scripts, CTA y estructuras listas para grabar.",
     f3Title: "Hooks y ángulos de marketing",
     f3Desc:
       "Encuentra más rápido qué decir, cómo decirlo y qué ángulo probar.",
@@ -493,13 +492,13 @@ const dict: Dict = {
     navFeedback: "反馈",
     navTerms: "条款",
 
-    badge: "测试版 — 免费 7 天（防滥用限制）",
-    heroTitle: "分析有效广告。几秒内生成高表现脚本。",
+    badge: "私人测试版 — 免费 7 天",
+    heroTitle: "找到有效广告。几秒内生成可直接拍摄的脚本。",
     heroSubtitle:
-      "UGC Growth 帮助创作者、机构和品牌分析有效广告，提取强势 hooks，并生成可直接测试的广告脚本。",
+      "UGC Growth 帮助创作者、机构和品牌分析高表现广告并生成可直接测试的广告脚本。",
 
-    ctaDashboard: "进入仪表盘",
-    ctaOffers: "查看套餐",
+    ctaDashboard: "免费开始",
+    ctaOffers: "查看功能",
     ctaTerms: "条款",
 
     featuresTitle: "平台真正能做什么",
@@ -510,8 +509,7 @@ const dict: Dict = {
     f1Desc:
       "上传音频，识别 hook、结构、角度以及值得复用的创意。",
     f2Title: "Script Engine",
-    f2Desc:
-      "快速生成可直接拍摄的 hooks、scripts、CTA 和结构。",
+    f2Desc: "快速生成可直接拍摄的 hooks、scripts、CTA 和结构。",
     f3Title: "Hooks 与营销角度",
     f3Desc:
       "更快找到该说什么、怎么说、以及测试哪个角度。",
@@ -629,7 +627,7 @@ function PlanCard({
         <div className="font-semibold text-purple-300">{price}</div>
       </div>
       <div className="mt-2 text-sm text-white/60">{note}</div>
-      <ul className="mt-5 space-y-2 text-white/80 list-disc pl-5">
+      <ul className="mt-5 list-disc space-y-2 pl-5 text-white/80">
         {bullets.map((b) => (
           <li key={b}>{b}</li>
         ))}
@@ -655,7 +653,7 @@ function LangButton({
         "rounded-full border px-3 py-1 text-xs transition",
         active
           ? "border-purple-500/40 bg-purple-500/20 text-white"
-          : "border-white/10 bg-white/5 text-white/70 hover:text-white hover:border-white/20"
+          : "border-white/10 bg-white/5 text-white/70 hover:border-white/20 hover:text-white"
       )}
     >
       {label}
@@ -720,7 +718,7 @@ export default function Landing() {
       dir={isRTL ? "rtl" : "ltr"}
       lang={lang}
     >
-      <header className="mx-auto max-w-6xl px-6 py-10 flex items-center justify-between gap-6">
+      <header className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-10">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-purple-600/80" />
           <div className="leading-tight">
@@ -729,7 +727,7 @@ export default function Landing() {
           </div>
         </div>
 
-        <nav className="hidden md:flex items-center gap-4 text-sm">
+        <nav className="hidden items-center gap-4 text-sm md:flex">
           <a href="#features" className="text-white/70 hover:text-white">
             {t.navFeatures}
           </a>
@@ -766,11 +764,11 @@ export default function Landing() {
             {t.badge}
           </div>
 
-          <h1 className="mt-6 text-4xl md:text-6xl font-bold tracking-tight">
+          <h1 className="mt-6 text-4xl font-bold tracking-tight md:text-6xl">
             {t.heroTitle}
           </h1>
 
-          <p className="mt-4 max-w-2xl text-white/70 md:text-lg">
+          <p className="mt-4 max-w-3xl text-white/70 md:text-lg">
             {t.heroSubtitle}
           </p>
 
@@ -783,7 +781,7 @@ export default function Landing() {
             </button>
 
             <a
-              href="#pricing"
+              href="#features"
               className="rounded-xl border border-white/15 bg-white/5 px-6 py-3 font-semibold text-white/90 hover:border-white/25"
             >
               {t.ctaOffers}
@@ -801,19 +799,22 @@ export default function Landing() {
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
               <div className="font-semibold">Scripts prêts à tester</div>
               <div className="mt-2 text-sm text-white/70">
-                Génère des hooks, scripts, angles marketing et CTA structurés pour lancer plus vite.
+                Génère des hooks, scripts, angles marketing et CTA structurés
+                pour lancer plus vite.
               </div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
               <div className="font-semibold">Analyse des pubs qui performent</div>
               <div className="mt-2 text-sm text-white/70">
-                Upload un audio, détecte ce qui fonctionne et génère des scripts prêts à tester.
+                Upload un audio, détecte ce qui fonctionne et génère des scripts
+                prêts à tester.
               </div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
               <div className="font-semibold">Pensé pour créateurs et agences</div>
               <div className="mt-2 text-sm text-white/70">
-                Un seul espace pour organiser, générer, analyser et accélérer la production UGC.
+                Un seul espace pour organiser, générer, analyser et accélérer la
+                production UGC.
               </div>
             </div>
           </div>
@@ -821,7 +822,7 @@ export default function Landing() {
       </section>
 
       <section id="features" className="mx-auto max-w-6xl px-6 py-16">
-        <h2 className="text-3xl md:text-4xl font-bold">{t.featuresTitle}</h2>
+        <h2 className="text-3xl font-bold md:text-4xl">{t.featuresTitle}</h2>
         <p className="mt-3 text-white/70">{t.featuresSubtitle}</p>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
@@ -835,7 +836,7 @@ export default function Landing() {
       </section>
 
       <section id="pricing" className="mx-auto max-w-6xl px-6 py-16">
-        <h2 className="text-3xl md:text-4xl font-bold">{t.pricingTitle}</h2>
+        <h2 className="text-3xl font-bold md:text-4xl">{t.pricingTitle}</h2>
         <p className="mt-3 text-white/70">{t.pricingSubtitle}</p>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
@@ -867,7 +868,7 @@ export default function Landing() {
         <div className="rounded-3xl border border-white/10 bg-white/5 p-10">
           <h2 className="text-3xl font-bold">{t.whoTitle}</h2>
           <p className="mt-3 text-white/70">{t.whoSubtitle}</p>
-          <ul className="mt-6 grid gap-3 md:grid-cols-2 text-white/80 list-disc pl-5">
+          <ul className="mt-6 grid list-disc gap-3 pl-5 text-white/80 md:grid-cols-2">
             <li>{t.whoA}</li>
             <li>{t.whoB}</li>
             <li>{t.whoC}</li>
@@ -880,7 +881,7 @@ export default function Landing() {
         <div className="rounded-3xl border border-purple-500/20 bg-purple-500/10 p-10">
           <h2 className="text-3xl font-bold">{t.premiumTitle}</h2>
           <p className="mt-3 text-white/70">{t.premiumSubtitle}</p>
-          <ul className="mt-6 grid gap-3 md:grid-cols-3 text-white/90 list-disc pl-5">
+          <ul className="mt-6 grid list-disc gap-3 pl-5 text-white/90 md:grid-cols-3">
             <li>{t.premiumA}</li>
             <li>{t.premiumB}</li>
             <li>{t.premiumC}</li>
@@ -889,7 +890,7 @@ export default function Landing() {
       </section>
 
       <section id="faq" className="mx-auto max-w-6xl px-6 py-16">
-        <h2 className="text-3xl md:text-4xl font-bold">{t.faqTitle}</h2>
+        <h2 className="text-3xl font-bold md:text-4xl">{t.faqTitle}</h2>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
@@ -908,7 +909,7 @@ export default function Landing() {
       </section>
 
       <section className="mx-auto max-w-6xl px-6 pb-20">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div className="flex flex-col gap-6 rounded-3xl border border-white/10 bg-white/5 p-10 md:flex-row md:items-center md:justify-between">
           <div>
             <h3 className="text-2xl font-bold">{t.feedbackTitle}</h3>
             <p className="mt-2 text-white/70">{t.feedbackSubtitle}</p>
@@ -923,7 +924,7 @@ export default function Landing() {
       </section>
 
       <footer className="border-t border-white/10">
-        <div className="mx-auto max-w-6xl px-6 py-10 text-sm text-white/60 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-10 text-sm text-white/60 md:flex-row md:items-center md:justify-between">
           <div>{t.footer}</div>
           <div className="flex gap-4">
             <Link href="/terms" className="hover:text-white">
@@ -941,7 +942,8 @@ export default function Landing() {
           <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#111118] p-6 text-white shadow-2xl">
             <h3 className="text-2xl font-bold">Accès bêta</h3>
             <p className="mt-2 text-white/70">
-              Entre ton email pour recevoir le message de bienvenue puis accéder au dashboard.
+              Entre ton email pour recevoir le message de bienvenue puis accéder
+              au dashboard.
             </p>
 
             <div className="mt-5 space-y-3">
@@ -974,7 +976,7 @@ export default function Landing() {
                   disabled={betaLoading}
                   className="flex-1 rounded-xl bg-violet-600 px-4 py-3 font-semibold text-white hover:bg-violet-500 disabled:opacity-60"
                 >
-                  {betaLoading ? "Envoi..." : "Continuer"}
+                  {betaLoading ? "Activation..." : "Activer mon accès bêta"}
                 </button>
               </div>
             </div>

@@ -32,11 +32,10 @@ async function sendEmailIfConfigured(
   payload: Required<Pick<Body, "email" | "message">> & Body
 ) {
   const key = process.env.RESEND_API_KEY;
-  const to = process.env.FEEDBACK_TO || "feedbackugc@outlook.com";
-  const from =
-    process.env.FEEDBACK_FROM || "UGC Growth <onboarding@resend.dev>";
 
-  if (!key) return { sent: false, reason: "NO_RESEND_API_KEY" };
+  if (!key) {
+    return { sent: false, reason: "NO_RESEND_API_KEY" };
+  }
 
   const subject = payload.subject?.trim()
     ? `UGC Growth Feedback — ${payload.subject.trim()}`
@@ -45,13 +44,14 @@ async function sendEmailIfConfigured(
       }`;
 
   const text = [
-    "Nouveau feedback UGC GROWTH",
-    "--------------------",
+    "Nouveau feedback UGC Growth",
+    "--------------------------",
     `Email: ${payload.email}`,
     `Rôle: ${payload.role || "-"}`,
     `Note: ${payload.rating || "-"}/5`,
     `Consentement: ${payload.consent ? "Oui" : "Non"}`,
     "",
+    "Message :",
     payload.message || "",
   ].join("\n");
 
@@ -62,8 +62,8 @@ async function sendEmailIfConfigured(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from,
-      to,
+      from: "UGC Growth <feedback@ugcgrowth.io>",
+      to: ["feedbackugc@outlook.com"],
       reply_to: payload.email,
       subject,
       text,
@@ -72,6 +72,7 @@ async function sendEmailIfConfigured(
 
   if (!res.ok) {
     const err = await res.text().catch(() => "");
+    console.log("RESEND ERROR:", err);
     return {
       sent: false,
       reason: `RESEND_ERROR: ${res.status} ${err}`,
@@ -100,6 +101,13 @@ export async function POST(req: Request) {
     if (!body.email || !body.message) {
       return NextResponse.json(
         { ok: false, error: "Email et message requis" },
+        { status: 400 }
+      );
+    }
+
+    if (body.message.trim().length < 10) {
+      return NextResponse.json(
+        { ok: false, error: "Le message doit contenir au moins 10 caractères" },
         { status: 400 }
       );
     }

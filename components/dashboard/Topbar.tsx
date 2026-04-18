@@ -33,7 +33,7 @@ export default function Topbar() {
           </div>
 
           <a
-            href="/dashboard/campaigns/new"
+            href="/dashboard/campaigns"
             className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500"
           >
             + Nouvelle campagne

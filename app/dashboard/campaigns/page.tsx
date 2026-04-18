@@ -17,7 +17,7 @@ export default function CampaignsPage() {
         </p>
 
         <a
-          href="/dashboard/campaigns/new"
+          href="/dashboard/campaigns"
           className="inline-flex items-center justify-center px-5 py-3 rounded-lg bg-purple-600 hover:bg-purple-500 transition"
         >
           + Nouvelle campagne

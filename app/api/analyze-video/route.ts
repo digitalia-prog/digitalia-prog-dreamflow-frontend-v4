@@ -6,7 +6,6 @@ import path from "path";
 import os from "os";
 import { execFile } from "child_process";
 import { promisify } from "util";
-import { checkQuota } from "@/lib/security";
 
 export const runtime = "nodejs";
 
@@ -40,6 +39,20 @@ function getPythonBin() {
     process.env.YT_DLP_PYTHON_BIN ||
     path.join(process.cwd(), ".venv", "bin", "python3")
   );
+}
+
+async function checkBetaQuotaSafe(key: string, limit: number) {
+  const hasRedisConfig =
+    !!process.env.UPSTASH_REDIS_REST_URL &&
+    !!process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (!hasRedisConfig) {
+    console.warn("Quota bêta ignoré : Upstash Redis non configuré.");
+    return true;
+  }
+
+  const { checkQuota } = await import("@/lib/security");
+  return checkQuota(key, limit);
 }
 
 async function downloadVideoFromUrl(url: string, workDir: string) {
@@ -176,10 +189,7 @@ Format :
         content:
           "Tu es un expert en analyse marketing UGC. Tu réponds uniquement en JSON valide.",
       },
-      {
-        role: "user",
-        content: prompt,
-      },
+      { role: "user", content: prompt },
     ],
   });
 
@@ -229,7 +239,7 @@ export async function POST(req: Request) {
     const ip = forwardedFor.split(",")[0]?.trim() || "unknown";
     const betaLimit = requestMode === "AGENCY" ? 10 : 5;
 
-    const allowed = await checkQuota(
+    const allowed = await checkBetaQuotaSafe(
       `beta:analyze-video:${ip}:${requestMode}`,
       betaLimit
     );
@@ -265,10 +275,7 @@ export async function POST(req: Request) {
     const transcript = await transcribeAudio(audioPath);
 
     if (!transcript.trim()) {
-      return NextResponse.json(
-        { error: "Transcript vide." },
-        { status: 200 }
-      );
+      return NextResponse.json({ error: "Transcript vide." }, { status: 200 });
     }
 
     console.log("Analyze...");

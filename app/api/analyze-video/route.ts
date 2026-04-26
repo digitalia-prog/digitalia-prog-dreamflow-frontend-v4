@@ -35,10 +35,7 @@ async function safeRm(dir: string) {
 }
 
 function getPythonBin() {
-  return (
-    process.env.YT_DLP_PYTHON_BIN ||
-    path.join(process.cwd(), ".venv", "bin", "python3")
-  );
+  return process.env.YT_DLP_PYTHON_BIN || "python3";
 }
 
 async function checkBetaQuotaSafe(key: string, limit: number) {
@@ -51,8 +48,13 @@ async function checkBetaQuotaSafe(key: string, limit: number) {
     return true;
   }
 
-  const { checkQuota } = await import("@/lib/security");
-  return checkQuota(key, limit);
+  try {
+    const { checkQuota } = await import("@/lib/security");
+    return await checkQuota(key, limit);
+  } catch (error) {
+    console.warn("Quota bêta ignoré : erreur sécurité/quota.", error);
+    return true;
+  }
 }
 
 async function downloadVideoFromUrl(url: string, workDir: string) {
@@ -189,7 +191,10 @@ Format :
         content:
           "Tu es un expert en analyse marketing UGC. Tu réponds uniquement en JSON valide.",
       },
-      { role: "user", content: prompt },
+      {
+        role: "user",
+        content: prompt,
+      },
     ],
   });
 
@@ -275,7 +280,10 @@ export async function POST(req: Request) {
     const transcript = await transcribeAudio(audioPath);
 
     if (!transcript.trim()) {
-      return NextResponse.json({ error: "Transcript vide." }, { status: 200 });
+      return NextResponse.json(
+        { error: "Transcript vide." },
+        { status: 200 }
+      );
     }
 
     console.log("Analyze...");

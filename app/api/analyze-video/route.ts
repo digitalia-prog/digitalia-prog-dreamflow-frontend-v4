@@ -1,15 +1,11 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
-import fs from "fs";
-import fsp from "fs/promises";
-import path from "path";
-import os from "os";
-import { execFile } from "child_process";
-import { promisify } from "util";
 
 export const runtime = "nodejs";
 
-const execFileAsync = promisify(execFile);
+const VIDEO_WORKER_URL =
+  process.env.VIDEO_WORKER_URL ||
+  "https://ugc-growth-video-worker-production.up.railway.app";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -22,20 +18,6 @@ function cleanJsonString(value: string) {
     .replace(/^```\s*/i, "")
     .replace(/\s*```$/i, "")
     .trim();
-}
-
-async function ensureDir(dir: string) {
-  await fsp.mkdir(dir, { recursive: true });
-}
-
-async function safeRm(dir: string) {
-  try {
-    await fsp.rm(dir, { recursive: true, force: true });
-  } catch {}
-}
-
-function getPythonBin() {
-  return process.env.YT_DLP_PYTHON_BIN || "python3";
 }
 
 async function checkBetaQuotaSafe(key: string, limit: number) {
@@ -57,65 +39,24 @@ async function checkBetaQuotaSafe(key: string, limit: number) {
   }
 }
 
-async function downloadVideoFromUrl(url: string, workDir: string) {
-  const pythonBin = getPythonBin();
-  const outputTemplate = path.join(workDir, "source.%(ext)s");
-
-  await execFileAsync(
-    pythonBin,
-    ["-m", "yt_dlp", "--no-playlist", "-o", outputTemplate, url],
-    {
-      env: {
-        ...process.env,
-        ...(process.env.SSL_CERT_FILE
-          ? {
-              SSL_CERT_FILE: process.env.SSL_CERT_FILE,
-              REQUESTS_CA_BUNDLE: process.env.SSL_CERT_FILE,
-            }
-          : {}),
-      },
-    }
-  );
-
-  const files = await fsp.readdir(workDir);
-  const mediaFile = files.find((file) => file.startsWith("source."));
-
-  if (!mediaFile) {
-    throw new Error("Impossible de télécharger la vidéo.");
-  }
-
-  return path.join(workDir, mediaFile);
-}
-
-async function extractAudioToMp3(inputPath: string, workDir: string) {
-  const outputPath = path.join(workDir, "audio.mp3");
-
-  await execFileAsync("ffmpeg", [
-    "-y",
-    "-i",
-    inputPath,
-    "-vn",
-    "-acodec",
-    "libmp3lame",
-    "-ar",
-    "44100",
-    "-ac",
-    "2",
-    "-b:a",
-    "192k",
-    outputPath,
-  ]);
-
-  return outputPath;
-}
-
-async function transcribeAudio(audioPath: string) {
-  const transcription = await openai.audio.transcriptions.create({
-    file: fs.createReadStream(audioPath),
-    model: process.env.OPENAI_TRANSCRIPTION_MODEL || "gpt-4o-mini-transcribe",
+async function transcribeVideoUrl(url: string) {
+  const response = await fetch(`${VIDEO_WORKER_URL}/transcribe`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ url }),
   });
 
-  return transcription.text || "";
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(
+      data?.detail || data?.error || "Erreur worker transcription vidéo."
+    );
+  }
+
+  return typeof data?.transcript === "string" ? data.transcript : "";
 }
 
 async function analyzeTranscript({
@@ -233,9 +174,14 @@ Format :
 }
 
 export async function POST(req: Request) {
-  let workDir = "";
-
   try {
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json(
+        { error: "OPENAI_API_KEY manquante" },
+        { status: 500 }
+      );
+    }
+
     const body = await req.json();
     const { url, platform, language, offer, audience, notes, mode } = body ?? {};
 
@@ -263,21 +209,8 @@ export async function POST(req: Request) {
       );
     }
 
-    workDir = path.join(
-      os.tmpdir(),
-      `ugc-growth-${Date.now()}-${Math.random().toString(36).slice(2)}`
-    );
-
-    await ensureDir(workDir);
-
-    console.log("Download video...");
-    const downloadedVideoPath = await downloadVideoFromUrl(url, workDir);
-
-    console.log("Extract audio...");
-    const audioPath = await extractAudioToMp3(downloadedVideoPath, workDir);
-
-    console.log("Transcribe...");
-    const transcript = await transcribeAudio(audioPath);
+    console.log("Transcribe video URL with Railway worker...");
+    const transcript = await transcribeVideoUrl(url);
 
     if (!transcript.trim()) {
       return NextResponse.json(
@@ -286,7 +219,7 @@ export async function POST(req: Request) {
       );
     }
 
-    console.log("Analyze...");
+    console.log("Analyze transcript...");
     const result = await analyzeTranscript({
       url,
       platform,
@@ -308,9 +241,5 @@ export async function POST(req: Request) {
       },
       { status: 500 }
     );
-  } finally {
-    if (workDir) {
-      await safeRm(workDir);
-    }
   }
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { toFile } from "openai/uploads";
 
 export const runtime = "nodejs";
 
@@ -166,10 +167,13 @@ export async function POST(req: NextRequest) {
 
     const file = formData.get("file") as File | null;
     const platform = toText(formData.get("platform"), "TikTok");
-    const product = toText(formData.get("product")) || toText(formData.get("offer"));
-    const audience = toText(formData.get("audience"));
+    const product =
+      toText(formData.get("product"), "") ||
+      toText(formData.get("offer"), "-");
+    const audience = toText(formData.get("audience"), "-");
     const notes =
-      toText(formData.get("notes")) || toText(formData.get("extraNotes"));
+      toText(formData.get("notes"), "") ||
+      toText(formData.get("extraNotes"), "-");
     const mode = toText(formData.get("mode"), "CREATOR");
 
     const requestMode = mode === "AGENCY" ? "AGENCY" : "CREATOR";
@@ -200,6 +204,8 @@ export async function POST(req: NextRequest) {
       "video/mp4",
       "video/webm",
       "video/mpeg",
+      "video/quicktime",
+      "video/x-m4v",
       "audio/mpeg",
       "audio/mp3",
       "audio/wav",
@@ -216,15 +222,26 @@ export async function POST(req: NextRequest) {
         {
           error: "Format non supporté",
           details:
-            "Utilise MP4, WEBM, MP3, WAV ou M4A. La vidéo n’est pas stockée.",
+            "Utilise MP4, MOV, WEBM, MP3, WAV ou M4A. La vidéo n’est pas stockée.",
           type: file.type,
         },
         { status: 400 }
       );
     }
 
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const openAiFile = await toFile(
+      buffer,
+      file.name || "upload.mp4",
+      {
+        type: file.type || "video/mp4",
+      }
+    );
+
     const transcription = await openai.audio.transcriptions.create({
-      file,
+      file: openAiFile,
       model: process.env.OPENAI_TRANSCRIPTION_MODEL || "whisper-1",
     });
 

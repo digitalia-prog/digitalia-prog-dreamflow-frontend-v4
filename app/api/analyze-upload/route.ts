@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { toFile } from "openai/uploads";
 
 export const runtime = "nodejs";
+
+const VIDEO_WORKER_URL =
+  process.env.VIDEO_WORKER_URL ||
+  "https://ugc-growth-video-worker-production.up.railway.app";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -35,6 +38,26 @@ async function checkBetaQuotaSafe(key: string, limit: number) {
   } catch {
     return true;
   }
+}
+
+async function transcribeUploadWithWorker(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(`${VIDEO_WORKER_URL}/upload-transcribe`, {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(
+      data?.detail || data?.error || "Erreur worker upload transcription"
+    );
+  }
+
+  return typeof data?.transcript === "string" ? data.transcript : "";
 }
 
 async function analyzeTranscript({
@@ -229,23 +252,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    const openAiFile = await toFile(
-      buffer,
-      file.name || "upload.mp4",
-      {
-        type: file.type || "video/mp4",
-      }
-    );
-
-    const transcription = await openai.audio.transcriptions.create({
-      file: openAiFile,
-      model: process.env.OPENAI_TRANSCRIPTION_MODEL || "whisper-1",
-    });
-
-    const transcript = transcription.text || "";
+    const transcript = await transcribeUploadWithWorker(file);
 
     if (!transcript.trim()) {
       return NextResponse.json(

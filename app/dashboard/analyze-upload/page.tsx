@@ -87,6 +87,7 @@ export default function AnalyzeUploadPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fallbackMessage, setFallbackMessage] = useState("");
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
 
   const acceptValue = useMemo(() => {
@@ -104,6 +105,7 @@ export default function AnalyzeUploadPage() {
   async function onAnalyze() {
     setLoading(true);
     setError("");
+    setFallbackMessage("");
     setResult(null);
 
     try {
@@ -128,6 +130,15 @@ export default function AnalyzeUploadPage() {
         });
 
         const data = await response.json();
+
+        if (data?.fallback === "upload") {
+          setMode("video_file");
+          setFile(null);
+          setFallbackMessage(
+            "Cette plateforme protège parfois l’accès direct. Importe la vidéo pour lancer une analyse complète, sans stockage."
+          );
+          return;
+        }
 
         if (!response.ok) {
           throw new Error(data?.details || data?.error || "Analyse impossible");
@@ -274,6 +285,13 @@ export default function AnalyzeUploadPage() {
             </button>
           </div>
         </Block>
+
+        {fallbackMessage && (
+          <div className="rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm text-amber-100">
+            <div className="font-semibold">Méthode recommandée</div>
+            <div className="mt-1">{fallbackMessage}</div>
+          </div>
+        )}
 
         <div className="grid gap-6 md:grid-cols-2">
           <Block

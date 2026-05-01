@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 
+const VIDEO_WORKER_URL = "https://ugc-growth-video-worker-production.up.railway.app";
+
 type AnalyzeMode = "video_url" | "video_file" | "audio_file";
 
 type AnalyzeResponse = {
@@ -184,7 +186,7 @@ export default function AnalyzeUploadPage() {
       formData.append("extraNotes", extraNotes);
       formData.append("uploadType", mode === "video_file" ? "video" : "audio");
 
-      const response = await fetch("/api/analyze-upload", {
+      const response = await fetch(`${VIDEO_WORKER_URL}/upload-analyze`, {
         method: "POST",
         body: formData,
       });

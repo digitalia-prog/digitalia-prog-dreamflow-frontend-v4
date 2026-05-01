@@ -7,7 +7,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-function toText(value: FormDataEntryValue | null, fallback = "-"): string {
+function toText(value: FormDataEntryValue | null, fallback = "-") {
   if (typeof value === "string" && value.trim()) return value.trim();
   return fallback;
 }
@@ -26,16 +26,12 @@ async function checkBetaQuotaSafe(key: string, limit: number) {
     !!process.env.UPSTASH_REDIS_REST_URL &&
     !!process.env.UPSTASH_REDIS_REST_TOKEN;
 
-  if (!hasRedisConfig) {
-    console.warn("Quota bêta ignoré : Upstash Redis non configuré.");
-    return true;
-  }
+  if (!hasRedisConfig) return true;
 
   try {
     const { checkQuota } = await import("@/lib/security");
     return await checkQuota(key, limit);
-  } catch (error) {
-    console.warn("Quota bêta ignoré : erreur sécurité/quota.", error);
+  } catch {
     return true;
   }
 }
@@ -54,7 +50,7 @@ async function analyzeTranscript({
   notes: string;
 }) {
   const prompt = `
-Tu es un expert senior en creative strategy, UGC ads et performance marketing.
+Tu es un expert senior en UGC ads, creative strategy et performance marketing.
 
 Analyse cette vidéo/fichier audio comme une agence marketing professionnelle.
 
@@ -69,14 +65,10 @@ Transcript réel :
 ${transcript}
 """
 
-Consignes :
-- Base-toi d'abord sur le transcript réel.
-- Réponds en français.
-- Sois concret.
-- Ne laisse aucun champ vide.
-- Retourne uniquement un JSON valide, sans markdown.
+Réponds uniquement en JSON valide, sans markdown.
+Ne laisse aucun champ vide.
 
-Format strict :
+Format :
 {
   "transcript": "",
   "summary": "",
@@ -105,18 +97,17 @@ Format strict :
       {
         role: "system",
         content:
-          "Tu es un expert en analyse marketing UGC. Tu réponds uniquement en JSON valide complet, sans markdown.",
+          "Tu es un expert marketing UGC. Tu réponds uniquement en JSON valide complet.",
       },
       { role: "user", content: prompt },
     ],
   });
 
-  const content = completion.choices[0]?.message?.content || "";
+  const raw = completion.choices[0]?.message?.content || "";
 
   let parsed: any = {};
-
   try {
-    parsed = JSON.parse(cleanJsonString(content));
+    parsed = JSON.parse(cleanJsonString(raw));
   } catch {
     parsed = {};
   }
@@ -135,10 +126,10 @@ Format strict :
       : ["Contenu engageant", "Sujet clair"],
     weaknesses: Array.isArray(parsed.weaknesses)
       ? parsed.weaknesses
-      : ["Structure à clarifier", "CTA à renforcer"],
+      : ["Hook à renforcer", "CTA à clarifier"],
     recreateIdeas: Array.isArray(parsed.recreateIdeas)
       ? parsed.recreateIdeas
-      : ["Recréer la vidéo avec un hook plus fort"],
+      : ["Recréer la vidéo avec une structure plus claire"],
     similarHooks: Array.isArray(parsed.similarHooks)
       ? parsed.similarHooks
       : ["Tu ne vas pas croire ce qui se passe ici"],
@@ -151,10 +142,10 @@ Format strict :
     viralScore: parsed.viralScore || "6/10 — potentiel correct à optimiser.",
     whyItWorks: Array.isArray(parsed.whyItWorks)
       ? parsed.whyItWorks
-      : ["Le sujet peut créer de la curiosité", "Le format est facile à consommer"],
+      : ["Le format peut créer de la curiosité", "Le sujet est facile à comprendre"],
     howToBeat: Array.isArray(parsed.howToBeat)
       ? parsed.howToBeat
-      : ["Ajouter un hook plus direct", "Structurer la vidéo avec un CTA clair"],
+      : ["Ajouter un hook plus direct", "Renforcer le CTA final"],
     adsAngles: Array.isArray(parsed.adsAngles)
       ? parsed.adsAngles
       : ["Angle problème/solution", "Angle curiosité", "Angle preuve"],
@@ -175,9 +166,10 @@ export async function POST(req: NextRequest) {
 
     const file = formData.get("file") as File | null;
     const platform = toText(formData.get("platform"), "TikTok");
-    const product = toText(formData.get("product"), "-");
-    const audience = toText(formData.get("audience"), "-");
-    const notes = toText(formData.get("notes"), "-");
+    const product = toText(formData.get("product")) || toText(formData.get("offer"));
+    const audience = toText(formData.get("audience"));
+    const notes =
+      toText(formData.get("notes")) || toText(formData.get("extraNotes"));
     const mode = toText(formData.get("mode"), "CREATOR");
 
     const requestMode = mode === "AGENCY" ? "AGENCY" : "CREATOR";
@@ -206,18 +198,15 @@ export async function POST(req: NextRequest) {
 
     const allowedTypes = [
       "video/mp4",
-      "video/mpeg",
-      "video/quicktime",
       "video/webm",
-      "video/x-m4v",
-      "video/ogg",
+      "video/mpeg",
       "audio/mpeg",
       "audio/mp3",
       "audio/wav",
       "audio/x-wav",
       "audio/mp4",
-      "audio/x-m4a",
       "audio/m4a",
+      "audio/x-m4a",
       "audio/webm",
       "audio/ogg",
     ];
@@ -227,7 +216,7 @@ export async function POST(req: NextRequest) {
         {
           error: "Format non supporté",
           details:
-            "Upload un fichier vidéo ou audio : MP4, MOV, WEBM, MP3, WAV, M4A.",
+            "Utilise MP4, WEBM, MP3, WAV ou M4A. La vidéo n’est pas stockée.",
           type: file.type,
         },
         { status: 400 }
@@ -258,6 +247,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      noStorage: true,
       ...result,
     });
   } catch (err: any) {

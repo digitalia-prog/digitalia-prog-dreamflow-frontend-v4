@@ -39,7 +39,6 @@ function countryToLocation(country: string) {
     MX: 2484,
     DZ: 2012,
   };
-
   return map[country] || 2840;
 }
 
@@ -58,16 +57,15 @@ function countryToLanguage(country: string) {
     SE: "sv",
     BR: "pt",
   };
-
   return map[country] || "en";
 }
 
-function normalizeTimeline(rawItems: any[]): TrendPoint[] {
-  const items = Array.isArray(rawItems) ? rawItems : [];
+function normalizeTimeline(items: any[]): TrendPoint[] {
+  if (!Array.isArray(items)) return [];
 
   const points = items
     .map((item: any) => {
-      const date =
+      const rawDate =
         item?.date_from ||
         item?.date_to ||
         item?.date ||
@@ -82,22 +80,16 @@ function normalizeTimeline(rawItems: any[]): TrendPoint[] {
         item?.items?.[0]?.value ??
         0;
 
+      const label = String(rawDate).slice(5, 10) || String(rawDate).slice(0, 7);
+
       return {
-        label: String(date).slice(5, 10) || "—",
+        label: label || "—",
         value: Number(value) || 0,
       };
     })
-    .filter((p) => p.value >= 0);
+    .filter((p) => p.label !== "—");
 
-  if (points.length > 0) return points.slice(-12);
-
-  return [
-    { label: "Jan", value: 8 },
-    { label: "Fév", value: 14 },
-    { label: "Mar", value: 28 },
-    { label: "Avr", value: 52 },
-    { label: "Mai", value: 78 },
-  ];
+  return points.slice(-12);
 }
 
 function calculateGrowth(points: TrendPoint[]) {
@@ -128,7 +120,7 @@ async function enrichWithAI(keyword: string, platform: string, niche: string, go
     return {
       angle: "Angle opportunité marché",
       hooks: [
-        `Pourquoi ${keyword} commence à exploser maintenant ?`,
+        `Pourquoi ${keyword} explose maintenant ?`,
         `La tendance ${keyword} que les marques doivent tester`,
       ],
       script: `Hook : ${keyword} attire l’attention. Montre le problème, la transformation, la preuve puis termine avec un CTA clair.`,
@@ -168,7 +160,7 @@ Retourne uniquement un JSON valide :
     return {
       angle: "Angle opportunité marché",
       hooks: [
-        `Pourquoi ${keyword} commence à exploser maintenant ?`,
+        `Pourquoi ${keyword} explose maintenant ?`,
         `La tendance ${keyword} que les marques doivent tester`,
       ],
       script: `Hook : ${keyword} attire l’attention. Montre le problème, la transformation, la preuve puis termine avec un CTA clair.`,
@@ -178,7 +170,7 @@ Retourne uniquement un JSON valide :
 
 async function fetchDataForSeoTrend(keyword: string, country: string) {
   if (!DATAFORSEO_LOGIN || !DATAFORSEO_PASSWORD) {
-    throw new Error("DATAFORSEO credentials missing");
+    throw new Error("DATAFORSEO_LOGIN ou DATAFORSEO_PASSWORD manquant dans .env.local");
   }
 
   const auth = Buffer.from(`${DATAFORSEO_LOGIN}:${DATAFORSEO_PASSWORD}`).toString("base64");
@@ -205,17 +197,32 @@ async function fetchDataForSeoTrend(keyword: string, country: string) {
 
   const data = await response.json();
 
-  if (!response.ok) {
-    throw new Error(data?.status_message || "Erreur DataForSEO");
+  console.log("DATAFORSEO STATUS:", data?.status_code, data?.status_message);
+  console.log("DATAFORSEO TASK:", data?.tasks?.[0]?.status_code, data?.tasks?.[0]?.status_message);
+
+  if (!response.ok || data?.status_code !== 20000) {
+    throw new Error(
+      data?.status_message ||
+        data?.tasks?.[0]?.status_message ||
+        "Erreur DataForSEO"
+    );
   }
 
+  const result = data?.tasks?.[0]?.result?.[0];
+
   const items =
-    data?.tasks?.[0]?.result?.[0]?.items?.[0]?.data ||
-    data?.tasks?.[0]?.result?.[0]?.items?.[0]?.values ||
-    data?.tasks?.[0]?.result?.[0]?.items ||
+    result?.items?.[0]?.data ||
+    result?.items?.[0]?.values ||
+    result?.items ||
     [];
 
-  return normalizeTimeline(items);
+  const timeline = normalizeTimeline(items);
+
+  if (timeline.length === 0) {
+    throw new Error("DataForSEO a répondu mais aucune timeline exploitable.");
+  }
+
+  return timeline;
 }
 
 function mockTimeline(seed = 1): TrendPoint[] {
@@ -249,6 +256,8 @@ export async function POST(req: Request) {
     ];
 
     const trends = [];
+    let source = "DataForSEO Google Trends + OpenAI";
+    let dataForSeoError = "";
 
     for (let i = 0; i < relatedKeywords.length; i++) {
       const currentKeyword = relatedKeywords[i];
@@ -257,7 +266,10 @@ export async function POST(req: Request) {
 
       try {
         timeline = await fetchDataForSeoTrend(currentKeyword, country);
-      } catch {
+      } catch (error: any) {
+        dataForSeoError = error?.message || "Erreur DataForSEO inconnue";
+        source = "Mock + OpenAI";
+        console.error("DATAFORSEO FALLBACK:", dataForSeoError);
         timeline = mockTimeline(i + 1);
       }
 
@@ -282,10 +294,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      source:
-        DATAFORSEO_LOGIN && DATAFORSEO_PASSWORD
-          ? "DataForSEO Google Trends + OpenAI"
-          : "Mock + OpenAI",
+      source,
+      dataForSeoError,
       country,
       platform,
       trends,

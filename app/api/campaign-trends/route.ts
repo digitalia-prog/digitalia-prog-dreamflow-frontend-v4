@@ -39,6 +39,7 @@ function countryToLocation(country: string) {
     MX: 2484,
     DZ: 2012,
   };
+
   return map[country] || 2840;
 }
 
@@ -57,7 +58,21 @@ function countryToLanguage(country: string) {
     SE: "sv",
     BR: "pt",
   };
+
   return map[country] || "en";
+}
+
+function formatWeekLabel(rawDate: string) {
+  const date = new Date(rawDate);
+
+  if (Number.isNaN(date.getTime())) {
+    return rawDate || "—";
+  }
+
+  const weekNumber = Math.ceil(date.getDate() / 7);
+  const month = date.toLocaleString("fr-FR", { month: "short" });
+
+  return `S${weekNumber} ${month}`;
 }
 
 function normalizeTimeline(items: any[]): TrendPoint[] {
@@ -80,10 +95,8 @@ function normalizeTimeline(items: any[]): TrendPoint[] {
         item?.items?.[0]?.value ??
         0;
 
-      const label = String(rawDate).slice(5, 10) || String(rawDate).slice(0, 7);
-
       return {
-        label: label || "—",
+        label: formatWeekLabel(String(rawDate)),
         value: Number(value) || 0,
       };
     })
@@ -226,10 +239,24 @@ async function fetchDataForSeoTrend(keyword: string, country: string) {
 }
 
 function mockTimeline(seed = 1): TrendPoint[] {
-  const labels = ["Jan", "Fév", "Mar", "Avr", "Mai"];
+  const labels = [
+    "S1 jan",
+    "S2 jan",
+    "S3 jan",
+    "S4 jan",
+    "S1 fév",
+    "S2 fév",
+    "S3 fév",
+    "S4 fév",
+    "S1 mar",
+    "S2 mar",
+    "S3 mar",
+    "S4 mar",
+  ];
+
   return labels.map((label, index) => ({
     label,
-    value: Math.min(100, Math.round(8 + index * (12 + seed) + Math.random() * 18)),
+    value: Math.min(100, Math.round(10 + index * (5 + seed) + Math.random() * 18)),
   }));
 }
 

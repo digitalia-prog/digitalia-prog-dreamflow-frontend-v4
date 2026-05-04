@@ -40,21 +40,21 @@ function TrendChart({ data }: { data: TrendPoint[] }) {
 
   const points = data
     .map((p, i) => {
-      const x = 30 + (i / Math.max(data.length - 1, 1)) * 280;
-      const y = 130 - (p.value / max) * 100;
+      const x = 34 + (i / Math.max(data.length - 1, 1)) * 280;
+      const y = 112 - (p.value / max) * 82;
       return `${x},${y}`;
     })
     .join(" ");
 
   return (
-    <div className="w-full">
-      <svg viewBox="0 0 340 170" className="h-36 w-full">
+    <div className="w-full overflow-hidden">
+      <svg viewBox="0 0 340 150" className="h-36 w-full">
         {[0, 25, 50, 75, 100].map((v) => {
-          const y = 130 - (v / 100) * 100;
+          const y = 112 - (v / 100) * 82;
           return (
             <g key={v}>
-              <line x1="25" x2="320" y1={y} y2={y} stroke="rgba(255,255,255,.08)" />
-              <text x="0" y={y + 4} fill="rgba(255,255,255,.45)" fontSize="10">
+              <line x1="32" x2="320" y1={y} y2={y} stroke="rgba(255,255,255,.08)" />
+              <text x="4" y={y + 4} fill="rgba(255,255,255,.45)" fontSize="10">
                 {v}
               </text>
             </g>
@@ -63,7 +63,7 @@ function TrendChart({ data }: { data: TrendPoint[] }) {
 
         <polyline
           fill="none"
-          stroke="rgb(196,181,253)"
+          stroke="rgb(221,214,254)"
           strokeWidth="4"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -71,9 +71,19 @@ function TrendChart({ data }: { data: TrendPoint[] }) {
         />
 
         {data.map((p, i) => {
-          const x = 30 + (i / Math.max(data.length - 1, 1)) * 280;
+          const x = 34 + (i / Math.max(data.length - 1, 1)) * 280;
+
+          if (i % 3 !== 0 && i !== data.length - 1) return null;
+
           return (
-            <text key={p.label} x={x - 10} y="160" fill="rgba(255,255,255,.55)" fontSize="11">
+            <text
+              key={`${p.label}-${i}`}
+              x={x}
+              y="142"
+              textAnchor="middle"
+              fill="rgba(255,255,255,.55)"
+              fontSize="10"
+            >
               {p.label}
             </text>
           );

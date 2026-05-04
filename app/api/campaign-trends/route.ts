@@ -1,47 +1,53 @@
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
+  const body = await req.json().catch(() => ({}));
+  const keyword = String(body?.keyword || "tendance").trim();
+
   return NextResponse.json({
     trends: [
       {
-        keyword: "ongles été 2026",
-        volume: 12000,
-        growth: 230,
+        keyword: `${keyword} été 2026`,
+        volume: 86,
+        weeklyGrowth: -10,
+        monthlyGrowth: 200,
+        yearlyGrowth: 10000,
         opportunityScore: 92,
-        curve: [
-          { date: "1", value: 10 },
-          { date: "2", value: 20 },
-          { date: "3", value: 40 },
-          { date: "4", value: 70 },
-          { date: "5", value: 90 },
+        timeline: [
+          { label: "Jan", value: 5 },
+          { label: "Fév", value: 8 },
+          { label: "Mar", value: 18 },
+          { label: "Avr", value: 45 },
+          { label: "Mai", value: 82 },
         ],
-        angle: "Beauté estivale tendance TikTok",
+        angle: "Tendance saisonnière à fort potentiel d’achat",
         hooks: [
-          "Les ongles que tout le monde veut cet été",
-          "Tu rates cette tendance ? erreur…",
+          `La tendance ${keyword} que tout le monde va vouloir cet été`,
+          `Pourquoi ${keyword} explose maintenant ?`,
         ],
-        script: "Hook + démonstration + transformation",
+        script: "Hook fort → démonstration → preuve → appel à l’action.",
       },
       {
-        keyword: "nail design minimal",
-        volume: 8000,
-        growth: 180,
+        keyword: `${keyword} minimal`,
+        volume: 64,
+        weeklyGrowth: 25,
+        monthlyGrowth: 180,
+        yearlyGrowth: 950,
         opportunityScore: 85,
-        curve: [
-          { date: "1", value: 5 },
-          { date: "2", value: 15 },
-          { date: "3", value: 30 },
-          { date: "4", value: 60 },
-          { date: "5", value: 80 },
+        timeline: [
+          { label: "Jan", value: 12 },
+          { label: "Fév", value: 15 },
+          { label: "Mar", value: 22 },
+          { label: "Avr", value: 38 },
+          { label: "Mai", value: 66 },
         ],
-        angle: "Minimalisme luxe",
+        angle: "Angle simplicité premium",
         hooks: [
-          "Simple mais ultra stylé",
-          "Moins = plus (et ça vend)",
+          `Simple, propre, mais ultra désirable`,
+          `La version minimaliste qui donne envie d’acheter`,
         ],
-        script: "Hook → close-up → résultat",
+        script: "Avant → après → bénéfice → CTA clair.",
       },
     ],
   });
 }
-

@@ -191,8 +191,7 @@ export async function POST(req: NextRequest) {
     const file = formData.get("file") as File | null;
     const platform = toText(formData.get("platform"), "TikTok");
     const product =
-      toText(formData.get("product"), "") ||
-      toText(formData.get("offer"), "-");
+      toText(formData.get("product"), "") || toText(formData.get("offer"), "-");
     const audience = toText(formData.get("audience"), "-");
     const notes =
       toText(formData.get("notes"), "") ||
@@ -240,13 +239,20 @@ export async function POST(req: NextRequest) {
       "audio/ogg",
     ];
 
-    if (!allowedTypes.includes(file.type)) {
+    const fileName = file.name || "";
+    const fileType = file.type || "";
+    const allowedExtensions = /\.(mp4|mov|webm|mpeg|mp3|wav|m4a|ogg)$/i;
+
+    const isAllowedFile =
+      allowedTypes.includes(fileType) || allowedExtensions.test(fileName);
+
+    if (!isAllowedFile) {
       return NextResponse.json(
         {
           error: "Format non supporté",
           details:
             "Utilise MP4, MOV, WEBM, MP3, WAV ou M4A. La vidéo n’est pas stockée.",
-          type: file.type,
+          type: fileType || "unknown",
         },
         { status: 400 }
       );
@@ -256,8 +262,12 @@ export async function POST(req: NextRequest) {
 
     if (!transcript.trim()) {
       return NextResponse.json(
-        { error: "Transcript vide" },
-        { status: 200 }
+        {
+          error: "Transcript vide",
+          details:
+            "Le fichier a bien été reçu, mais aucune parole exploitable n’a été détectée.",
+        },
+        { status: 422 }
       );
     }
 
@@ -272,6 +282,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       noStorage: true,
+      platform,
       ...result,
     });
   } catch (err: any) {

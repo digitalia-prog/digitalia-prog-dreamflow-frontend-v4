@@ -7,8 +7,6 @@ const VIDEO_WORKER_URL =
   process.env.VIDEO_WORKER_URL ||
   "https://ugc-growth-video-worker-production.up.railway.app";
 
-const SUPADATA_API_KEY = process.env.SUPADATA_API_KEY;
-
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -21,6 +19,30 @@ function detectPlatform(url: string): Platform {
   if (/instagram\.com/i.test(url)) return "instagram";
   if (/facebook\.com/i.test(url)) return "facebook";
   return "other";
+}
+
+function extractYoutubeVideoId(url: string) {
+  try {
+    const parsed = new URL(url);
+
+    if (parsed.hostname.includes("youtu.be")) {
+      return parsed.pathname.replace("/", "").split("?")[0];
+    }
+
+    if (parsed.searchParams.get("v")) {
+      return parsed.searchParams.get("v");
+    }
+
+    const shortsMatch = parsed.pathname.match(/\/shorts\/([^/?]+)/);
+    if (shortsMatch?.[1]) return shortsMatch[1];
+
+    const embedMatch = parsed.pathname.match(/\/embed\/([^/?]+)/);
+    if (embedMatch?.[1]) return embedMatch[1];
+
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 function cleanJsonString(value: string) {
@@ -58,18 +80,27 @@ async function transcribeVideoUrl(url: string): Promise<string> {
 }
 
 async function transcribeYoutubeWithSupadata(url: string): Promise<string> {
-  if (!SUPADATA_API_KEY) {
+  if (!process.env.SUPADATA_API_KEY) {
     throw new Error("SUPADATA_API_KEY manquante");
   }
 
-  const res = await fetch("https://api.supadata.ai/v1/transcript", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": SUPADATA_API_KEY,
-    },
-    body: JSON.stringify({ url }),
-  });
+  const videoId = extractYoutubeVideoId(url);
+
+  if (!videoId) {
+    throw new Error("Lien YouTube invalide");
+  }
+
+  const res = await fetch(
+    `https://api.supadata.ai/v1/youtube/transcript?videoId=${encodeURIComponent(
+      videoId
+    )}&text=true`,
+    {
+      method: "GET",
+      headers: {
+        "x-api-key": process.env.SUPADATA_API_KEY,
+      },
+    }
+  );
 
   const data = await res.json().catch(() => null);
 
@@ -83,8 +114,8 @@ async function transcribeYoutubeWithSupadata(url: string): Promise<string> {
   }
 
   if (typeof data?.content === "string") return data.content;
-  if (typeof data?.transcript === "string") return data.transcript;
   if (typeof data?.text === "string") return data.text;
+  if (typeof data?.transcript === "string") return data.transcript;
 
   if (Array.isArray(data?.content)) {
     return data.content
@@ -197,11 +228,10 @@ export async function POST(req: Request) {
     let transcript = "";
 
     try {
-      if (platform === "youtube") {
-        transcript = await transcribeYoutubeWithSupadata(url);
-      } else {
-        transcript = await transcribeVideoUrl(url);
-      }
+      transcript =
+        platform === "youtube"
+          ? await transcribeYoutubeWithSupadata(url)
+          : await transcribeVideoUrl(url);
     } catch (err: any) {
       if (err.isAntiBot) {
         return NextResponse.json(
@@ -216,7 +246,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error: err.message || "Erreur analyse vidéo",
-          fallback: platform === "youtube" ? "upload" : undefined,
+          fallback: platform === "youtube" ? "youtube_error" : "upload",
         },
         { status: 500 }
       );
@@ -226,7 +256,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error: "Transcript vide. Upload la vidéo.",
-          fallback: "upload",
+          fallback: platform === "youtube" ? "youtube_error" : "upload",
         },
         { status: 422 }
       );

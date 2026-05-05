@@ -2,8 +2,6 @@
 
 import { useMemo, useState } from "react";
 
-const VIDEO_WORKER_URL = "https://ugc-growth-video-worker-production.up.railway.app";
-
 type AnalyzeMode = "video_url" | "video_file" | "audio_file";
 
 type AnalyzeResponse = {
@@ -74,6 +72,32 @@ function TextBlock({ value }: { value?: string }) {
   return <div className="whitespace-pre-wrap text-sm text-white/85">{value}</div>;
 }
 
+function isUploadOnlyPlatform(platform: string) {
+  return ["Instagram Reels", "Facebook Ads", "Google Ads"].includes(platform);
+}
+
+function mapResponseToResult(data: any): AnalyzeResponse {
+  return {
+    transcript: data?.transcript,
+    summary: data?.summary,
+    hook: data?.hook,
+    structure: data?.structure,
+    angle: data?.angle,
+    psychology: Array.isArray(data?.psychology) ? data.psychology : [],
+    strengths: Array.isArray(data?.strengths) ? data.strengths : [],
+    weaknesses: Array.isArray(data?.weaknesses) ? data.weaknesses : [],
+    recreateIdeas: Array.isArray(data?.recreateIdeas) ? data.recreateIdeas : [],
+    similarHooks: Array.isArray(data?.similarHooks) ? data.similarHooks : [],
+    similarAngles: Array.isArray(data?.similarAngles) ? data.similarAngles : [],
+    scriptPrompt: data?.scriptPrompt,
+    viralScore: data?.viralScore,
+    whyItWorks: Array.isArray(data?.whyItWorks) ? data.whyItWorks : [],
+    howToBeat: Array.isArray(data?.howToBeat) ? data.howToBeat : [],
+    adsAngles: Array.isArray(data?.adsAngles) ? data.adsAngles : [],
+    creativeType: data?.creativeType,
+  };
+}
+
 export default function AnalyzeUploadPage() {
   const inputCls =
     "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-white/35 focus:border-violet-500";
@@ -91,6 +115,8 @@ export default function AnalyzeUploadPage() {
   const [error, setError] = useState("");
   const [fallbackMessage, setFallbackMessage] = useState("");
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
+
+  const uploadOnlyPlatform = isUploadOnlyPlatform(platform);
 
   const acceptValue = useMemo(() => {
     if (mode === "video_file") {
@@ -116,6 +142,15 @@ export default function AnalyzeUploadPage() {
           throw new Error("Ajoute un lien vidéo.");
         }
 
+        if (uploadOnlyPlatform) {
+          setMode("video_file");
+          setFile(null);
+          setFallbackMessage(
+            "Instagram non supporté via lien. Upload la vidéo."
+          );
+          return;
+        }
+
         const response = await fetch("/api/analyze-video", {
           method: "POST",
           headers: {
@@ -137,7 +172,8 @@ export default function AnalyzeUploadPage() {
           setMode("video_file");
           setFile(null);
           setFallbackMessage(
-            "Cette plateforme protège parfois l’accès direct. Importe la vidéo pour lancer une analyse complète, sans stockage."
+            data?.error ||
+              "Cette plateforme protège parfois l’accès direct. Importe la vidéo pour lancer une analyse complète, sans stockage."
           );
           return;
         }
@@ -146,26 +182,7 @@ export default function AnalyzeUploadPage() {
           throw new Error(data?.details || data?.error || "Analyse impossible");
         }
 
-        setResult({
-          transcript: data?.transcript,
-          summary: data?.summary,
-          hook: data?.hook,
-          structure: data?.structure,
-          angle: data?.angle,
-          psychology: Array.isArray(data?.psychology) ? data.psychology : [],
-          strengths: Array.isArray(data?.strengths) ? data.strengths : [],
-          weaknesses: Array.isArray(data?.weaknesses) ? data.weaknesses : [],
-          recreateIdeas: Array.isArray(data?.recreateIdeas) ? data.recreateIdeas : [],
-          similarHooks: Array.isArray(data?.similarHooks) ? data.similarHooks : [],
-          similarAngles: Array.isArray(data?.similarAngles) ? data.similarAngles : [],
-          scriptPrompt: data?.scriptPrompt,
-          viralScore: data?.viralScore,
-          whyItWorks: Array.isArray(data?.whyItWorks) ? data.whyItWorks : [],
-          howToBeat: Array.isArray(data?.howToBeat) ? data.howToBeat : [],
-          adsAngles: Array.isArray(data?.adsAngles) ? data.adsAngles : [],
-          creativeType: data?.creativeType,
-        });
-
+        setResult(mapResponseToResult(data));
         return;
       }
 
@@ -186,7 +203,7 @@ export default function AnalyzeUploadPage() {
       formData.append("extraNotes", extraNotes);
       formData.append("uploadType", mode === "video_file" ? "video" : "audio");
 
-      const response = await fetch(`${VIDEO_WORKER_URL}/upload-analyze`, {
+      const response = await fetch("/api/analyze-upload", {
         method: "POST",
         body: formData,
       });
@@ -197,25 +214,7 @@ export default function AnalyzeUploadPage() {
         throw new Error(data?.details || data?.error || "Analyse impossible");
       }
 
-      setResult({
-        transcript: data?.transcript,
-        summary: data?.summary,
-        hook: data?.hook,
-        structure: data?.structure,
-        angle: data?.angle,
-        psychology: Array.isArray(data?.psychology) ? data.psychology : [],
-        strengths: Array.isArray(data?.strengths) ? data.strengths : [],
-        weaknesses: Array.isArray(data?.weaknesses) ? data.weaknesses : [],
-        recreateIdeas: Array.isArray(data?.recreateIdeas) ? data.recreateIdeas : [],
-        similarHooks: Array.isArray(data?.similarHooks) ? data.similarHooks : [],
-        similarAngles: Array.isArray(data?.similarAngles) ? data.similarAngles : [],
-        scriptPrompt: data?.scriptPrompt,
-        viralScore: data?.viralScore,
-        whyItWorks: Array.isArray(data?.whyItWorks) ? data.whyItWorks : [],
-        howToBeat: Array.isArray(data?.howToBeat) ? data.howToBeat : [],
-        adsAngles: Array.isArray(data?.adsAngles) ? data.adsAngles : [],
-        creativeType: data?.creativeType,
-      });
+      setResult(mapResponseToResult(data));
     } catch (e: any) {
       setError(String(e?.message ?? e ?? "Erreur inconnue"));
     } finally {
@@ -308,7 +307,7 @@ export default function AnalyzeUploadPage() {
             {mode === "video_url" ? (
               <input
                 className={inputCls}
-                placeholder="https://www.tiktok.com/... ou lien Reels / Shorts / Ads"
+                placeholder="https://www.tiktok.com/... ou lien YouTube / Shorts"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
               />
@@ -336,28 +335,29 @@ export default function AnalyzeUploadPage() {
             <select
               className={inputCls}
               value={platform}
-              onChange={(e) => setPlatform(e.target.value)}
+              onChange={(e) => {
+                const nextPlatform = e.target.value;
+                setPlatform(nextPlatform);
+                setFallbackMessage("");
+
+                if (
+                  mode === "video_url" &&
+                  isUploadOnlyPlatform(nextPlatform)
+                ) {
+                  setMode("video_file");
+                  setFile(null);
+                  setFallbackMessage(
+                    "Instagram non supporté via lien. Upload la vidéo."
+                  );
+                }
+              }}
             >
               <option>TikTok</option>
               <option>Instagram Reels</option>
               <option>YouTube Shorts</option>
               <option>YouTube</option>
               <option>Facebook Ads</option>
-              <option>Facebook</option>
               <option>Google Ads</option>
-              <option>Snapchat</option>
-              <option>Snapchat Spotlight</option>
-              <option>Pinterest</option>
-              <option>LinkedIn</option>
-              <option>X / Twitter</option>
-              <option>Threads</option>
-              <option>Rednote</option>
-              <option>Telegram</option>
-              <option>WhatsApp</option>
-              <option>Twitch</option>
-              <option>VSL</option>
-              <option>Landing Page Video</option>
-              <option>Autre</option>
             </select>
           </Block>
 

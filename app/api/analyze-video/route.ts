@@ -7,11 +7,12 @@ const VIDEO_WORKER_URL =
   process.env.VIDEO_WORKER_URL ||
   "https://ugc-growth-video-worker-production.up.railway.app";
 
+const SUPADATA_API_KEY = process.env.SUPADATA_API_KEY;
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// ───────────── Detect platform ─────────────
 type Platform = "tiktok" | "youtube" | "instagram" | "facebook" | "other";
 
 function detectPlatform(url: string): Platform {
@@ -22,10 +23,6 @@ function detectPlatform(url: string): Platform {
   return "other";
 }
 
-// ❌ Block only Instagram & Facebook
-const BLOCKED_PLATFORMS: Platform[] = ["instagram", "facebook"];
-
-// ───────────── Clean JSON ─────────────
 function cleanJsonString(value: string) {
   return value
     .trim()
@@ -35,7 +32,6 @@ function cleanJsonString(value: string) {
     .trim();
 }
 
-// ───────────── Worker call ─────────────
 async function transcribeVideoUrl(url: string): Promise<string> {
   const res = await fetch(`${VIDEO_WORKER_URL}/transcribe`, {
     method: "POST",
@@ -46,11 +42,8 @@ async function transcribeVideoUrl(url: string): Promise<string> {
   const data = await res.json().catch(() => null);
 
   if (!res.ok) {
-    const error =
-      data?.detail || data?.error || "Erreur transcription worker";
-
-    const isAntiBot =
-      /sign in|bot|login required|cookies/i.test(error);
+    const error = data?.detail || data?.error || "Erreur transcription worker";
+    const isAntiBot = /sign in|bot|login required|cookies/i.test(error);
 
     if (isAntiBot) {
       const err: any = new Error(error);
@@ -64,7 +57,52 @@ async function transcribeVideoUrl(url: string): Promise<string> {
   return data?.transcript || "";
 }
 
-// ───────────── OpenAI analysis ─────────────
+async function transcribeYoutubeWithSupadata(url: string): Promise<string> {
+  if (!SUPADATA_API_KEY) {
+    throw new Error("SUPADATA_API_KEY manquante");
+  }
+
+  const res = await fetch("https://api.supadata.ai/v1/transcript", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": SUPADATA_API_KEY,
+    },
+    body: JSON.stringify({ url }),
+  });
+
+  const data = await res.json().catch(() => null);
+
+  if (!res.ok) {
+    throw new Error(
+      data?.error ||
+        data?.message ||
+        data?.detail ||
+        "Erreur Supadata transcript"
+    );
+  }
+
+  if (typeof data?.content === "string") return data.content;
+  if (typeof data?.transcript === "string") return data.transcript;
+  if (typeof data?.text === "string") return data.text;
+
+  if (Array.isArray(data?.content)) {
+    return data.content
+      .map((item: any) => item?.text || item?.content || "")
+      .filter(Boolean)
+      .join(" ");
+  }
+
+  if (Array.isArray(data?.transcript)) {
+    return data.transcript
+      .map((item: any) => item?.text || item?.content || "")
+      .filter(Boolean)
+      .join(" ");
+  }
+
+  return "";
+}
+
 async function analyzeTranscript(transcript: string) {
   const prompt = `
 Analyse cette vidéo marketing UGC.
@@ -116,7 +154,6 @@ IMPORTANT :
     parsed = {};
   }
 
-  // 🔥 fallback auto (plus jamais vide)
   return {
     summary: parsed.summary || "Résumé indisponible",
     hook: parsed.hook || "Hook non détecté",
@@ -137,26 +174,20 @@ IMPORTANT :
   };
 }
 
-// ───────────── MAIN ─────────────
 export async function POST(req: Request) {
   try {
     const { url } = await req.json();
 
     if (!url) {
-      return NextResponse.json(
-        { error: "Lien manquant" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Lien manquant" }, { status: 400 });
     }
 
     const platform = detectPlatform(url);
 
-    // ❌ block IG & FB
-    if (BLOCKED_PLATFORMS.includes(platform)) {
+    if (platform === "instagram" || platform === "facebook") {
       return NextResponse.json(
         {
-          error:
-            "Cette plateforme limite l'accès. Utilise l'upload vidéo.",
+          error: "Instagram non supporté via lien. Upload la vidéo.",
           fallback: "upload",
         },
         { status: 422 }
@@ -166,13 +197,16 @@ export async function POST(req: Request) {
     let transcript = "";
 
     try {
-      transcript = await transcribeVideoUrl(url);
+      if (platform === "youtube") {
+        transcript = await transcribeYoutubeWithSupadata(url);
+      } else {
+        transcript = await transcribeVideoUrl(url);
+      }
     } catch (err: any) {
       if (err.isAntiBot) {
         return NextResponse.json(
           {
-            error:
-              "Vidéo bloquée par la plateforme. Utilise l'upload.",
+            error: "Vidéo bloquée par la plateforme. Utilise l'upload.",
             fallback: "upload",
           },
           { status: 422 }
@@ -180,27 +214,34 @@ export async function POST(req: Request) {
       }
 
       return NextResponse.json(
-        { error: err.message },
+        {
+          error: err.message || "Erreur analyse vidéo",
+          fallback: platform === "youtube" ? "upload" : undefined,
+        },
         { status: 500 }
       );
     }
 
     if (!transcript) {
       return NextResponse.json(
-        { error: "Transcript vide" },
-        { status: 200 }
+        {
+          error: "Transcript vide. Upload la vidéo.",
+          fallback: "upload",
+        },
+        { status: 422 }
       );
     }
 
     const analysis = await analyzeTranscript(transcript);
 
     return NextResponse.json({
+      platform,
       transcript,
       ...analysis,
     });
   } catch (err: any) {
     return NextResponse.json(
-      { error: err.message },
+      { error: err.message || "Erreur serveur" },
       { status: 500 }
     );
   }

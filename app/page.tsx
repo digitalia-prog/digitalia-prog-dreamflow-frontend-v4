@@ -13,18 +13,14 @@ type Dict = Record<
     navFAQ: string;
     navFeedback: string;
     navTerms: string;
-
     badge: string;
     heroTitle: string;
     heroSubtitle: string;
-
     ctaDashboard: string;
     ctaOffers: string;
     ctaTerms: string;
-
     featuresTitle: string;
     featuresSubtitle: string;
-
     f1Title: string;
     f1Desc: string;
     f2Title: string;
@@ -37,46 +33,38 @@ type Dict = Record<
     f5Desc: string;
     f6Title: string;
     f6Desc: string;
-
     pricingTitle: string;
     pricingSubtitle: string;
-
     planBetaTitle: string;
     planBetaPrice: string;
     planBetaNote: string;
     planBetaB1: string;
     planBetaB2: string;
     planBetaB3: string;
-
     planCreatorTitle: string;
     planCreatorPrice: string;
     planCreatorNote: string;
     planCreatorB1: string;
     planCreatorB2: string;
     planCreatorB3: string;
-
     planAgencyTitle: string;
     planAgencyPrice: string;
     planAgencyNote: string;
     planAgencyB1: string;
     planAgencyB2: string;
     planAgencyB3: string;
-
     pricingFootnote: string;
-
     whoTitle: string;
     whoSubtitle: string;
     whoA: string;
     whoB: string;
     whoC: string;
     whoD: string;
-
     premiumTitle: string;
     premiumSubtitle: string;
     premiumA: string;
     premiumB: string;
     premiumC: string;
-
     faqTitle: string;
     faqQ1: string;
     faqA1: string;
@@ -84,11 +72,9 @@ type Dict = Record<
     faqA2: string;
     faqQ3: string;
     faqA3: string;
-
     feedbackTitle: string;
     feedbackSubtitle: string;
     feedbackCTA: string;
-
     footer: string;
   }
 >;
@@ -96,490 +82,480 @@ type Dict = Record<
 const dict: Dict = {
   fr: {
     navFeatures: "Fonctionnalités",
-    navPricing: "Prix bêta",
+    navPricing: "Accès bêta",
     navFAQ: "FAQ",
     navFeedback: "Feedback",
     navTerms: "CGU",
 
     badge:
-      "Accès bêta privé — 7 jours gratuits • Analyse vidéo & audio • Script Engine",
+      "Accès bêta privé — 7 jours gratuits • Analyse créative • Scripts • Campagnes",
     heroTitle:
-      "Trouve les publicités qui performent. Génère des scripts prêts à tourner en quelques secondes.",
+      "Analyse les vidéos qui performent. Transforme les meilleurs angles en campagnes prêtes à tester.",
     heroSubtitle:
-      "UGC Growth aide les créateurs, agences et marques à analyser des publicités performantes en vidéo et audio, identifier les angles gagnants et générer des scripts publicitaires prêts à tester. Pensé pour créateurs, agences et marques e-commerce.",
+      "UGC Growth aide les créateurs, agences et marques e-commerce à comprendre pourquoi une vidéo fonctionne, identifier les hooks, angles, émotions et structures gagnantes, puis générer des scripts et idées de campagnes exploitables rapidement.",
 
     ctaDashboard: "Tester gratuitement",
-    ctaOffers: "Voir les fonctionnalités",
-    ctaTerms: "Conditions (CGU)",
+    ctaOffers: "Voir le workflow",
+    ctaTerms: "Conditions",
 
-    featuresTitle: "Ce que la plateforme fait concrètement",
+    featuresTitle: "Un workflow complet pour créer plus vite",
     featuresSubtitle:
-      "Analyse publicitaire, génération de scripts et organisation UGC dans un seul workflow.",
+      "Analyse créative, scripts, angles marketing et organisation campagne dans un seul espace.",
 
-    f1Title: "Analyse publicitaire",
+    f1Title: "Analyse vidéo & audio",
     f1Desc:
-      "Uploade un audio et détecte le hook, la structure, l’angle et les idées à reproduire.",
+      "Analyse une vidéo TikTok, YouTube ou un fichier uploadé pour détecter hook, structure, angle, psychologie et score viral.",
     f2Title: "Script Engine",
     f2Desc:
-      "Génère rapidement des hooks, scripts, CTA et structures prêtes à tourner.",
-    f3Title: "Hooks & angles marketing",
+      "Génère des hooks, scripts AIDA, CTA, shotlist et variantes prêtes à tourner.",
+    f3Title: "Angles marketing",
     f3Desc:
-      "Trouve plus vite quoi dire, comment le dire et sous quel angle le tester.",
-    f4Title: "Organisation agence / créateur",
+      "Trouve plus vite quoi dire, comment le dire et sous quel angle tester ta créa.",
+    f4Title: "Workflow campagnes",
     f4Desc:
-      "Centralise briefs, campagnes, créateurs et contenus dans un espace propre.",
-    f5Title: "Bêta simple à tester",
+      "Passe de l’analyse à l’idée de campagne, avec un brief plus clair et des scripts exploitables.",
+    f5Title: "Accès bêta privé",
     f5Desc:
-      "7 jours gratuits pour tester la valeur du produit avant déploiement complet.",
+      "7 jours gratuits pour tester le produit, donner ton retour et accéder au workflow en avant-première.",
     f6Title: "Multi-langue",
     f6Desc:
-      "FR / EN / AR / ES / 中文 — pratique pour les équipes et clients internationaux.",
+      "FR / EN / AR / ES / 中文 — pratique pour les équipes, créateurs et clients internationaux.",
 
-    pricingTitle: "Offres bêta",
+    pricingTitle: "Accès bêta",
     pricingSubtitle:
-      "Commence gratuitement, puis passe sur un plan conçu pour ton volume de production créative.",
+      "Commence gratuitement, puis choisis un plan adapté à ton volume de création.",
 
-    planBetaTitle: "Test bêta",
+    planBetaTitle: "Bêta privée",
     planBetaPrice: "0€ / 7 jours",
-    planBetaNote: "Accès limité — idéal pour démonstration",
+    planBetaNote: "Accès limité — idéal pour tester le workflow",
     planBetaB1: "Accès dashboard",
-    planBetaB2: "Script Engine (générations limitées)",
+    planBetaB2: "Analyse vidéo + Script Engine limité",
     planBetaB3: "Feedback prioritaire",
 
     planCreatorTitle: "Creator",
     planCreatorPrice: "Bientôt disponible",
-    planCreatorNote: "Pour créateurs qui postent beaucoup",
-    planCreatorB1: "Plus de générations / mois",
-    planCreatorB2: "Templates scripts",
-    planCreatorB3: "Export facile",
+    planCreatorNote: "Pour créateurs qui veulent produire régulièrement",
+    planCreatorB1: "Scripts Creator",
+    planCreatorB2: "Templates de hooks",
+    planCreatorB3: "Workflow simple",
 
     planAgencyTitle: "Agency",
     planAgencyPrice: "Bientôt disponible",
-    planAgencyNote: "Pour équipes & gestion multi-clients",
-    planAgencyB1: "Workspace agence",
-    planAgencyB2: "Pipeline UGC + scripts",
-    planAgencyB3: "Support prioritaire",
+    planAgencyNote: "Pour agences, freelances et gestion multi-clients",
+    planAgencyB1: "10 scripts Agency",
+    planAgencyB2: "Pipeline campagnes",
+    planAgencyB3: "Workflow avancé",
 
     pricingFootnote:
-      "Note : tu peux ajuster les prix après tests (selon coûts & valeur perçue).",
+      "Les offres évolueront selon les retours bêta et les usages réels.",
 
     whoTitle: "Pour qui ?",
-    whoSubtitle: "Quand c’est utile (et rentable) :",
-    whoA: "Agences UGC (gestion multi-clients)",
-    whoB: "Créateurs UGC (scripts rapides + constance)",
-    whoC: "Marques e-commerce (briefs + validation + organisation)",
-    whoD: "Teams social media (process & qualité)",
+    whoSubtitle: "UGC Growth est pensé pour :",
+    whoA: "Agences UGC et social media",
+    whoB: "Créateurs UGC et créateurs TikTok",
+    whoC: "Marques e-commerce",
+    whoD: "Freelances marketing et media buyers",
 
-    premiumTitle: "Ce qui rend une publicité forte",
+    premiumTitle: "Ce qui rend une créa performante",
     premiumSubtitle:
-      "Les meilleures créatives combinent structure, émotion et positionnement.",
+      "Les meilleures vidéos combinent structure, émotion, timing et angle marketing.",
     premiumA: "Hooks psychologiques",
-    premiumB: "Émotions et désir",
-    premiumC: "Positionnement et branding",
+    premiumB: "Émotion et désir",
+    premiumC: "Positionnement clair",
 
     faqTitle: "FAQ",
     faqQ1: "La bêta est gratuite ?",
     faqA1:
-      "Oui : 7 jours de test avec restrictions anti-abus, pour garder une expérience stable.",
-    faqQ2: "Je dois expliquer comment ça fonctionne ?",
+      "Oui : 7 jours de test avec limites d’usage pour garder une expérience stable.",
+    faqQ2: "Est-ce que je dois comprendre la technique ?",
     faqA2:
-      "Non. Tu vends un résultat : analyse publicitaire, scripts et organisation. Les détails techniques ne sont pas nécessaires.",
-    faqQ3: "Puis-je demander une feature ?",
-    faqA3: "Oui. Le feedback est prioritaire en bêta : on itère vite.",
+      "Non. Le but est simple : analyser, comprendre, générer et tester plus vite.",
+    faqQ3: "Puis-je proposer une amélioration ?",
+    faqA3:
+      "Oui. Les retours bêta sont prioritaires pour améliorer le produit rapidement.",
 
-    feedbackTitle: "Feedback (bêta)",
+    feedbackTitle: "Feedback bêta",
     feedbackSubtitle:
-      "Aide-nous à améliorer la plateforme : 1 minute, ultra précieux.",
+      "Aide-nous à améliorer UGC Growth : ton retour compte énormément.",
     feedbackCTA: "Donner mon feedback",
 
-    footer: "© UGC GROWTH — Bêta",
+    footer: "© UGC GROWTH — Bêta privée",
   },
 
   en: {
     navFeatures: "Features",
-    navPricing: "Beta pricing",
+    navPricing: "Beta access",
     navFAQ: "FAQ",
     navFeedback: "Feedback",
     navTerms: "Terms",
 
     badge:
-      "Private beta access — 7 days free • Video & audio analysis • Script Engine • Agency workflow",
+      "Private beta — 7 days free • Creative analysis • Scripts • Campaign workflow",
     heroTitle:
-      "Find ads that perform. Generate ready-to-film scripts in seconds.",
+      "Analyze videos that perform. Turn winning angles into campaigns ready to test.",
     heroSubtitle:
-      "UGC Growth helps creators, agencies and brands analyze high-performing video and audio ads, identify winning angles and generate ad scripts ready to test.",
+      "UGC Growth helps creators, agencies and e-commerce brands understand why a video works, identify hooks, angles, emotions and structures, then generate scripts and campaign ideas faster.",
 
     ctaDashboard: "Start free",
-    ctaOffers: "See features",
+    ctaOffers: "See workflow",
     ctaTerms: "Terms",
 
-    featuresTitle: "What the platform actually does",
+    featuresTitle: "A complete workflow to create faster",
     featuresSubtitle:
-      "Ad analysis, script generation and UGC organization in one workflow.",
+      "Creative analysis, scripts, marketing angles and campaign organization in one workspace.",
 
-    f1Title: "Ad analysis",
+    f1Title: "Video & audio analysis",
     f1Desc:
-      "Upload audio and detect the hook, structure, angle and ideas worth reproducing.",
+      "Analyze TikTok, YouTube or uploaded files to detect hooks, structure, angle, psychology and viral score.",
     f2Title: "Script Engine",
-    f2Desc: "Generate hooks, scripts, CTAs and structures ready to record.",
-    f3Title: "Hooks & marketing angles",
+    f2Desc:
+      "Generate hooks, AIDA scripts, CTAs, shotlists and variants ready to film.",
+    f3Title: "Marketing angles",
     f3Desc:
       "Find what to say, how to say it and which angle to test faster.",
-    f4Title: "Agency / creator organization",
+    f4Title: "Campaign workflow",
     f4Desc:
-      "Centralize briefs, campaigns, creators and content in one clean space.",
-    f5Title: "Simple beta access",
-    f5Desc: "7 free days to test the product before full rollout.",
+      "Move from analysis to campaign idea with clearer briefs and usable scripts.",
+    f5Title: "Private beta access",
+    f5Desc:
+      "7 free days to test the product, share feedback and access the workflow early.",
     f6Title: "Multi-language",
-    f6Desc: "FR / EN / AR / ES / 中文 — ready for international teams.",
+    f6Desc: "FR / EN / AR / ES / 中文 — built for international teams.",
 
-    pricingTitle: "Beta offers",
+    pricingTitle: "Beta access",
     pricingSubtitle:
-      "Start free, then move to a plan built for your creative production volume.",
+      "Start free, then choose a plan adapted to your creative volume.",
 
-    planBetaTitle: "Beta test",
+    planBetaTitle: "Private beta",
     planBetaPrice: "€0 / 7 days",
-    planBetaNote: "Limited access — great for demo",
+    planBetaNote: "Limited access — ideal to test the workflow",
     planBetaB1: "Dashboard access",
-    planBetaB2: "Script Engine (limited generations)",
+    planBetaB2: "Video analysis + limited Script Engine",
     planBetaB3: "Priority feedback",
 
     planCreatorTitle: "Creator",
-    planCreatorPrice: "From €99",
-    planCreatorNote: "For creators who post a lot",
-    planCreatorB1: "More generations / month",
-    planCreatorB2: "Script templates",
-    planCreatorB3: "Easy export",
+    planCreatorPrice: "Coming soon",
+    planCreatorNote: "For creators who publish regularly",
+    planCreatorB1: "Creator scripts",
+    planCreatorB2: "Hook templates",
+    planCreatorB3: "Simple workflow",
 
     planAgencyTitle: "Agency",
-    planAgencyPrice: "From €299",
-    planAgencyNote: "For teams & multi-client management",
-    planAgencyB1: "Agency workspace",
-    planAgencyB2: "UGC pipeline + scripts",
-    planAgencyB3: "Priority support",
+    planAgencyPrice: "Coming soon",
+    planAgencyNote: "For agencies, freelancers and multi-client work",
+    planAgencyB1: "10 Agency scripts",
+    planAgencyB2: "Campaign pipeline",
+    planAgencyB3: "Advanced workflow",
 
     pricingFootnote:
-      "Note: you can adjust pricing after tests (costs & perceived value).",
+      "Plans will evolve based on beta feedback and real usage.",
 
     whoTitle: "Who is it for?",
-    whoSubtitle: "Best use cases:",
-    whoA: "UGC agencies (multi-client)",
-    whoB: "UGC creators (fast scripts + consistency)",
-    whoC: "E-commerce brands (briefs + validation + organization)",
-    whoD: "Social media teams (process & quality)",
+    whoSubtitle: "UGC Growth is built for:",
+    whoA: "UGC and social media agencies",
+    whoB: "UGC creators and TikTok creators",
+    whoC: "E-commerce brands",
+    whoD: "Marketing freelancers and media buyers",
 
-    premiumTitle: "What makes a strong ad",
+    premiumTitle: "What makes a creative perform",
     premiumSubtitle:
-      "The best creatives combine structure, emotion and positioning.",
+      "The best videos combine structure, emotion, timing and marketing angle.",
     premiumA: "Psychological hooks",
     premiumB: "Emotion and desire",
-    premiumC: "Positioning and branding",
+    premiumC: "Clear positioning",
 
     faqTitle: "FAQ",
     faqQ1: "Is the beta free?",
     faqA1:
-      "Yes: 7 days with anti-abuse limits to keep the experience stable.",
-    faqQ2: "Do I need to explain how it works?",
+      "Yes: 7 days with usage limits to keep the experience stable.",
+    faqQ2: "Do I need to understand the technical side?",
     faqA2:
-      "No. Sell outcomes: ad analysis, scripts and organization. Technical details aren’t needed.",
-    faqQ3: "Can I request a feature?",
-    faqA3: "Yes. Beta feedback is priority: we iterate fast.",
+      "No. The goal is simple: analyze, understand, generate and test faster.",
+    faqQ3: "Can I request an improvement?",
+    faqA3:
+      "Yes. Beta feedback is prioritized to improve the product quickly.",
 
-    feedbackTitle: "Feedback (beta)",
-    feedbackSubtitle: "Help us improve: 1 minute, super valuable.",
+    feedbackTitle: "Beta feedback",
+    feedbackSubtitle:
+      "Help us improve UGC Growth: your feedback matters.",
     feedbackCTA: "Give feedback",
 
-    footer: "© UGC GROWTH — Beta",
+    footer: "© UGC GROWTH — Private beta",
   },
 
   ar: {
     navFeatures: "الميزات",
-    navPricing: "سعر البيتا",
+    navPricing: "دخول البيتا",
     navFAQ: "الأسئلة",
     navFeedback: "ملاحظات",
     navTerms: "الشروط",
 
-    badge: "دخول بيتا خاص — 7 أيام مجانًا",
-    heroTitle: "اكتشف الإعلانات التي تنجح. وأنشئ سكربتات جاهزة للتصوير خلال ثوانٍ.",
+    badge: "بيتا خاصة — 7 أيام مجانًا • تحليل إبداعي • سكربتات • حملات",
+    heroTitle:
+      "حلّل الفيديوهات التي تنجح. وحوّل الزوايا القوية إلى حملات جاهزة للاختبار.",
     heroSubtitle:
-      "يساعد UGC Growth المبدعين والوكالات والعلامات التجارية على تحليل الإعلانات الناجحة وإنشاء سكربتات جاهزة للاختبار.",
+      "UGC Growth يساعد المبدعين والوكالات والمتاجر على فهم لماذا ينجح المحتوى، واستخراج الهوكات والزوايا والمشاعر ثم إنشاء سكربتات وأفكار حملات بسرعة.",
 
     ctaDashboard: "ابدأ مجانًا",
-    ctaOffers: "عرض الميزات",
+    ctaOffers: "شاهد workflow",
     ctaTerms: "الشروط",
 
-    featuresTitle: "ماذا تفعل المنصة فعليًا",
+    featuresTitle: "Workflow كامل للإنتاج أسرع",
     featuresSubtitle:
-      "تحليل الإعلانات، توليد السكربتات، وتنظيم إنتاج UGC في نفس المكان.",
+      "تحليل إبداعي، سكربتات، زوايا تسويقية وتنظيم الحملات في مكان واحد.",
 
-    f1Title: "تحليل الإعلانات",
+    f1Title: "تحليل فيديو وصوت",
     f1Desc:
-      "ارفع ملفًا صوتيًا واكتشف الهوك والبنية والزاوية والأفكار التي تستحق إعادة الاستخدام.",
+      "حلّل TikTok أو YouTube أو الملفات المرفوعة لاستخراج الهوك والبنية والزاوية.",
     f2Title: "Script Engine",
-    f2Desc: "أنشئ هوكات وسكربتات وCTA وبُنى جاهزة للتصوير بسرعة.",
-    f3Title: "هوكات وزوايا تسويقية",
-    f3Desc:
-      "اعرف ماذا تقول، وكيف تقوله، وتحت أي زاوية تختبره أسرع.",
-    f4Title: "تنظيم الوكالة / المبدع",
-    f4Desc:
-      "نظّم الـ briefs والحملات والمبدعين والمحتوى في مساحة واحدة مرتبة.",
-    f5Title: "بيتا سهلة للتجربة",
-    f5Desc: "7 أيام مجانية لاختبار قيمة المنتج قبل الإطلاق الكامل.",
-    f6Title: "تعدد اللغات",
-    f6Desc: "FR / EN / AR / ES / 中文 — مناسب للفرق والعملاء الدوليين.",
+    f2Desc: "أنشئ هوكات وسكربتات وCTA وshotlist جاهزة للتصوير.",
+    f3Title: "زوايا تسويقية",
+    f3Desc: "اعرف ماذا تقول وكيف تقوله وأي زاوية تختبرها.",
+    f4Title: "Workflow الحملات",
+    f4Desc: "حوّل التحليل إلى فكرة حملة وbrief واضح وسكربتات قابلة للتنفيذ.",
+    f5Title: "دخول بيتا خاص",
+    f5Desc: "7 أيام مجانية لتجربة المنتج وإرسال الملاحظات.",
+    f6Title: "متعدد اللغات",
+    f6Desc: "FR / EN / AR / ES / 中文 — مناسب للفرق الدولية.",
 
-    pricingTitle: "عروض البيتا",
-    pricingSubtitle:
-      "ابدأ مجانًا ثم انتقل إلى خطة تناسب حجم إنتاجك الإبداعي.",
+    pricingTitle: "دخول البيتا",
+    pricingSubtitle: "ابدأ مجانًا ثم اختر الخطة المناسبة لحجم إنتاجك.",
 
-    planBetaTitle: "تجربة البيتا",
+    planBetaTitle: "بيتا خاصة",
     planBetaPrice: "0€ / 7 أيام",
-    planBetaNote: "وصول محدود — مناسب للديمو",
-    planBetaB1: "دخول للوحة التحكم",
-    planBetaB2: "Script Engine (توليدات محدودة)",
+    planBetaNote: "دخول محدود — مناسب لتجربة workflow",
+    planBetaB1: "دخول dashboard",
+    planBetaB2: "تحليل فيديو + Script Engine محدود",
     planBetaB3: "ملاحظات أولوية",
 
     planCreatorTitle: "Creator",
-    planCreatorPrice: "من 99€",
-    planCreatorNote: "لصنّاع المحتوى النشطين",
-    planCreatorB1: "توليدات أكثر / شهر",
-    planCreatorB2: "قوالب سكربت",
-    planCreatorB3: "تصدير سهل",
+    planCreatorPrice: "قريبًا",
+    planCreatorNote: "للمبدعين الذين ينشرون بانتظام",
+    planCreatorB1: "سكربتات Creator",
+    planCreatorB2: "قوالب hooks",
+    planCreatorB3: "Workflow بسيط",
 
     planAgencyTitle: "Agency",
-    planAgencyPrice: "من 299€",
-    planAgencyNote: "للشركات وإدارة عدة عملاء",
-    planAgencyB1: "مساحة عمل للوكالة",
-    planAgencyB2: "Pipeline UGC + سكربتات",
-    planAgencyB3: "دعم أولوية",
+    planAgencyPrice: "قريبًا",
+    planAgencyNote: "للوكالات والفريلانسرز والعملاء المتعددين",
+    planAgencyB1: "10 سكربتات Agency",
+    planAgencyB2: "Pipeline حملات",
+    planAgencyB3: "Workflow متقدم",
 
-    pricingFootnote:
-      "ملاحظة: يمكنك تعديل السعر بعد الاختبار حسب التكلفة والقيمة.",
+    pricingFootnote: "العروض ستتطور حسب ملاحظات البيتا والاستخدام الفعلي.",
 
     whoTitle: "لمن؟",
-    whoSubtitle: "أفضل الاستخدامات:",
-    whoA: "وكالات UGC (عدة عملاء)",
-    whoB: "صنّاع UGC (سكربتات سريعة + ثبات)",
-    whoC: "متاجر إلكترونية (briefs + مراجعة + تنظيم)",
-    whoD: "فرق السوشيال ميديا (جودة + نظام)",
+    whoSubtitle: "UGC Growth مناسب لـ:",
+    whoA: "وكالات UGC والسوشيال ميديا",
+    whoB: "صنّاع المحتوى وTikTok creators",
+    whoC: "علامات التجارة الإلكترونية",
+    whoD: "فريلانسرز التسويق وmedia buyers",
 
-    premiumTitle: "ما الذي يجعل الإعلان قويًا",
-    premiumSubtitle:
-      "أفضل الإبداعات تجمع بين البنية، العاطفة، والتموضع.",
+    premiumTitle: "ما الذي يجعل الإبداع قويًا",
+    premiumSubtitle: "أفضل الفيديوهات تجمع بين البنية والعاطفة والتوقيت والزاوية.",
     premiumA: "هوكات نفسية",
     premiumB: "العاطفة والرغبة",
-    premiumC: "التموضع والبراند",
+    premiumC: "تموضع واضح",
 
     faqTitle: "الأسئلة الشائعة",
     faqQ1: "هل البيتا مجانية؟",
-    faqA1:
-      "نعم: 7 أيام مع قيود ضد الإساءة للحفاظ على الاستقرار.",
-    faqQ2: "هل أشرح كيف تعمل؟",
-    faqA2: "لا. بع النتيجة: تحليل الإعلانات، السكربتات، والتنظيم.",
-    faqQ3: "هل أستطيع طلب ميزة؟",
-    faqA3: "نعم. ملاحظات البيتا أولوية: نطوّر بسرعة.",
+    faqA1: "نعم: 7 أيام مع حدود استخدام للحفاظ على الاستقرار.",
+    faqQ2: "هل أحتاج لفهم التقنية؟",
+    faqA2: "لا. الهدف بسيط: تحليل، فهم، إنشاء واختبار أسرع.",
+    faqQ3: "هل أستطيع طلب تحسين؟",
+    faqA3: "نعم. ملاحظات البيتا أولوية.",
 
-    feedbackTitle: "ملاحظات (بيتا)",
-    feedbackSubtitle: "ساعدنا نتحسن: دقيقة واحدة فقط.",
-    feedbackCTA: "إرسال ملاحظة",
+    feedbackTitle: "ملاحظات البيتا",
+    feedbackSubtitle: "ساعدنا على تحسين UGC Growth.",
+    feedbackCTA: "إرسال feedback",
 
-    footer: "© UGC GROWTH — بيتا",
+    footer: "© UGC GROWTH — بيتا خاصة",
   },
 
   es: {
     navFeatures: "Funciones",
-    navPricing: "Precio beta",
+    navPricing: "Acceso beta",
     navFAQ: "FAQ",
     navFeedback: "Feedback",
     navTerms: "Términos",
 
     badge:
-      "Acceso beta privado — 7 días gratis • Análisis de video y audio • Script Engine • Workflow agencia",
+      "Beta privada — 7 días gratis • Análisis creativo • Scripts • Campañas",
     heroTitle:
-      "Encuentra anuncios que funcionan. Genera scripts listos para grabar en segundos.",
+      "Analiza videos que funcionan. Convierte los mejores ángulos en campañas listas para probar.",
     heroSubtitle:
-      "UGC Growth ayuda a creadores, agencias y marcas a analizar anuncios de alto rendimiento, identificar ángulos ganadores y generar scripts listos para probar.",
+      "UGC Growth ayuda a creadores, agencias y marcas e-commerce a entender por qué un video funciona, identificar hooks, ángulos y emociones, y generar scripts e ideas de campaña rápidamente.",
 
     ctaDashboard: "Probar gratis",
-    ctaOffers: "Ver funciones",
+    ctaOffers: "Ver workflow",
     ctaTerms: "Términos",
 
-    featuresTitle: "Lo que hace realmente la plataforma",
+    featuresTitle: "Un workflow completo para crear más rápido",
     featuresSubtitle:
-      "Análisis publicitario, generación de scripts y organización UGC en un solo flujo.",
+      "Análisis creativo, scripts, ángulos de marketing y organización de campañas en un solo espacio.",
 
-    f1Title: "Análisis publicitario",
+    f1Title: "Análisis video y audio",
     f1Desc:
-      "Sube audio y detecta el hook, la estructura, el ángulo y las ideas a reproducir.",
+      "Analiza TikTok, YouTube o archivos subidos para detectar hook, estructura, ángulo y score viral.",
     f2Title: "Script Engine",
-    f2Desc: "Genera hooks, scripts, CTA y estructuras listas para grabar.",
-    f3Title: "Hooks y ángulos de marketing",
+    f2Desc:
+      "Genera hooks, scripts AIDA, CTA, shotlist y variantes listas para grabar.",
+    f3Title: "Ángulos de marketing",
     f3Desc:
-      "Encuentra más rápido qué decir, cómo decirlo y qué ángulo probar.",
-    f4Title: "Organización agencia / creador",
+      "Encuentra qué decir, cómo decirlo y qué ángulo probar más rápido.",
+    f4Title: "Workflow campañas",
     f4Desc:
-      "Centraliza briefs, campañas, creadores y contenido en un espacio limpio.",
-    f5Title: "Beta simple de probar",
+      "Pasa del análisis a una idea de campaña con briefs claros y scripts accionables.",
+    f5Title: "Acceso beta privado",
     f5Desc:
-      "7 días gratis para probar el valor del producto antes del despliegue completo.",
+      "7 días gratis para probar el producto, compartir feedback y acceder antes.",
     f6Title: "Multi-idioma",
     f6Desc:
-      "FR / EN / AR / ES / 中文 — útil para equipos y clientes internacionales.",
+      "FR / EN / AR / ES / 中文 — útil para equipos internacionales.",
 
-    pricingTitle: "Ofertas beta",
+    pricingTitle: "Acceso beta",
     pricingSubtitle:
-      "Empieza gratis y luego pasa a un plan adaptado a tu volumen creativo.",
+      "Empieza gratis y luego elige un plan adaptado a tu volumen creativo.",
 
-    planBetaTitle: "Test beta",
+    planBetaTitle: "Beta privada",
     planBetaPrice: "0€ / 7 días",
-    planBetaNote: "Acceso limitado — ideal para demo",
-    planBetaB1: "Acceso al dashboard",
-    planBetaB2: "Script Engine (generaciones limitadas)",
+    planBetaNote: "Acceso limitado — ideal para probar el workflow",
+    planBetaB1: "Acceso dashboard",
+    planBetaB2: "Análisis video + Script Engine limitado",
     planBetaB3: "Feedback prioritario",
 
     planCreatorTitle: "Creator",
-    planCreatorPrice: "Desde 99€",
-    planCreatorNote: "Para creadores que publican mucho",
-    planCreatorB1: "Más generaciones / mes",
-    planCreatorB2: "Plantillas de guion",
-    planCreatorB3: "Exportación fácil",
+    planCreatorPrice: "Próximamente",
+    planCreatorNote: "Para creadores que publican regularmente",
+    planCreatorB1: "Scripts Creator",
+    planCreatorB2: "Templates de hooks",
+    planCreatorB3: "Workflow simple",
 
     planAgencyTitle: "Agency",
-    planAgencyPrice: "Desde 299€",
-    planAgencyNote: "Para equipos y multi-clientes",
-    planAgencyB1: "Workspace agencia",
-    planAgencyB2: "Pipeline UGC + guiones",
-    planAgencyB3: "Soporte prioritario",
+    planAgencyPrice: "Próximamente",
+    planAgencyNote: "Para agencias, freelancers y multi-clientes",
+    planAgencyB1: "10 scripts Agency",
+    planAgencyB2: "Pipeline campañas",
+    planAgencyB3: "Workflow avanzado",
 
     pricingFootnote:
-      "Nota: puedes ajustar precios tras pruebas (coste y valor percibido).",
+      "Las ofertas evolucionarán según el feedback beta y el uso real.",
 
     whoTitle: "¿Para quién?",
-    whoSubtitle: "Casos ideales:",
-    whoA: "Agencias UGC (multi-cliente)",
-    whoB: "Creadores UGC (guiones rápidos + constancia)",
-    whoC: "Marcas e-commerce (briefs + validación + organización)",
-    whoD: "Equipos social media (proceso + calidad)",
+    whoSubtitle: "UGC Growth está pensado para:",
+    whoA: "Agencias UGC y social media",
+    whoB: "Creadores UGC y TikTok creators",
+    whoC: "Marcas e-commerce",
+    whoD: "Freelancers marketing y media buyers",
 
-    premiumTitle: "Qué hace fuerte a un anuncio",
+    premiumTitle: "Qué hace que una creatividad funcione",
     premiumSubtitle:
-      "Las mejores creatividades combinan estructura, emoción y posicionamiento.",
+      "Los mejores videos combinan estructura, emoción, timing y ángulo.",
     premiumA: "Hooks psicológicos",
     premiumB: "Emoción y deseo",
-    premiumC: "Posicionamiento y branding",
+    premiumC: "Posicionamiento claro",
 
     faqTitle: "FAQ",
     faqQ1: "¿La beta es gratis?",
-    faqA1:
-      "Sí: 7 días con límites anti-abuso para mantener estabilidad.",
-    faqQ2: "¿Debo explicar cómo funciona?",
+    faqA1: "Sí: 7 días con límites de uso para mantener estabilidad.",
+    faqQ2: "¿Necesito entender la parte técnica?",
     faqA2:
-      "No. Vendes resultado: análisis publicitario, guiones y organización.",
-    faqQ3: "¿Puedo pedir una función?",
-    faqA3: "Sí. Feedback prioritario en beta: iteramos rápido.",
+      "No. El objetivo es simple: analizar, entender, generar y probar más rápido.",
+    faqQ3: "¿Puedo pedir una mejora?",
+    faqA3: "Sí. El feedback beta es prioritario.",
 
-    feedbackTitle: "Feedback (beta)",
-    feedbackSubtitle: "Ayúdanos a mejorar: 1 minuto.",
+    feedbackTitle: "Feedback beta",
+    feedbackSubtitle: "Ayúdanos a mejorar UGC Growth.",
     feedbackCTA: "Dar feedback",
 
-    footer: "© UGC GROWTH — Beta",
+    footer: "© UGC GROWTH — Beta privada",
   },
 
   zh: {
     navFeatures: "功能",
-    navPricing: "测试版价格",
+    navPricing: "测试访问",
     navFAQ: "常见问题",
     navFeedback: "反馈",
     navTerms: "条款",
 
-    badge: "私人测试版 — 免费 7 天",
-    heroTitle: "找到有效广告。几秒内生成可直接拍摄的脚本。",
+    badge: "私人测试版 — 免费 7 天 • 创意分析 • 脚本 • Campaign workflow",
+    heroTitle: "分析有效视频。把优秀角度转化为可测试的 Campaign。",
     heroSubtitle:
-      "UGC Growth 帮助创作者、机构和品牌分析高表现广告并生成可直接测试的广告脚本。",
+      "UGC Growth 帮助创作者、机构和电商品牌理解视频为什么有效，识别 hooks、角度、情绪和结构，并快速生成脚本和 Campaign 想法。",
 
     ctaDashboard: "免费开始",
-    ctaOffers: "查看功能",
+    ctaOffers: "查看 workflow",
     ctaTerms: "条款",
 
-    featuresTitle: "平台真正能做什么",
+    featuresTitle: "更快创作的完整 workflow",
     featuresSubtitle:
-      "广告分析、脚本生成和 UGC 组织管理，集中在一个工作流中。",
+      "创意分析、脚本、营销角度和 Campaign 组织集中在一个空间。",
 
-    f1Title: "广告分析",
-    f1Desc:
-      "上传音频，识别 hook、结构、角度以及值得复用的创意。",
+    f1Title: "视频和音频分析",
+    f1Desc: "分析 TikTok、YouTube 或上传文件，识别 hook、结构和角度。",
     f2Title: "Script Engine",
-    f2Desc: "快速生成可直接拍摄的 hooks、scripts、CTA 和结构。",
-    f3Title: "Hooks 与营销角度",
-    f3Desc:
-      "更快找到该说什么、怎么说、以及测试哪个角度。",
-    f4Title: "机构 / 创作者组织",
-    f4Desc:
-      "把 briefs、campaigns、creators 和内容放进一个干净空间里。",
-    f5Title: "简单易测的测试版",
-    f5Desc:
-      "免费 7 天测试产品价值，再决定是否全面使用。",
+    f2Desc: "生成 hooks、AIDA scripts、CTA、shotlist 和变体。",
+    f3Title: "营销角度",
+    f3Desc: "更快找到说什么、怎么说、测试哪个角度。",
+    f4Title: "Campaign workflow",
+    f4Desc: "从分析到 Campaign 想法、brief 和可执行脚本。",
+    f5Title: "私人测试访问",
+    f5Desc: "免费 7 天测试产品并提交反馈。",
     f6Title: "多语言",
-    f6Desc:
-      "FR / EN / AR / ES / 中文 — 适合国际团队和客户。",
+    f6Desc: "FR / EN / AR / ES / 中文 — 适合国际团队。",
 
-    pricingTitle: "测试版方案",
-    pricingSubtitle:
-      "先免费开始，再升级到适合你创意产能的方案。",
+    pricingTitle: "测试版访问",
+    pricingSubtitle: "先免费开始，再选择适合创作量的方案。",
 
-    planBetaTitle: "测试体验",
+    planBetaTitle: "私人测试版",
     planBetaPrice: "€0 / 7 天",
-    planBetaNote: "限制访问 — 适合演示",
-    planBetaB1: "仪表盘访问",
-    planBetaB2: "Script Engine（生成次数限制）",
+    planBetaNote: "限制访问 — 适合测试 workflow",
+    planBetaB1: "Dashboard access",
+    planBetaB2: "视频分析 + 限制版 Script Engine",
     planBetaB3: "优先反馈",
 
     planCreatorTitle: "Creator",
-    planCreatorPrice: "€99 起",
-    planCreatorNote: "适合高频发布创作者",
-    planCreatorB1: "更多生成次数 / 月",
-    planCreatorB2: "脚本模板",
-    planCreatorB3: "便捷导出",
+    planCreatorPrice: "即将推出",
+    planCreatorNote: "适合稳定发布的创作者",
+    planCreatorB1: "Creator scripts",
+    planCreatorB2: "Hook templates",
+    planCreatorB3: "Simple workflow",
 
     planAgencyTitle: "Agency",
-    planAgencyPrice: "€299 起",
-    planAgencyNote: "适合团队与多客户管理",
-    planAgencyB1: "机构工作区",
-    planAgencyB2: "UGC 流程 + 脚本",
-    planAgencyB3: "优先支持",
+    planAgencyPrice: "即将推出",
+    planAgencyNote: "适合机构、自由职业者和多客户管理",
+    planAgencyB1: "10 Agency scripts",
+    planAgencyB2: "Campaign pipeline",
+    planAgencyB3: "Advanced workflow",
 
-    pricingFootnote:
-      "备注：可根据测试成本与价值感知调整价格。",
+    pricingFootnote: "方案会根据测试反馈和真实使用情况调整。",
 
     whoTitle: "适合谁？",
-    whoSubtitle: "最佳使用场景：",
-    whoA: "UGC 机构（多客户）",
-    whoB: "UGC 创作者（快速脚本 + 稳定产出）",
-    whoC: "电商品牌（需求说明 + 审核 + 组织）",
-    whoD: "社媒团队（流程 + 质量）",
+    whoSubtitle: "UGC Growth 适合：",
+    whoA: "UGC 和社媒机构",
+    whoB: "UGC creators 和 TikTok creators",
+    whoC: "电商品牌",
+    whoD: "营销自由职业者和 media buyers",
 
-    premiumTitle: "什么让广告更强",
-    premiumSubtitle:
-      "最好的创意结合了结构、情绪和定位。",
-    premiumA: "心理型 hooks",
+    premiumTitle: "什么让创意表现更好",
+    premiumSubtitle: "最好的视频结合结构、情绪、时机和营销角度。",
+    premiumA: "心理 hooks",
     premiumB: "情绪与欲望",
-    premiumC: "定位与品牌感",
+    premiumC: "清晰定位",
 
     faqTitle: "常见问题",
     faqQ1: "测试版免费吗？",
-    faqA1:
-      "是的：免费 7 天并带防滥用限制，保证稳定体验。",
-    faqQ2: "需要解释怎么实现的吗？",
-    faqA2:
-      "不需要。你卖的是结果：广告分析、脚本和组织管理。",
-    faqQ3: "可以提需求吗？",
-    faqA3: "可以。测试版优先处理反馈，迭代很快。",
+    faqA1: "是的：免费 7 天，并带有使用限制以保证稳定。",
+    faqQ2: "需要懂技术吗？",
+    faqA2: "不需要。目标很简单：分析、理解、生成并更快测试。",
+    faqQ3: "可以提出改进建议吗？",
+    faqA3: "可以。测试反馈会优先处理。",
 
-    feedbackTitle: "反馈（测试版）",
-    feedbackSubtitle: "帮我们变更好：只需 1 分钟。",
+    feedbackTitle: "测试反馈",
+    feedbackSubtitle: "帮助我们改进 UGC Growth。",
     feedbackCTA: "提交反馈",
 
-    footer: "© UGC GROWTH — 测试版",
+    footer: "© UGC GROWTH — 私人测试版",
   },
 };
 
@@ -587,13 +563,7 @@ function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
-function Card({
-  title,
-  desc,
-}: {
-  title: string;
-  desc: string;
-}) {
+function Card({ title, desc }: { title: string; desc: string }) {
   return (
     <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
       <div className="text-lg font-semibold">{title}</div>
@@ -669,8 +639,8 @@ export default function Landing() {
   const [betaError, setBetaError] = useState("");
 
   const t = useMemo(() => dict[lang], [lang]);
-
   const isRTL = lang === "ar";
+
   const langLabel: Record<Lang, string> = {
     fr: "FR",
     en: "EN",
@@ -723,7 +693,7 @@ export default function Landing() {
           <div className="h-10 w-10 rounded-xl bg-purple-600/80" />
           <div className="leading-tight">
             <div className="font-semibold">UGC GROWTH</div>
-            <div className="text-xs text-white/60">Beta</div>
+            <div className="text-xs text-white/60">Private beta</div>
           </div>
         </div>
 
@@ -797,24 +767,24 @@ export default function Landing() {
 
           <div className="mt-10 grid gap-4 md:grid-cols-3">
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-              <div className="font-semibold">Scripts prêts à tester</div>
+              <div className="font-semibold">Analyse → Scripts</div>
               <div className="mt-2 text-sm text-white/70">
-                Génère des hooks, scripts, angles marketing et CTA structurés
-                pour lancer plus vite.
+                Détecte ce qui fonctionne dans une vidéo et transforme l’insight
+                en scripts prêts à tourner.
               </div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-              <div className="font-semibold">Analyse des pubs qui performent</div>
+              <div className="font-semibold">Hooks → Angles</div>
               <div className="mt-2 text-sm text-white/70">
-                Upload un audio, détecte ce qui fonctionne et génère des scripts
-                prêts à tester.
+                Identifie les accroches, émotions et angles qui peuvent guider
+                tes prochains tests.
               </div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-              <div className="font-semibold">Pensé pour créateurs et agences</div>
+              <div className="font-semibold">Scripts → Campagnes</div>
               <div className="mt-2 text-sm text-white/70">
-                Un seul espace pour organiser, générer, analyser et accélérer la
-                production UGC.
+                Organise tes idées, briefs et campagnes pour produire avec plus
+                de clarté.
               </div>
             </div>
           </div>
@@ -893,18 +863,9 @@ export default function Landing() {
         <h2 className="text-3xl font-bold md:text-4xl">{t.faqTitle}</h2>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <div className="font-semibold">{t.faqQ1}</div>
-            <div className="mt-3 text-white/70">{t.faqA1}</div>
-          </div>
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <div className="font-semibold">{t.faqQ2}</div>
-            <div className="mt-3 text-white/70">{t.faqA2}</div>
-          </div>
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <div className="font-semibold">{t.faqQ3}</div>
-            <div className="mt-3 text-white/70">{t.faqA3}</div>
-          </div>
+          <Card title={t.faqQ1} desc={t.faqA1} />
+          <Card title={t.faqQ2} desc={t.faqA2} />
+          <Card title={t.faqQ3} desc={t.faqA3} />
         </div>
       </section>
 
@@ -942,8 +903,7 @@ export default function Landing() {
           <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#111118] p-6 text-white shadow-2xl">
             <h3 className="text-2xl font-bold">Accès bêta</h3>
             <p className="mt-2 text-white/70">
-              Entre ton email pour recevoir le message de bienvenue puis accéder
-              au dashboard.
+              Entre ton email pour activer ton accès et ouvrir le dashboard.
             </p>
 
             <div className="mt-5 space-y-3">
@@ -976,7 +936,7 @@ export default function Landing() {
                   disabled={betaLoading}
                   className="flex-1 rounded-xl bg-violet-600 px-4 py-3 font-semibold text-white hover:bg-violet-500 disabled:opacity-60"
                 >
-                  {betaLoading ? "Activation..." : "Activer mon accès bêta"}
+                  {betaLoading ? "Activation..." : "Activer mon accès"}
                 </button>
               </div>
             </div>

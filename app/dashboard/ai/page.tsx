@@ -7,11 +7,19 @@ type Lang = "FR" | "EN" | "ES" | "AR" | "ZH";
 
 type Variant = {
   promptEngine?: string;
+  hook?: string;
+  hookDetected?: string;
   platformStrategy?: string;
   psychologicalAngle?: string;
   creativeDirection?: string;
-  hook?: string;
-  hookDetected?: string;
+  beats?: string[];
+  beatsTiming?: string[];
+  proof?: string[];
+  whyItWorks?: string[];
+  adsVariants?: string[];
+  shotlist?: string[];
+  testingPlan?: string;
+  kpi?: string;
   script?: {
     aida?: {
       attention?: string;
@@ -20,18 +28,10 @@ type Variant = {
       action?: string;
     };
   };
-  beats?: string[];
-  beatsTiming?: string[];
-  proof?: string[];
-  whyItWorks?: string[];
-  adsVariants?: string[];
-  shotlist?: string[];
   cta?: {
     primary?: string;
     optimized?: string;
   };
-  testingPlan?: string;
-  kpi?: string;
 };
 
 type GenerateResponse = {
@@ -40,7 +40,43 @@ type GenerateResponse = {
   testingPlanSummary?: string;
   variants?: Variant[];
   raw?: string;
+  error?: string;
+  details?: string;
 };
+
+const PLATFORMS = [
+  "TikTok",
+  "Instagram Reels",
+  "YouTube Shorts",
+  "Facebook Ads",
+  "Google Ads",
+  "Landing page",
+  "Email",
+];
+
+const OBJECTIVES = ["Vente", "Lead", "Awareness", "UGC", "Conversion"];
+
+const HOOK_TYPES = [
+  "Question choc",
+  "Story",
+  "Pain point",
+  "Contrarian",
+  "Direct claim",
+  "Curiosity",
+];
+
+const TONES = [
+  "UGC naturel (simple)",
+  "Direct response",
+  "Storytelling",
+  "Premium",
+  "Funny",
+  "Performance Ads",
+  "Authority / Expert",
+  "Emotional",
+];
+
+const DURATIONS = ["15s", "30s", "45s", "60s"];
 
 const PROMPT_HELPERS = [
   "Face cam",
@@ -57,21 +93,114 @@ const PROMPT_HELPERS = [
   "Voiture",
 ];
 
+function cn(...v: (string | false | null | undefined)[]) {
+  return v.filter(Boolean).join(" ");
+}
+
+function addText(current: string, value: string) {
+  const trimmed = current.trim();
+  if (!trimmed) return value;
+  if (trimmed.toLowerCase().includes(value.toLowerCase())) return trimmed;
+  return `${trimmed}, ${value}`;
+}
+
+function Panel({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+      <div className="mb-4 text-sm font-semibold text-white/90">{title}</div>
+      {children}
+    </div>
+  );
+}
+
+function TextBlock({ value }: { value?: string }) {
+  return (
+    <div className="whitespace-pre-wrap text-sm leading-6 text-white/80">
+      {value && value.trim() ? value : "-"}
+    </div>
+  );
+}
+
+function ListBlock({ items }: { items?: string[] }) {
+  if (!Array.isArray(items) || items.length === 0) {
+    return <div className="text-sm text-white/40">-</div>;
+  }
+
+  return (
+    <div className="space-y-2">
+      {items.map((item, index) => (
+        <div
+          key={`${item}-${index}`}
+          className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white/80"
+        >
+          • {item}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label className="mb-2 block text-sm text-white/70">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function WorkflowCard({
+  step,
+  title,
+  text,
+}: {
+  step: string;
+  title: string;
+  text: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+      <div className="text-xs font-semibold text-violet-200">{step}</div>
+      <div className="mt-2 text-base font-semibold text-white">{title}</div>
+      <div className="mt-2 text-sm text-white/60">{text}</div>
+    </div>
+  );
+}
+
 export default function AiPage() {
+  const inputCls =
+    "w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none placeholder:text-white/35 focus:border-violet-500";
+
   const [mode] = useState<Mode>("AGENCY");
   const [lang, setLang] = useState<Lang>("FR");
   const [platform, setPlatform] = useState("TikTok");
   const [objective, setObjective] = useState("Vente");
-  const [audience, setAudience] = useState("E-commerçants (débutants) sur TikTok");
+  const [audience, setAudience] = useState(
+    "E-commerçants (débutants) sur TikTok"
+  );
   const [offer, setOffer] = useState("Coaching UGC Growth");
   const [price, setPrice] = useState("49€/mois");
+  const [market, setMarket] = useState("France");
+  const [adsBudget, setAdsBudget] = useState("500-2000€");
   const [angle, setAngle] = useState("ROI rapide & scripts prêts à filmer");
-  const [objection, setObjection] = useState("J'ai pas le temps / je sais pas quoi dire");
+  const [objection, setObjection] = useState(
+    "J'ai pas le temps / je sais pas quoi dire"
+  );
   const [hookType, setHookType] = useState("Question choc");
   const [tone, setTone] = useState("UGC naturel (simple)");
   const [duration, setDuration] = useState("30s");
-  const [market, setMarket] = useState("France");
-  const [adsBudget, setAdsBudget] = useState("500-2000€");
   const [brief, setBrief] = useState(
     "Exemple : Face cam avec mon chat réel, vidéo tournée dans la cuisine, ton très naturel, produit en main, filmé sur iPhone, style UGC simple."
   );
@@ -93,21 +222,18 @@ export default function AiPage() {
     .filter(Boolean)
     .join("\n\n");
 
-  const addHelper = (helper: string) => {
-    setBrief((prev) => {
-      if (prev.includes(helper)) return prev;
-      return prev.trim() ? `${prev}, ${helper}` : helper;
-    });
-  };
+  function addHelper(helper: string) {
+    setBrief((prev) => addText(prev, helper));
+  }
 
-  const handleGenerate = async () => {
+  async function handleGenerate() {
     setLoading(true);
     setError("");
     setResult(null);
     setActiveScriptIndex(0);
 
     try {
-      const res = await fetch("/api/generate", {
+      const response = await fetch("/api/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -129,53 +255,102 @@ export default function AiPage() {
         }),
       });
 
-      const data = await res.json();
+      const data: GenerateResponse = await response.json();
 
-      if (!res.ok) {
-        setError(data?.error || "Erreur génération");
-        return;
+      if (!response.ok) {
+        throw new Error(data?.details || data?.error || "Erreur génération");
       }
 
       setResult(data);
-    } catch (err) {
-      console.error(err);
-      setError("Erreur réseau ou API");
+    } catch (err: any) {
+      setError(String(err?.message || err || "Erreur inconnue"));
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <div className="p-6 md:p-10">
       <div className="flex flex-col gap-6">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-          <div className="text-sm text-white/60">UGC Growth • SaaS</div>
-          <h1 className="mt-2 text-3xl font-bold">Script Engine — Agency</h1>
-          <p className="mt-2 text-white/70">
-            Remplis les champs → Générer = hooks, script AIDA, beats, proof, shotlist, CTA, testing plan et KPI.
-          </p>
+        <div className="rounded-3xl border border-purple-400/20 bg-gradient-to-br from-purple-600/20 via-white/5 to-black/20 p-6">
+          <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+            <div>
+              <div className="text-sm text-white/60">UGC Growth • Agency</div>
+
+              <h1 className="mt-2 text-3xl font-bold text-white">
+                Script Engine — Agency
+              </h1>
+
+              <p className="mt-2 max-w-3xl text-white/70">
+                Transforme une offre en 10 scripts ads prêts à tester : hooks,
+                AIDA, beats, proof, shotlist, CTA, testing plan et KPI.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <a
+                href="/dashboard/analyze-upload"
+                className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10"
+              >
+                Analyser une vidéo
+              </a>
+
+              <a
+                href="/dashboard/campaigns"
+                className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10"
+              >
+                Créer une campagne
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-4">
+          <WorkflowCard
+            step="01"
+            title="Brief"
+            text="Définis l’offre, le marché, l’audience et l’objection principale."
+          />
+          <WorkflowCard
+            step="02"
+            title="Hooks"
+            text="Génère des angles d’entrée capables de capter l’attention."
+          />
+          <WorkflowCard
+            step="03"
+            title="Scripts"
+            text="Obtiens 10 scripts Agency structurés pour produire plus vite."
+          />
+          <WorkflowCard
+            step="04"
+            title="Test plan"
+            text="Sors avec des variantes, KPI et pistes de test créatif."
+          />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.05fr_1fr]">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-            <div className="grid gap-4">
-              <div>
-                <label className="mb-2 block text-sm text-white/70">Mode</label>
-                <select
-                  value={mode}
-                  disabled
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white"
-                >
-                  <option value="AGENCY">AGENCY</option>
-                </select>
+            <div className="mb-5">
+              <div className="text-lg font-semibold text-white">
+                Brief de génération
               </div>
+              <div className="mt-1 text-sm text-white/55">
+                Plus le brief est précis, plus les scripts sortent exploitables.
+              </div>
+            </div>
 
-              <div>
-                <label className="mb-2 block text-sm text-white/70">Langue</label>
+            <div className="grid gap-4">
+              <Field label="Mode">
+                <select value={mode} disabled className={inputCls}>
+                  <option value="AGENCY">AGENCY — 10 scripts</option>
+                </select>
+              </Field>
+
+              <Field label="Langue">
                 <select
                   value={lang}
                   onChange={(e) => setLang(e.target.value as Lang)}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white"
+                  className={inputCls}
                 >
                   <option value="FR">FR</option>
                   <option value="EN">EN</option>
@@ -183,180 +358,155 @@ export default function AiPage() {
                   <option value="AR">AR</option>
                   <option value="ZH">ZH</option>
                 </select>
-              </div>
+              </Field>
 
-              <div>
-                <label className="mb-2 block text-sm text-white/70">Plateforme</label>
+              <Field label="Plateforme">
                 <select
                   value={platform}
                   onChange={(e) => setPlatform(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white"
+                  className={inputCls}
                 >
-                  <option>TikTok</option>
-                  <option>Instagram Reels</option>
-                  <option>YouTube Shorts</option>
-                  <option>Facebook Ads</option>
-                  <option>Google Ads</option>
-                  <option>Landing page</option>
-                  <option>Email</option>
+                  {PLATFORMS.map((p) => (
+                    <option key={p}>{p}</option>
+                  ))}
                 </select>
-              </div>
+              </Field>
 
-              <div>
-                <label className="mb-2 block text-sm text-white/70">Objectif</label>
+              <Field label="Objectif">
                 <select
                   value={objective}
                   onChange={(e) => setObjective(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white"
+                  className={inputCls}
                 >
-                  <option>Vente</option>
-                  <option>Awareness</option>
-                  <option>Lead</option>
-                  <option>Trafic</option>
-                  <option>Conversion</option>
+                  {OBJECTIVES.map((o) => (
+                    <option key={o}>{o}</option>
+                  ))}
                 </select>
-              </div>
+              </Field>
 
-              <div>
-                <label className="mb-2 block text-sm text-white/70">Audience</label>
+              <Field label="Audience">
                 <input
                   value={audience}
                   onChange={(e) => setAudience(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white"
+                  className={inputCls}
                 />
-              </div>
+              </Field>
 
-              <div>
-                <label className="mb-2 block text-sm text-white/70">Offre / Produit</label>
+              <Field label="Offre / Produit">
                 <input
                   value={offer}
                   onChange={(e) => setOffer(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white"
+                  className={inputCls}
                 />
-              </div>
+              </Field>
 
-              <div>
-                <label className="mb-2 block text-sm text-white/70">Prix</label>
+              <Field label="Prix">
                 <input
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white"
+                  className={inputCls}
                 />
+              </Field>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label="Marché">
+                  <select
+                    value={market}
+                    onChange={(e) => setMarket(e.target.value)}
+                    className={inputCls}
+                  >
+                    <option>France</option>
+                    <option>USA</option>
+                    <option>UK</option>
+                    <option>Arabic</option>
+                    <option>Global</option>
+                  </select>
+                </Field>
+
+                <Field label="Budget Ads">
+                  <select
+                    value={adsBudget}
+                    onChange={(e) => setAdsBudget(e.target.value)}
+                    className={inputCls}
+                  >
+                    <option>0-500€</option>
+                    <option>500-2000€</option>
+                    <option>2000€+</option>
+                    <option>5000€+</option>
+                  </select>
+                </Field>
               </div>
 
-              <div>
-                <label className="mb-2 block text-sm text-white/70">Marché</label>
-                <select
-                  value={market}
-                  onChange={(e) => setMarket(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white"
-                >
-                  <option>France</option>
-                  <option>USA</option>
-                  <option>UK</option>
-                  <option>Arabic</option>
-                  <option>Global</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm text-white/70">Budget Ads</label>
-                <select
-                  value={adsBudget}
-                  onChange={(e) => setAdsBudget(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white"
-                >
-                  <option>0-500€</option>
-                  <option>500-2000€</option>
-                  <option>2000€+</option>
-                  <option>5000€+</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm text-white/70">Angle marketing</label>
+              <Field label="Angle marketing">
                 <textarea
                   value={angle}
                   onChange={(e) => setAngle(e.target.value)}
                   rows={3}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white"
+                  className={inputCls}
                 />
-              </div>
+              </Field>
 
-              <div>
-                <label className="mb-2 block text-sm text-white/70">Objection principale</label>
+              <Field label="Objection principale">
                 <textarea
                   value={objection}
                   onChange={(e) => setObjection(e.target.value)}
                   rows={3}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white"
+                  className={inputCls}
                 />
-              </div>
+              </Field>
 
-              <div>
-                <label className="mb-2 block text-sm text-white/70">Type de Hook</label>
+              <Field label="Type de Hook">
                 <select
                   value={hookType}
                   onChange={(e) => setHookType(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white"
+                  className={inputCls}
                 >
-                  <option>Question choc</option>
-                  <option>Story</option>
-                  <option>Pain point</option>
-                  <option>Direct claim</option>
-                  <option>Contrarian</option>
-                  <option>Curiosity</option>
+                  {HOOK_TYPES.map((h) => (
+                    <option key={h}>{h}</option>
+                  ))}
                 </select>
-              </div>
+              </Field>
 
-              <div>
-                <label className="mb-2 block text-sm text-white/70">Ton</label>
+              <Field label="Ton">
                 <select
                   value={tone}
                   onChange={(e) => setTone(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white"
+                  className={inputCls}
                 >
-                  <option>UGC naturel (simple)</option>
-                  <option>Direct response</option>
-                  <option>Storytelling</option>
-                  <option>Premium</option>
-                  <option>Funny</option>
-                  <option>Performance Ads</option>
-                  <option>Authority / Expert</option>
-                  <option>Emotional</option>
+                  {TONES.map((t) => (
+                    <option key={t}>{t}</option>
+                  ))}
                 </select>
-              </div>
+              </Field>
 
-              <div>
-                <label className="mb-2 block text-sm text-white/70">Durée</label>
+              <Field label="Durée">
                 <select
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white"
+                  className={inputCls}
                 >
-                  <option>15s</option>
-                  <option>30s</option>
-                  <option>45s</option>
-                  <option>60s</option>
+                  {DURATIONS.map((d) => (
+                    <option key={d}>{d}</option>
+                  ))}
                 </select>
-              </div>
+              </Field>
 
-              <div>
-                <label className="mb-2 block text-sm text-white/70">
-                  Brief créatif / Contexte (recommandé)
-                </label>
+              <Field label="Brief créatif / Contexte">
                 <textarea
                   value={brief}
                   onChange={(e) => setBrief(e.target.value)}
                   rows={5}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white"
+                  className={inputCls}
                 />
-              </div>
+              </Field>
 
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <div className="text-sm font-semibold text-violet-200">AIDE AU PROMPT</div>
-                <div className="mt-2 text-sm text-white/70">
-                  Ajoute par exemple : lieu, type de plan, style créateur, ambiance, personne présente, scène réelle, produit en main, mouvement caméra, format UGC.
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <div className="text-sm font-semibold text-violet-200">
+                  Aide au prompt
+                </div>
+                <div className="mt-2 text-sm text-white/60">
+                  Ajoute le lieu, le type de plan, le style créateur, la scène,
+                  le produit en main, l’ambiance et le format UGC.
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
@@ -373,117 +523,140 @@ export default function AiPage() {
                 </div>
               </div>
 
-              <div className="text-sm text-white/60">
-                Pour de meilleurs résultats, ajoute le plus de détails utiles possible : lieu, style de vidéo, angle caméra, ton, personne présente, objet en main, décor, situation réelle.
-              </div>
-
               <button
                 onClick={handleGenerate}
                 disabled={loading}
-                className="rounded-xl bg-purple-600 px-5 py-3 font-semibold text-white hover:bg-purple-700 disabled:opacity-60"
+                className={cn(
+                  "rounded-xl px-5 py-3 font-semibold text-white transition",
+                  loading
+                    ? "cursor-not-allowed bg-white/10 text-white/60"
+                    : "bg-gradient-to-r from-violet-600 to-fuchsia-500 hover:from-violet-500 hover:to-fuchsia-400"
+                )}
               >
                 {loading ? "Génération..." : "Générer 10 scripts"}
               </button>
 
-              {error ? (
+              {error && (
                 <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
                   {error}
                 </div>
-              ) : null}
+              )}
             </div>
           </div>
 
           <div className="flex flex-col gap-4">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <div className="text-sm font-semibold text-white/90">Hooks générés</div>
-              <div className="mt-3 text-white/80">
-                {result?.hookIdeas?.length ? result.hookIdeas.join(" • ") : "-"}
-              </div>
-            </div>
+            <Panel title="Hooks générés">
+              <ListBlock items={result?.hookIdeas} />
+            </Panel>
 
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <div className="text-sm font-semibold text-white/90">Angles créatifs</div>
-              <div className="mt-3 text-white/80">
-                {result?.creativeAngles?.length ? result.creativeAngles.join(" • ") : "-"}
-              </div>
-            </div>
+            <Panel title="Angles créatifs">
+              <ListBlock items={result?.creativeAngles} />
+            </Panel>
 
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <div className="text-sm font-semibold text-white/90">Plan de test global</div>
-              <div className="mt-3 text-white/80">
-                {result?.testingPlanSummary || "-"}
-              </div>
-            </div>
+            <Panel title="Plan de test global">
+              <TextBlock value={result?.testingPlanSummary} />
+            </Panel>
 
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <div className="text-sm font-semibold text-white/90">Scripts générés</div>
-
+            <Panel title="Scripts générés">
               {variants.length > 0 ? (
                 <>
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="mb-4 flex flex-wrap gap-2">
                     {variants.map((_, index) => (
                       <button
                         key={index}
                         type="button"
                         onClick={() => setActiveScriptIndex(index)}
-                        className={`rounded-xl px-3 py-2 text-sm font-semibold ${
+                        className={cn(
+                          "rounded-xl px-3 py-2 text-sm font-semibold",
                           activeScriptIndex === index
                             ? "bg-purple-600 text-white"
                             : "border border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
-                        }`}
+                        )}
                       >
                         Script {index + 1}
                       </button>
                     ))}
                   </div>
 
-                  <div className="mt-5 space-y-5">
-                    <Block title="Prompt Engine" value={activeVariant?.promptEngine || "-"} />
-                    <Block title="Hook" value={activeVariant?.hook || "-"} />
-                    <Block title="Hook détecté" value={activeVariant?.hookDetected || "-"} />
-                    <Block title="Script" value={scriptText || "-"} />
-                    <ListBlock title="Beats" items={activeVariant?.beats || []} />
-                    <ListBlock title="Beats Timing" items={activeVariant?.beatsTiming || []} />
-                    <ListBlock title="Proof" items={activeVariant?.proof || []} />
-                    <ListBlock title="Pourquoi ça marche" items={activeVariant?.whyItWorks || []} />
-                    <ListBlock title="Variantes Ads" items={activeVariant?.adsVariants || []} />
-                    <ListBlock title="Shotlist" items={activeVariant?.shotlist || []} />
-                    <Block title="CTA" value={activeVariant?.cta?.primary || "-"} />
-                    <Block title="CTA optimisé" value={activeVariant?.cta?.optimized || "-"} />
-                    <Block title="Stratégie plateforme" value={activeVariant?.platformStrategy || "-"} />
-                    <Block title="Angle psychologique" value={activeVariant?.psychologicalAngle || "-"} />
-                    <Block title="Direction créative" value={activeVariant?.creativeDirection || "-"} />
-                    <Block title="Plan de test" value={activeVariant?.testingPlan || "-"} />
-                    <Block title="KPI" value={activeVariant?.kpi || "-"} />
+                  <div className="space-y-5 rounded-2xl border border-white/10 bg-black/20 p-4">
+                    <Panel title="Prompt Engine">
+                      <TextBlock value={activeVariant?.promptEngine} />
+                    </Panel>
+
+                    <Panel title="Hook">
+                      <TextBlock value={activeVariant?.hook} />
+                    </Panel>
+
+                    <Panel title="Hook détecté">
+                      <TextBlock value={activeVariant?.hookDetected} />
+                    </Panel>
+
+                    <Panel title="Script AIDA">
+                      <TextBlock value={scriptText} />
+                    </Panel>
+
+                    <Panel title="Beats">
+                      <ListBlock items={activeVariant?.beats} />
+                    </Panel>
+
+                    <Panel title="Beats timing">
+                      <ListBlock items={activeVariant?.beatsTiming} />
+                    </Panel>
+
+                    <Panel title="Proof">
+                      <ListBlock items={activeVariant?.proof} />
+                    </Panel>
+
+                    <Panel title="Pourquoi ça marche">
+                      <ListBlock items={activeVariant?.whyItWorks} />
+                    </Panel>
+
+                    <Panel title="Variantes Ads">
+                      <ListBlock items={activeVariant?.adsVariants} />
+                    </Panel>
+
+                    <Panel title="Shotlist">
+                      <ListBlock items={activeVariant?.shotlist} />
+                    </Panel>
+
+                    <Panel title="CTA">
+                      <TextBlock value={activeVariant?.cta?.primary} />
+                    </Panel>
+
+                    <Panel title="CTA optimisé">
+                      <TextBlock value={activeVariant?.cta?.optimized} />
+                    </Panel>
+
+                    <Panel title="Stratégie plateforme">
+                      <TextBlock value={activeVariant?.platformStrategy} />
+                    </Panel>
+
+                    <Panel title="Angle psychologique">
+                      <TextBlock value={activeVariant?.psychologicalAngle} />
+                    </Panel>
+
+                    <Panel title="Direction créative">
+                      <TextBlock value={activeVariant?.creativeDirection} />
+                    </Panel>
+
+                    <Panel title="Plan de test">
+                      <TextBlock value={activeVariant?.testingPlan} />
+                    </Panel>
+
+                    <Panel title="KPI">
+                      <TextBlock value={activeVariant?.kpi} />
+                    </Panel>
                   </div>
                 </>
               ) : (
-                <div className="mt-3 text-white/70">-</div>
+                <div className="text-sm text-white/45">
+                  Les 10 scripts Agency apparaîtront ici après génération.
+                </div>
               )}
-            </div>
+            </Panel>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function Block({ title, value }: { title: string; value: string }) {
-  return (
-    <div>
-      <div className="text-sm font-semibold text-white/90">{title}</div>
-      <div className="mt-2 whitespace-pre-wrap text-white/80">{value}</div>
-    </div>
-  );
-}
-
-function ListBlock({ title, items }: { title: string; items: string[] }) {
-  return (
-    <div>
-      <div className="text-sm font-semibold text-white/90">{title}</div>
-      <ul className="mt-2 space-y-1 text-white/80">
-        {items.length ? items.map((item, index) => <li key={index}>• {item}</li>) : <li>-</li>}
-      </ul>
     </div>
   );
 }

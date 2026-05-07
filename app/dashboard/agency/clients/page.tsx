@@ -99,8 +99,7 @@ export default function ClientsPage() {
           </h1>
 
           <p className="mt-2 max-w-2xl text-white/60">
-            Visualise les clients, les campagnes en cours, les validations et
-            les prochaines actions dans un espace clair.
+            Visualise les clients, campagnes et validations dans un espace clair.
           </p>
         </div>
 
@@ -146,6 +145,7 @@ export default function ClientsPage() {
             >
               {clients.map((c, i) => {
                 const offset = i - activeIndex;
+
                 if (offset < -2 || offset > 5) return null;
 
                 const isActive = offset === 0;
@@ -155,7 +155,11 @@ export default function ClientsPage() {
                 const z = -Math.abs(offset) * 220;
                 const rotateY = offset * -24;
                 const rotateX = 7;
-                const brightness = Math.max(0.65, 1 - Math.abs(offset) * 0.08);
+
+                const brightness = Math.max(
+                  0.65,
+                  1 - Math.abs(offset) * 0.08
+                );
 
                 return (
                   <motion.button
@@ -177,7 +181,6 @@ export default function ClientsPage() {
                       scale: isActive ? 1.03 : 0.86,
                     }}
                     transition={spring}
-                    whileHover={isActive ? { y: y - 8, scale: 1.06 } : undefined}
                   >
                     <motion.div
                       className={[
@@ -187,20 +190,11 @@ export default function ClientsPage() {
                           ? "border-purple-400/60 shadow-[0_0_0_1px_rgba(168,85,247,0.45),0_40px_120px_rgba(0,0,0,0.45)]"
                           : "border-white/10 hover:border-white/20",
                       ].join(" ")}
-                      animate={
-                        isActive
-                          ? { y: [0, -10, 0], rotateZ: [0, 0.6, 0] }
-                          : { y: 0, rotateZ: 0 }
-                      }
-                      transition={
-                        isActive
-                          ? {
-                              duration: 2.8,
-                              repeat: Infinity,
-                              ease: "easeInOut",
-                            }
-                          : spring
-                      }
+                      animate={{
+                        y: 0,
+                        rotateZ: 0,
+                      }}
+                      transition={spring}
                     >
                       {isActive && (
                         <div className="pointer-events-none absolute inset-0">
@@ -216,6 +210,7 @@ export default function ClientsPage() {
                             <div className="text-xl font-semibold text-white/95">
                               {c.name}
                             </div>
+
                             <div className="text-sm text-white/70">
                               {c.industry}
                             </div>
@@ -242,6 +237,7 @@ export default function ClientsPage() {
                             <div className="line-clamp-2 text-sm text-white/80">
                               {c.note}
                             </div>
+
                             <div className="mt-3 text-xs text-white/60">
                               Aperçu
                             </div>
@@ -252,6 +248,7 @@ export default function ClientsPage() {
                           <div className="mt-5 grid grid-cols-2 gap-3">
                             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                               <div className="text-xs text-white/60">KPI</div>
+
                               <div className="mt-1 text-sm font-semibold text-white/95">
                                 {c.kpi}
                               </div>
@@ -259,6 +256,7 @@ export default function ClientsPage() {
 
                             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                               <div className="text-xs text-white/60">Note</div>
+
                               <div className="mt-1 text-sm text-white/85">
                                 {c.note}
                               </div>
@@ -287,7 +285,9 @@ export default function ClientsPage() {
             <button
               className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:bg-white/10 disabled:opacity-40"
               onClick={() =>
-                setActiveIndex((v) => Math.min(clients.length - 1, v + 1))
+                setActiveIndex((v) =>
+                  Math.min(clients.length - 1, v + 1)
+                )
               }
               disabled={activeIndex === clients.length - 1}
             >
@@ -306,11 +306,14 @@ export default function ClientsPage() {
               {active.name}
             </div>
 
-            <div className="text-sm text-white/60">{active.industry}</div>
+            <div className="text-sm text-white/60">
+              {active.industry}
+            </div>
 
             <div className="mt-6 grid gap-3">
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <div className="text-xs text-white/50">Statut</div>
+
                 <div className="mt-1 text-sm font-semibold text-white/90">
                   {active.status}
                 </div>
@@ -318,6 +321,7 @@ export default function ClientsPage() {
 
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <div className="text-xs text-white/50">KPI</div>
+
                 <div className="mt-1 text-sm font-semibold text-white/90">
                   {active.kpi}
                 </div>
@@ -325,7 +329,10 @@ export default function ClientsPage() {
 
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <div className="text-xs text-white/50">Note</div>
-                <div className="mt-1 text-sm text-white/80">{active.note}</div>
+
+                <div className="mt-1 text-sm text-white/80">
+                  {active.note}
+                </div>
               </div>
             </div>
           </div>
@@ -334,9 +341,9 @@ export default function ClientsPage() {
             <div className="text-sm font-semibold text-white/90">
               Prochaine action
             </div>
+
             <p className="mt-2 text-sm text-white/60">
-              Revoir les scripts validés, préparer le prochain brief et suivre
-              l’avancement de la campagne active.
+              Revoir les scripts validés et préparer la prochaine campagne.
             </p>
 
             <div className="mt-4 flex flex-wrap gap-3">

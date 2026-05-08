@@ -10,7 +10,6 @@ const links = [
   { label: "Campagnes", href: "/dashboard/campaigns" },
   { label: "Agency", href: "/dashboard/agency" },
   { label: "Creator", href: "/dashboard/creator" },
-  { label: "Workflow", href: "/dashboard/workflow" },
   { label: "Paramètres", href: "/dashboard/settings" },
 ];
 
@@ -18,15 +17,10 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 min-h-screen border-r border-white/10 bg-[#0B0B12] p-5">
+    <aside className="min-h-screen w-64 border-r border-white/10 bg-[#0B0B12] p-5">
       <div className="mb-8">
-        <div className="text-xs text-white/40">
-          UGC Growth
-        </div>
-
-        <div className="mt-1 text-xl font-bold text-white">
-          Dashboard
-        </div>
+        <div className="text-xs text-white/40">UGC Growth</div>
+        <div className="mt-1 text-xl font-bold text-white">Dashboard</div>
       </div>
 
       <nav className="space-y-2">

@@ -18,7 +18,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 border-r border-white/10 bg-[#0B0B12] min-h-screen p-5">
+    <aside className="w-64 min-h-screen border-r border-white/10 bg-[#0B0B12] p-5">
       <div className="mb-8">
         <div className="text-xs text-white/40">
           UGC Growth

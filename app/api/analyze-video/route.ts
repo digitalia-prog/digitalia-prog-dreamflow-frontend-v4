@@ -21,6 +21,21 @@ function detectPlatform(url: string): Platform {
   return "other";
 }
 
+function normalizeOutputLanguage(value: string) {
+  const lang = value.toLowerCase().trim();
+
+  if (["en", "english", "anglais", "anglais us", "english us", "us english"].includes(lang)) return "English";
+  if (["fr", "french", "français", "francais", "français fr", "french fr"].includes(lang)) return "French";
+  if (["es", "spanish", "espagnol", "español"].includes(lang)) return "Spanish";
+  if (["ar", "arabic", "arabe", "العربية"].includes(lang)) return "Arabic";
+  if (["zh", "chinese", "中文", "chinois", "mandarin"].includes(lang)) return "Chinese";
+  if (["de", "german", "allemand"].includes(lang)) return "German";
+  if (["it", "italian", "italien"].includes(lang)) return "Italian";
+  if (["pt", "portuguese", "portugais"].includes(lang)) return "Portuguese";
+
+  return value || "French";
+}
+
 function extractYoutubeVideoId(url: string) {
   try {
     const parsed = new URL(url);
@@ -134,9 +149,19 @@ async function transcribeYoutubeWithSupadata(url: string): Promise<string> {
   return "";
 }
 
-async function analyzeTranscript(transcript: string) {
+async function analyzeTranscript(transcript: string, language: string) {
+  const outputLanguage = normalizeOutputLanguage(language);
+
   const prompt = `
 Analyse cette vidéo marketing UGC.
+
+RÈGLE LANGUE OBLIGATOIRE :
+- La vidéo peut être dans n'importe quelle langue.
+- Tu dois retourner toute l'analyse finale en ${outputLanguage}.
+- Si le transcript est dans une autre langue, traduis le sens avant d'écrire l'analyse.
+- Tous les champs JSON doivent être rédigés en ${outputLanguage}.
+- Ne mélange pas les langues.
+- Si la langue demandée est English, aucun champ ne doit rester en français sauf noms propres ou citations nécessaires.
 
 Transcript :
 ${transcript}
@@ -145,6 +170,7 @@ IMPORTANT :
 - Remplis TOUS les champs
 - Aucun champ vide
 - JSON uniquement
+- Tous les textes doivent être en ${outputLanguage}
 
 {
   "summary": "",
@@ -167,10 +193,13 @@ IMPORTANT :
 `;
 
   const completion = await openai.chat.completions.create({
-    model: "gpt-4.1-mini",
-    temperature: 0.7,
+    model: process.env.OPENAI_ANALYSIS_MODEL || "gpt-4.1-mini",
+    temperature: 0.5,
     messages: [
-      { role: "system", content: "Expert UGC marketing. JSON complet." },
+      {
+        role: "system",
+        content: `Expert UGC marketing. JSON complet uniquement. Toute la réponse doit être en ${outputLanguage}.`,
+      },
       { role: "user", content: prompt },
     ],
   });
@@ -207,7 +236,9 @@ IMPORTANT :
 
 export async function POST(req: Request) {
   try {
-    const { url } = await req.json();
+    const body = await req.json();
+    const { url } = body;
+    const language = body?.language || body?.lang || "French";
 
     if (!url) {
       return NextResponse.json({ error: "Lien manquant" }, { status: 400 });
@@ -262,10 +293,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const analysis = await analyzeTranscript(transcript);
+    const analysis = await analyzeTranscript(transcript, language);
 
     return NextResponse.json({
       platform,
+      language: normalizeOutputLanguage(language),
       transcript,
       ...analysis,
     });

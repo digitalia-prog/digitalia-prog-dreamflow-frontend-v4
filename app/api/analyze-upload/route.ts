@@ -25,6 +25,18 @@ function cleanJsonString(value: string) {
     .trim();
 }
 
+function normalizeOutputLanguage(value: string) {
+  const lang = value.toLowerCase().trim();
+
+  if (["en", "english", "anglais"].includes(lang)) return "English";
+  if (["fr", "french", "français", "francais"].includes(lang)) return "French";
+  if (["es", "spanish", "espagnol"].includes(lang)) return "Spanish";
+  if (["ar", "arabic", "arabe"].includes(lang)) return "Arabic";
+  if (["zh", "chinese", "中文", "chinois"].includes(lang)) return "Chinese";
+
+  return value || "French";
+}
+
 async function checkBetaQuotaSafe(key: string, limit: number) {
   const hasRedisConfig =
     !!process.env.UPSTASH_REDIS_REST_URL &&
@@ -66,23 +78,36 @@ async function analyzeTranscript({
   product,
   audience,
   notes,
+  language,
 }: {
   transcript: string;
   platform: string;
   product: string;
   audience: string;
   notes: string;
+  language: string;
 }) {
+  const outputLanguage = normalizeOutputLanguage(language);
+
   const prompt = `
 Tu es un expert senior en UGC ads, creative strategy et performance marketing.
 
 Analyse cette vidéo/fichier audio comme une agence marketing professionnelle.
+
+RÈGLE LANGUE OBLIGATOIRE :
+- La vidéo ou l'audio peut être dans n'importe quelle langue.
+- Tu dois retourner toute l'analyse finale en ${outputLanguage}.
+- Si le transcript est dans une autre langue, traduis le sens avant d'écrire l'analyse.
+- Tous les champs JSON doivent être rédigés en ${outputLanguage}.
+- Ne mélange pas les langues.
+- Si ${outputLanguage} est English, aucun champ ne doit rester en français sauf noms de marque ou citations nécessaires.
 
 Contexte :
 - Plateforme : ${platform}
 - Produit / Offre : ${product}
 - Audience : ${audience}
 - Notes : ${notes}
+- Langue de sortie demandée : ${outputLanguage}
 
 Transcript réel :
 """
@@ -121,7 +146,7 @@ Format :
       {
         role: "system",
         content:
-          "Tu es un expert marketing UGC. Tu réponds uniquement en JSON valide complet.",
+          `Tu es un expert marketing UGC. Tu réponds uniquement en JSON valide complet. Toute la réponse doit être en ${outputLanguage}.`,
       },
       { role: "user", content: prompt },
     ],
@@ -197,6 +222,7 @@ export async function POST(req: NextRequest) {
       toText(formData.get("notes"), "") ||
       toText(formData.get("extraNotes"), "-");
     const mode = toText(formData.get("mode"), "CREATOR");
+    const language = toText(formData.get("language"), "French");
 
     const requestMode = mode === "AGENCY" ? "AGENCY" : "CREATOR";
     const forwardedFor = req.headers.get("x-forwarded-for") || "";
@@ -277,12 +303,14 @@ export async function POST(req: NextRequest) {
       product,
       audience,
       notes,
+      language,
     });
 
     return NextResponse.json({
       success: true,
       noStorage: true,
       platform,
+      language: normalizeOutputLanguage(language),
       ...result,
     });
   } catch (err: any) {

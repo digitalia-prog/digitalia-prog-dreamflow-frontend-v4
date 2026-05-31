@@ -14,11 +14,16 @@ type TextItem =
 
 type MediaResult = {
   source?: string;
+  analysisMode?: string;
   transcript?: string;
   cleanedTranscript?: string;
 
   coreMessage?: string;
   whyItMatters?: string;
+  marketTension?: string;
+  problemStatement?: string;
+  uniqueBelief?: string;
+  whyNow?: string;
   founderNarrative?: string;
   executiveSummary?: string;
 
@@ -28,6 +33,13 @@ type MediaResult = {
   prAngles?: TextItem[];
   strategicOpportunities?: TextItem[];
   missingInformation?: TextItem[];
+
+  idealCustomerProfile?: TextItem[];
+  painPoints?: TextItem[];
+  agencyOpportunities?: TextItem[];
+  growthRecommendations?: TextItem[];
+  offerClarity?: string;
+  positioning?: string;
 
   editorialStructure?: {
     title?: string;
@@ -64,6 +76,9 @@ function formatItem(item: TextItem) {
 
 export default function MediaPage() {
   const [mode, setMode] = useState<"text" | "upload">("text");
+  const [analysisMode, setAnalysisMode] = useState<"founder" | "agency">(
+    "founder"
+  );
   const [notes, setNotes] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<MediaResult | null>(null);
@@ -77,6 +92,7 @@ export default function MediaPage() {
 
     const formData = new FormData();
     formData.append("notes", notes);
+    formData.append("analysisMode", analysisMode);
     if (file) formData.append("file", file);
 
     try {
@@ -116,8 +132,9 @@ export default function MediaPage() {
 
           <p className="mt-4 max-w-3xl text-white/60">
             Transforme des notes, une interview audio ou une vidéo founder en
-            intelligence média : message central, récit founder, titres presse,
-            angles PR, article, brochure, LinkedIn et extraits courts.
+            intelligence média et stratégique : message central, tension marché,
+            croyance différenciante, lecture agence, angles PR, article,
+            brochure, LinkedIn et extraits courts.
           </p>
         </div>
 
@@ -143,6 +160,42 @@ export default function MediaPage() {
           >
             Audio / Vidéo interview
           </button>
+        </div>
+
+        <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <p className="mb-3 text-sm font-medium text-white/80">
+            Mode d’analyse
+          </p>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            <button
+              onClick={() => setAnalysisMode("founder")}
+              className={`rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${
+                analysisMode === "founder"
+                  ? "bg-violet-500 text-white"
+                  : "bg-black/20 text-white/60 hover:bg-white/5"
+              }`}
+            >
+              <span className="block">Founder</span>
+              <span className="mt-1 block text-xs font-normal opacity-70">
+                Message central, récit founder, vision, tension stratégique.
+              </span>
+            </button>
+
+            <button
+              onClick={() => setAnalysisMode("agency")}
+              className={`rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${
+                analysisMode === "agency"
+                  ? "bg-violet-500 text-white"
+                  : "bg-black/20 text-white/60 hover:bg-white/5"
+              }`}
+            >
+              <span className="block">Agency</span>
+              <span className="mt-1 block text-xs font-normal opacity-70">
+                ICP, pain points, offre, positionnement, opportunités agence.
+              </span>
+            </button>
+          </div>
         </div>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 shadow-2xl shadow-violet-950/30">
@@ -214,15 +267,17 @@ export default function MediaPage() {
           <section className="mt-8 grid gap-5">
             <div className="rounded-3xl border border-violet-400/20 bg-violet-500/10 p-6">
               <p className="text-xs uppercase tracking-[0.25em] text-violet-200">
-                Founder Intelligence Report
+                {analysisMode === "agency"
+                  ? "Agency Intelligence Report"
+                  : "Founder Intelligence Report"}
               </p>
               <h2 className="mt-2 text-2xl font-bold text-white">
                 Synthèse stratégique
               </h2>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-white/60">
-                Cette section extrait la valeur stratégique de l’interview :
-                message central, narration founder, angles média et opportunités
-                de positionnement.
+                {analysisMode === "agency"
+                  ? "Cette section transforme la matière brute en lecture agence : client idéal, douleurs marché, clarté de l’offre, positionnement et opportunités commerciales."
+                  : "Cette section extrait la valeur stratégique de l’interview : message central, narration founder, tension marché et croyance différenciante."}
               </p>
             </div>
 
@@ -240,6 +295,42 @@ export default function MediaPage() {
               />
             </div>
 
+            <div className="rounded-3xl border border-violet-400/20 bg-violet-500/10 p-6">
+              <p className="text-xs uppercase tracking-[0.25em] text-violet-200">
+                Strategic Intelligence
+              </p>
+              <h2 className="mt-2 text-2xl font-bold text-white">
+                Lecture de fond
+              </h2>
+              <p className="mt-3 text-sm leading-7 text-white/60">
+                Cette couche détecte la tension réelle, le problème central, la
+                croyance différenciante et le contexte qui rend le sujet
+                important maintenant.
+              </p>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              <ResultBlock
+                title="Market Tension"
+                content={result.marketTension}
+                highlight
+              />
+              <ResultBlock
+                title="Problem Statement"
+                content={result.problemStatement}
+                highlight
+              />
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              <ResultBlock
+                title="Unique Belief"
+                content={result.uniqueBelief}
+                highlight
+              />
+              <ResultBlock title="Why Now" content={result.whyNow} highlight />
+            </div>
+
             <ResultBlock
               title="Founder Narrative"
               content={result.founderNarrative}
@@ -251,6 +342,54 @@ export default function MediaPage() {
               content={result.executiveSummary}
               highlight
             />
+
+            {analysisMode === "agency" && (
+              <>
+                <div className="rounded-3xl border border-violet-400/20 bg-violet-500/10 p-6">
+                  <p className="text-xs uppercase tracking-[0.25em] text-violet-200">
+                    Agency Intelligence
+                  </p>
+                  <h2 className="mt-2 text-2xl font-bold text-white">
+                    Lecture business pour agences
+                  </h2>
+                  <p className="mt-3 text-sm leading-7 text-white/60">
+                    Cette partie analyse le produit comme une offre destinée aux
+                    agences : clients cibles, douleurs, opportunités, clarté de
+                    l’offre et recommandations de croissance.
+                  </p>
+                </div>
+
+                <div className="grid gap-5 md:grid-cols-2">
+                  <ResultList
+                    title="ICP"
+                    items={result.idealCustomerProfile}
+                  />
+                  <ResultList title="Pain Points" items={result.painPoints} />
+                </div>
+
+                <div className="grid gap-5 md:grid-cols-2">
+                  <ResultBlock
+                    title="Offer Clarity"
+                    content={result.offerClarity}
+                  />
+                  <ResultBlock
+                    title="Positioning"
+                    content={result.positioning}
+                  />
+                </div>
+
+                <div className="grid gap-5 md:grid-cols-2">
+                  <ResultList
+                    title="Agency Opportunities"
+                    items={result.agencyOpportunities}
+                  />
+                  <ResultList
+                    title="Growth Recommendations"
+                    items={result.growthRecommendations}
+                  />
+                </div>
+              </>
+            )}
 
             <div className="grid gap-5 md:grid-cols-2">
               <ResultList title="Media Headlines" items={result.mediaHeadlines} />

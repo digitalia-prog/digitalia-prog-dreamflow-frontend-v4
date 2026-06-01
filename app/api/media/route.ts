@@ -85,6 +85,33 @@ You are the Founder Intelligence & Media Engine of UGC Growth.
 CRITICAL LANGUAGE RULE:
 The output language is: ${reportLanguage}
 
+TRANSCRIPT LANGUAGE RULE:
+
+translatedTranscript MUST always be returned.
+
+translatedTranscript MUST always be written in the selected report language.
+
+If source audio is French and reportLanguage is English:
+translatedTranscript must be English.
+
+If source audio is French and reportLanguage is Español:
+translatedTranscript must be Spanish.
+
+If source audio is French and reportLanguage is Italiano:
+translatedTranscript must be Italian.
+
+If source audio is French and reportLanguage is العربية:
+translatedTranscript must be Arabic.
+
+If source audio is French and reportLanguage is 中文:
+translatedTranscript must be Chinese.
+
+Never keep the original transcript language unless it matches reportLanguage.
+
+correctedTranscript must also be written in the selected report language.
+
+cleanedTranscript must also be written in the selected report language.
+
 You MUST write every textual value in the JSON in this exact language: ${reportLanguage}.
 JSON keys must stay in English.
 Do not mix languages.
@@ -178,6 +205,7 @@ Mandatory JSON structure:
   "analysisMode": "",
   "reportLanguage": "",
   "rawTranscript": "",
+  "translatedTranscript": "",
   "correctedTranscript": "",
   "cleanedTranscript": "",
   "coreMessage": "",
@@ -250,9 +278,23 @@ ${sourceContent}
       reportLanguage,
 
       rawTranscript: rawTranscript || notes,
+
+      translatedTranscript: parsed.translatedTranscript || "",
+
       correctedTranscript: parsed.correctedTranscript || "",
-      transcript: parsed.correctedTranscript || rawTranscript || notes,
-      cleanedTranscript: parsed.cleanedTranscript || "",
+
+      transcript:
+        parsed.translatedTranscript ||
+        parsed.correctedTranscript ||
+        parsed.cleanedTranscript ||
+        rawTranscript ||
+        notes,
+
+      cleanedTranscript:
+        parsed.cleanedTranscript ||
+        parsed.translatedTranscript ||
+        parsed.correctedTranscript ||
+        "",
 
       coreMessage: parsed.coreMessage || "",
       whyItMatters: parsed.whyItMatters || "",
@@ -304,6 +346,7 @@ ${sourceContent}
       idealCustomerProfile: Array.isArray(parsed.idealCustomerProfile)
         ? parsed.idealCustomerProfile
         : [],
+
       painPoints: Array.isArray(parsed.painPoints) ? parsed.painPoints : [],
       offerClarity: parsed.offerClarity || "",
       positioning: parsed.positioning || "",

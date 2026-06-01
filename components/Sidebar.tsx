@@ -7,6 +7,7 @@ const links = [
   { label: "Dashboard", href: "/dashboard" },
   { label: "Analyse vidéo", href: "/dashboard/analyze-upload" },
   { label: "Script Engine", href: "/dashboard/ai" },
+  { label: "Media Engine", href: "/dashboard/media" },
   { label: "Campagnes", href: "/dashboard/campaigns" },
   { label: "Agency", href: "/dashboard/agency" },
   { label: "Creator", href: "/dashboard/creator" },
@@ -44,4 +45,3 @@ export default function Sidebar() {
       </nav>
     </aside>
   );
-}

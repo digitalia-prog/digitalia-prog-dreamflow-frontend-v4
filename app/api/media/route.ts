@@ -33,6 +33,52 @@ async function transcribeWithOpenAI(file: File) {
   return typeof transcript === "string" ? transcript : "";
 }
 
+async function enforceJsonLanguage(parsed: any, reportLanguage: string) {
+  const completion = await openai.chat.completions.create({
+    model: process.env.OPENAI_MEDIA_MODEL || "gpt-4o-mini",
+    temperature: 0.1,
+    response_format: { type: "json_object" },
+    messages: [
+      {
+        role: "system",
+        content: `
+You are a strict JSON localization engine.
+
+Your job is to rewrite EVERY textual value in the JSON into this language:
+${reportLanguage}
+
+Rules:
+- Keep ALL JSON keys exactly the same.
+- Keep the same JSON structure.
+- Keep arrays as arrays.
+- Keep objects as objects.
+- Do not remove fields.
+- Do not add new fields.
+- Keep brand names like "UGC Growth", "Script Engine", "Founder & Media Engine" unchanged.
+- Empty strings must stay empty strings.
+- If a value is already in the correct language, keep it.
+- No English is allowed unless reportLanguage is English.
+- No French is allowed unless reportLanguage is Français.
+- Return only valid JSON.
+        `,
+      },
+      {
+        role: "user",
+        content: JSON.stringify(parsed),
+      },
+    ],
+  });
+
+  const raw = completion.choices[0]?.message?.content || "";
+
+  try {
+    return JSON.parse(cleanJsonString(raw));
+  } catch {
+    console.error("MEDIA_LANGUAGE_ENFORCE_PARSE_ERROR", raw);
+    return parsed;
+  }
+}
+
 export async function POST(req: Request) {
   try {
     if (!process.env.OPENAI_API_KEY) {
@@ -269,6 +315,8 @@ ${sourceContent}
       console.error("MEDIA_JSON_PARSE_ERROR", raw);
       parsed = {};
     }
+
+    parsed = await enforceJsonLanguage(parsed, reportLanguage);
 
     return NextResponse.json({
       success: true,

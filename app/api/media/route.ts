@@ -35,7 +35,7 @@ async function transcribeWithOpenAI(file: File) {
 
 async function enforceJsonLanguage(parsed: any, reportLanguage: string) {
   const completion = await openai.chat.completions.create({
-    model: process.env.OPENAI_MEDIA_MODEL || "gpt-4o-mini",
+    model: "gpt-4o",
     temperature: 0.1,
     response_format: { type: "json_object" },
     messages: [

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { jsPDF } from "jspdf";
 
 type TextItem =
   | string
@@ -597,6 +598,114 @@ export default function MediaPage() {
   const [result, setResult] = useState<MediaResult | null>(null);
   const [loading, setLoading] = useState(false);
 
+
+  function downloadFounderBrochure() {
+    if (!result) return;
+
+    const doc = new jsPDF();
+    const margin = 18;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const maxWidth = pageWidth - margin * 2;
+    let y = 24;
+
+    const addPageIfNeeded = (height = 20) => {
+      if (y + height > pageHeight - 20) {
+        doc.addPage();
+        y = 24;
+      }
+    };
+
+    const addTitle = (text: string) => {
+      addPageIfNeeded(18);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text(text, margin, y);
+      y += 10;
+    };
+
+    const addParagraph = (text?: string) => {
+      if (!text) return;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      const lines = doc.splitTextToSize(text, maxWidth);
+      addPageIfNeeded(lines.length * 6 + 10);
+      doc.text(lines, margin, y);
+      y += lines.length * 6 + 8;
+    };
+
+    const addSection = (title: string, content?: string) => {
+      if (!content) return;
+      addTitle(title);
+      addParagraph(content);
+    };
+
+    const addList = (title: string, items?: TextItem[]) => {
+      if (!items?.length) return;
+      addTitle(title);
+      items.forEach((item) => {
+        addParagraph("• " + formatItem(item));
+      });
+    };
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text("UGC Growth", margin, y);
+    y += 10;
+
+    doc.setFontSize(15);
+    doc.text(
+      analysisMode === "agency" ? t.agencyReport : t.founderReport,
+      margin,
+      y
+    );
+    y += 14;
+
+    doc.setDrawColor(124, 58, 237);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 14;
+
+    addSection(t.coreMessage, result.coreMessage);
+    addSection(t.whyItMatters, result.whyItMatters);
+    addSection(t.marketTension, result.marketTension);
+    addSection(t.problemStatement, result.problemStatement);
+    addSection(t.uniqueBelief, result.uniqueBelief);
+    addSection(t.whyNow, result.whyNow);
+    addSection(t.founderNarrative, result.founderNarrative);
+    addSection(t.executiveSummary, result.executiveSummary);
+
+    if (analysisMode === "agency") {
+      addList(t.icp, result.idealCustomerProfile);
+      addList(t.painPoints, result.painPoints);
+      addSection(t.offerClarity, result.offerClarity);
+      addSection(t.positioning, result.positioning);
+      addList(t.agencyOpportunities, result.agencyOpportunities);
+      addList(t.growthRecommendations, result.growthRecommendations);
+    }
+
+    addList(t.mediaHeadlines, result.mediaHeadlines);
+    addList(t.keyQuotes, result.keyQuotes);
+    addList(t.prAngles, result.prAngles);
+    addList(t.strategicOpportunities, result.strategicOpportunities);
+
+    if (result.mediaKit) {
+      addTitle(t.mediaKit);
+      addSection(t.description, result.mediaKit.companyDescription);
+      addSection(t.mission, result.mediaKit.mission);
+      addSection(t.vision, result.mediaKit.vision);
+      addSection(t.mediaKitPositioning, result.mediaKit.positioning);
+    }
+
+    addSection(t.mediaArticle, result.mediaArticle);
+    addSection(t.founderInterview, result.founderInterview);
+    addSection(t.mediaBrochure, result.mediaBrochure);
+    addSection(t.linkedinPost, result.linkedinPost);
+    addList(t.strongIdeas, result.strongIdeas);
+    addList(t.shortExtracts, result.shortExtracts);
+
+    doc.save(`ugc-growth-${analysisMode}-brochure.pdf`);
+  }
+
   async function handleGenerate() {
     if (!notes.trim() && !file) return;
 
@@ -804,6 +913,28 @@ export default function MediaPage() {
 
         {result && (
           <section className="mt-8 grid gap-5">
+            <div className="rounded-3xl border border-violet-400/20 bg-violet-500/10 p-6">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.25em] text-violet-200">
+                    Founder Brochure Export
+                  </p>
+                  <h2 className="mt-2 text-2xl font-bold text-white">
+                    Brochure PDF prête à télécharger
+                  </h2>
+                  <p className="mt-2 text-sm text-white/60">
+                    Transforme ce rapport en brochure PDF exploitable pour un client, une agence ou un partenaire.
+                  </p>
+                </div>
+
+                <button
+                  onClick={downloadFounderBrochure}
+                  className="rounded-2xl bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-violet-100"
+                >
+                  Télécharger la brochure PDF
+                </button>
+              </div>
+            </div>
             <HeaderBlock
               label={
                 analysisMode === "agency" ? t.agencyReport : t.founderReport

@@ -59,7 +59,36 @@ Rules:
 - If a value is already in the correct language, keep it.
 - No English is allowed unless reportLanguage is English.
 - No French is allowed unless reportLanguage is Français.
-- Return only valid JSON.
+- 
+FOUNDER & MEDIA OUTPUT DEPTH RULE:
+
+You MUST produce complete and usable media assets, not short placeholders.
+
+For founder mode:
+- mediaArticle must be a real media-style article with 600 to 900 words when enough source material exists.
+- founderInterview must contain 8 to 10 questions AND complete answers, written from the founder perspective.
+- mediaBrochure must be structured like a professional media brochure with sections: overview, mission, vision, positioning, key message, audience, proof points if available, and suggested usage.
+- linkedinPost must be a complete, publishable LinkedIn post with a strong hook, clear narrative, short paragraphs and a closing line.
+- mediaHeadlines must contain at least 5 strong headline options.
+- keyQuotes must contain at least 5 quotes extracted or faithfully rewritten from the source.
+- prAngles must contain at least 5 PR or media angles.
+- shortExtracts must contain at least 5 short reusable extracts.
+- strongIdeas must contain at least 5 strategic ideas.
+
+For agency mode:
+- idealCustomerProfile must contain at least 5 precise customer profiles.
+- painPoints must contain at least 5 concrete pain points.
+- agencyOpportunities must contain at least 5 opportunities.
+- growthRecommendations must contain at least 5 actionable recommendations.
+- offerClarity must be detailed and practical.
+- positioning must be detailed and practical.
+
+If the source is too short, enrich only by logically structuring what is present.
+Never invent numbers, clients, revenue, proof, ROI, partnerships or results.
+
+All long-form outputs must stay grounded in the source and be written in ${reportLanguage}.
+
+Return only valid JSON.
         `,
       },
       {
@@ -243,6 +272,35 @@ whyNow:
 Why this problem matters now.
 
 These fields must be sober, precise and grounded in the source.
+
+
+FOUNDER & MEDIA OUTPUT DEPTH RULE:
+
+You MUST produce complete and usable media assets, not short placeholders.
+
+For founder mode:
+- mediaArticle must be a real media-style article with 600 to 900 words when enough source material exists.
+- founderInterview must contain 8 to 10 questions AND complete answers, written from the founder perspective.
+- mediaBrochure must be structured like a professional media brochure with sections: overview, mission, vision, positioning, key message, audience, proof points if available, and suggested usage.
+- linkedinPost must be a complete, publishable LinkedIn post with a strong hook, clear narrative, short paragraphs and a closing line.
+- mediaHeadlines must contain at least 5 strong headline options.
+- keyQuotes must contain at least 5 quotes extracted or faithfully rewritten from the source.
+- prAngles must contain at least 5 PR or media angles.
+- shortExtracts must contain at least 5 short reusable extracts.
+- strongIdeas must contain at least 5 strategic ideas.
+
+For agency mode:
+- idealCustomerProfile must contain at least 5 precise customer profiles.
+- painPoints must contain at least 5 concrete pain points.
+- agencyOpportunities must contain at least 5 opportunities.
+- growthRecommendations must contain at least 5 actionable recommendations.
+- offerClarity must be detailed and practical.
+- positioning must be detailed and practical.
+
+If the source is too short, enrich only by logically structuring what is present.
+Never invent numbers, clients, revenue, proof, ROI, partnerships or results.
+
+All long-form outputs must stay grounded in the source and be written in ${reportLanguage}.
 
 Return only valid JSON.
 

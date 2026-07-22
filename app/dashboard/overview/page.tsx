@@ -1,16 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-
-type AnalysisOption = {
-  id: string;
-  title: string;
-  description: string;
-  route: string;
-  icon: React.ReactNode;
-  badge?: string;
-};
+import { useState } from "react";
+import AnalysisFlow from "./components/AnalysisFlow";
 
 function VideoIcon() {
   return (
@@ -116,24 +107,6 @@ function PlusIcon() {
   );
 }
 
-function CloseIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      className="h-5 w-5"
-      aria-hidden="true"
-    >
-      <path
-        d="M6 6L18 18M18 6L6 18"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 function ArrowIcon() {
   return (
     <svg
@@ -154,38 +127,7 @@ function ArrowIcon() {
 }
 
 export default function OverviewPage() {
-  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const analysisOptions: AnalysisOption[] = [
-    {
-      id: "video",
-      title: "Importer une vidéo",
-      description:
-        "Téléversez une publicité ou une vidéo depuis votre ordinateur.",
-      route: "/dashboard/analyze-upload",
-      icon: <VideoIcon />,
-      badge: "MP4, MOV, WEBM",
-    },
-    {
-      id: "audio",
-      title: "Importer un fichier audio",
-      description:
-        "Transformez un audio, une interview ou un podcast en contenu exploitable.",
-      route: "/dashboard/analyze-upload",
-      icon: <AudioIcon />,
-      badge: "MP3, WAV, M4A",
-    },
-    {
-      id: "link",
-      title: "Coller un lien",
-      description:
-        "Analysez un contenu depuis une URL TikTok, YouTube ou une autre plateforme.",
-      route: "/dashboard/analyze",
-      icon: <LinkIcon />,
-      badge: "URL",
-    },
-  ];
 
   function openModal() {
     setIsModalOpen(true);
@@ -194,29 +136,6 @@ export default function OverviewPage() {
   function closeModal() {
     setIsModalOpen(false);
   }
-
-  function selectOption(route: string) {
-    closeModal();
-    router.push(route);
-  }
-
-  useEffect(() => {
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        closeModal();
-      }
-    }
-
-    if (isModalOpen) {
-      document.addEventListener("keydown", handleEscape);
-      document.body.style.overflow = "hidden";
-    }
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "";
-    };
-  }, [isModalOpen]);
 
   return (
     <>
@@ -238,7 +157,6 @@ export default function OverviewPage() {
 
         <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#151526] p-6 shadow-2xl shadow-black/20 md:p-10">
           <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-purple-600/20 blur-3xl" />
-
           <div className="pointer-events-none absolute -bottom-32 left-1/4 h-72 w-72 rounded-full bg-fuchsia-600/10 blur-3xl" />
 
           <div className="relative z-10 max-w-3xl">
@@ -324,104 +242,10 @@ export default function OverviewPage() {
         </section>
       </div>
 
-      {isModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              closeModal();
-            }
-          }}
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="new-analysis-title"
-            className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-[#151522] shadow-2xl shadow-black/60"
-          >
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-purple-400/80 to-transparent" />
-
-            <div className="flex items-start justify-between border-b border-white/10 px-6 py-5 md:px-8">
-              <div>
-                <p className="mb-1 text-xs font-medium uppercase tracking-[0.18em] text-purple-400">
-                  UGC Growth
-                </p>
-
-                <h2
-                  id="new-analysis-title"
-                  className="text-xl font-semibold text-white md:text-2xl"
-                >
-                  Nouvelle analyse
-                </h2>
-
-                <p className="mt-2 text-sm text-white/50">
-                  Choisissez comment importer votre contenu.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={closeModal}
-                aria-label="Fermer la fenêtre"
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/60 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-              >
-                <CloseIcon />
-              </button>
-            </div>
-
-            <div className="space-y-3 p-4 md:p-6">
-              {analysisOptions.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={() => selectOption(option.route)}
-                  className="group flex w-full items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.025] p-4 text-left transition duration-200 hover:-translate-y-0.5 hover:border-purple-400/40 hover:bg-purple-500/[0.08] focus:outline-none focus:ring-2 focus:ring-purple-400"
-                >
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-purple-400/15 bg-purple-500/10 text-purple-300 transition group-hover:bg-purple-500/20">
-                    {option.icon}
-                  </span>
-
-                  <span className="min-w-0 flex-1">
-                    <span className="flex flex-wrap items-center gap-2">
-                      <span className="font-semibold text-white">
-                        {option.title}
-                      </span>
-
-                      {option.badge && (
-                        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-white/40">
-                          {option.badge}
-                        </span>
-                      )}
-                    </span>
-
-                    <span className="mt-1 block text-sm leading-6 text-white/45">
-                      {option.description}
-                    </span>
-                  </span>
-
-                  <span className="shrink-0 text-white/30 transition group-hover:translate-x-1 group-hover:text-purple-300">
-                    <ArrowIcon />
-                  </span>
-                </button>
-              ))}
-            </div>
-
-            <div className="flex flex-col gap-3 border-t border-white/10 bg-black/10 px-6 py-4 sm:flex-row sm:items-center sm:justify-between md:px-8">
-              <p className="text-xs leading-5 text-white/35">
-                Vous pourrez revenir au tableau de bord à tout moment.
-              </p>
-
-              <button
-                type="button"
-                onClick={closeModal}
-                className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/65 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-              >
-                Annuler
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AnalysisFlow
+        open={isModalOpen}
+        onClose={closeModal}
+      />
     </>
   );
 }

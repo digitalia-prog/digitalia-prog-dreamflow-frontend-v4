@@ -1,0 +1,43 @@
+.ugc-growth-button-wrapper {
+  position: relative;
+  z-index: 999999;
+  display: flex;
+  width: 100%;
+  padding: 10px 12px 4px;
+  box-sizing: border-box;
+}
+
+.ugc-growth-analyze-button {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #7c3aed, #d946ef);
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
+}
+
+.ugc-growth-analyze-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(124, 58, 237, 0.4);
+}
+
+.ugc-growth-analyze-button:active {
+  transform: translateY(0);
+  opacity: 0.9;
+}
+
+.ugc-growth-analyze-button:focus-visible {
+  outline: 3px solid rgba(168, 85, 247, 0.4);
+  outline-offset: 2px;
+}

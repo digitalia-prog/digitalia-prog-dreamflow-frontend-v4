@@ -4,26 +4,46 @@
   const BUTTON_CLASS = "ugc-growth-analyze-button";
   const WRAPPER_CLASS = "ugc-growth-button-wrapper";
   const CARD_MARKER = "data-ugc-growth-ready";
+  const DEBUG_PREFIX = "[UGC Growth]";
 
-  // Pendant le développement, l’extension envoie toujours vers localhost.
+  // Développement local. Remplacer par l’URL de production au déploiement.
   const APP_URL = "http://localhost:3000";
 
-  const LIBRARY_PATTERNS = [
-    /ID dans la bibliothèque\s*:?\s*(\d+)/i,
-    /ID de la bibliothèque\s*:?\s*(\d+)/i,
-    /Identifiant de la bibliothèque\s*:?\s*(\d+)/i,
-    /Library ID\s*:?\s*(\d+)/i
+  const LIBRARY_LABEL_PATTERNS = [
+    /id\s+dans\s+la\s+biblioth[eè]que/i,
+    /id\s+de\s+la\s+biblioth[eè]que/i,
+    /identifiant\s+de\s+la\s+biblioth[eè]que/i,
+    /library\s+id/i
+  ];
+
+  const LIBRARY_ID_PATTERNS = [
+    /id\s+dans\s+la\s+biblioth[eè]que\s*:?\s*([0-9]{5,})/i,
+    /id\s+de\s+la\s+biblioth[eè]que\s*:?\s*([0-9]{5,})/i,
+    /identifiant\s+de\s+la\s+biblioth[eè]que\s*:?\s*([0-9]{5,})/i,
+    /library\s+id\s*:?\s*([0-9]{5,})/i
   ];
 
   function cleanText(value) {
     return String(value || "")
       .replace(/\u00a0/g, " ")
+      .replace(/[\u200B-\u200D\uFEFF]/g, "")
       .replace(/\s+/g, " ")
       .trim();
   }
 
+  function normalizeText(value) {
+    return cleanText(value)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  }
+
+  function isHTMLElement(value) {
+    return value instanceof HTMLElement;
+  }
+
   function isVisible(element) {
-    if (!(element instanceof HTMLElement)) {
+    if (!isHTMLElement(element)) {
       return false;
     }
 
@@ -39,29 +59,257 @@
     );
   }
 
-  function extractLibraryId(text) {
-    const normalizedText = cleanText(text);
+  function containsLibraryLabel(text) {
+    const normalized = cleanText(text);
+    return LIBRARY_LABEL_PATTERNS.some((pattern) => pattern.test(normalized));
+  }
 
-    for (const pattern of LIBRARY_PATTERNS) {
-      const match = normalizedText.match(pattern);
+  function extractLibraryId(text) {
+    const normalized = cleanText(text);
+
+    for (const pattern of LIBRARY_ID_PATTERNS) {
+      const match = normalized.match(pattern);
 
       if (match?.[1]) {
         return match[1];
       }
     }
 
+    // Secours : l’ID peut être séparé du libellé par plusieurs nœuds HTML.
+    if (containsLibraryLabel(normalized)) {
+      const numbers = normalized.match(/\b[0-9]{8,}\b/g);
+      if (numbers?.length) {
+        return numbers[0];
+      }
+    }
+
     return "";
   }
 
-  function containsLibraryIdentifier(text) {
-    const normalizedText = cleanText(text).toLowerCase();
+  function getElementText(element) {
+    if (!isHTMLElement(element)) {
+      return "";
+    }
 
+    return cleanText(element.innerText || element.textContent || "");
+  }
+
+  function getLibraryMarkerLeaves() {
+    const selector = "div, span, p, strong, b, small";
+    const all = Array.from(document.querySelectorAll(selector));
+
+    return all.filter((element) => {
+      if (!isVisible(element)) {
+        return false;
+      }
+
+      const ownText = cleanText(element.textContent);
+      if (!ownText || ownText.length > 180 || !containsLibraryLabel(ownText)) {
+        return false;
+      }
+
+      // On conserve uniquement les nœuds les plus petits contenant le libellé.
+      const childContainsSameLabel = Array.from(element.children).some((child) =>
+        containsLibraryLabel(cleanText(child.textContent))
+      );
+
+      return !childContainsSameLabel;
+    });
+  }
+
+  function countLibraryMarkers(root) {
+    if (!isHTMLElement(root)) {
+      return 0;
+    }
+
+    const markers = getLibraryMarkerLeaves();
+    let count = 0;
+
+    for (const marker of markers) {
+      if (root === marker || root.contains(marker)) {
+        count += 1;
+      }
+    }
+
+    return count;
+  }
+
+  function getMetrics(element) {
+    const text = getElementText(element);
+    const rect = element.getBoundingClientRect();
+
+    return {
+      text,
+      textLength: text.length,
+      videos: element.querySelectorAll("video").length,
+      images: element.querySelectorAll("img").length,
+      links: element.querySelectorAll("a[href]").length,
+      buttons: element.querySelectorAll(
+        'button, [role="button"], input[type="button"], input[type="submit"]'
+      ).length,
+      width: rect.width,
+      height: rect.height,
+      area: Math.max(0, rect.width * rect.height),
+      libraryMarkers: countLibraryMarkers(element)
+    };
+  }
+
+  function isReasonableLocalContainer(metrics) {
     return (
-      normalizedText.includes("id dans la bibliothèque") ||
-      normalizedText.includes("id de la bibliothèque") ||
-      normalizedText.includes("identifiant de la bibliothèque") ||
-      normalizedText.includes("library id")
+      metrics.libraryMarkers === 1 &&
+      metrics.textLength >= 40 &&
+      metrics.textLength <= 12000 &&
+      metrics.width >= 240 &&
+      metrics.height >= 100 &&
+      metrics.area <= 3500000
     );
+  }
+
+  function parentCreatesGlobalJump(currentMetrics, parentMetrics) {
+    const textJump =
+      currentMetrics.textLength > 0 &&
+      parentMetrics.textLength > Math.max(
+        currentMetrics.textLength * 4,
+        currentMetrics.textLength + 5000
+      );
+
+    const imageJump =
+      parentMetrics.images > Math.max(
+        currentMetrics.images + 20,
+        currentMetrics.images * 4
+      );
+
+    const videoJump =
+      parentMetrics.videos > Math.max(
+        currentMetrics.videos + 2,
+        currentMetrics.videos * 3
+      );
+
+    const areaJump =
+      currentMetrics.area > 0 &&
+      parentMetrics.area > currentMetrics.area * 5;
+
+    const multipleAds = parentMetrics.libraryMarkers > 1;
+
+    return multipleAds || textJump || imageJump || videoJump || areaJump;
+  }
+
+  function findCardFromMarker(marker) {
+    if (!isHTMLElement(marker)) {
+      return null;
+    }
+
+    let current = marker;
+    let best = null;
+    let depth = 0;
+
+    while (
+      isHTMLElement(current) &&
+      current !== document.body &&
+      depth < 18
+    ) {
+      const currentMetrics = getMetrics(current);
+
+      if (isReasonableLocalContainer(currentMetrics)) {
+        best = current;
+      }
+
+      const parent = current.parentElement;
+      if (!isHTMLElement(parent) || parent === document.body) {
+        break;
+      }
+
+      const parentMetrics = getMetrics(parent);
+
+      // Le meilleur signal : le parent devient soudainement le conteneur global.
+      if (
+        best &&
+        parentCreatesGlobalJump(currentMetrics, parentMetrics)
+      ) {
+        break;
+      }
+
+      // Stop immédiat lorsque plusieurs annonces sont regroupées.
+      if (parentMetrics.libraryMarkers > 1) {
+        break;
+      }
+
+      current = parent;
+      depth += 1;
+    }
+
+    if (best) {
+      return best;
+    }
+
+    // Secours : premier ancêtre visible contenant le libellé et un contenu suffisant.
+    current = marker;
+    depth = 0;
+
+    while (
+      isHTMLElement(current) &&
+      current !== document.body &&
+      depth < 14
+    ) {
+      const metrics = getMetrics(current);
+
+      if (
+        metrics.libraryMarkers === 1 &&
+        metrics.textLength >= 40 &&
+        metrics.width >= 200 &&
+        metrics.height >= 80
+      ) {
+        return current;
+      }
+
+      current = current.parentElement;
+      depth += 1;
+    }
+
+    return null;
+  }
+
+  function deduplicateCards(cards) {
+    const unique = [];
+
+    for (const card of cards) {
+      if (!isHTMLElement(card)) {
+        continue;
+      }
+
+      const alreadyRepresented = unique.some(
+        (existing) =>
+          existing === card ||
+          existing.contains(card) ||
+          card.contains(existing)
+      );
+
+      if (!alreadyRepresented) {
+        unique.push(card);
+        continue;
+      }
+
+      // On préfère le conteneur le plus petit lorsqu’un doublon existe.
+      for (let index = 0; index < unique.length; index += 1) {
+        const existing = unique[index];
+
+        if (existing.contains(card)) {
+          unique[index] = card;
+          break;
+        }
+      }
+    }
+
+    return unique;
+  }
+
+  function findAdCards() {
+    const markers = getLibraryMarkerLeaves();
+    const cards = markers
+      .map(findCardFromMarker)
+      .filter(Boolean);
+
+    return deduplicateCards(cards);
   }
 
   function findAdvertiserName(card) {
@@ -69,16 +317,14 @@
       'a[href*="view_all_page_id"]',
       'a[href*="page_id"]',
       'a[role="link"]',
+      "h1",
+      "h2",
       "h3",
       "h4",
       "strong"
     ];
 
-    const elements = Array.from(
-      card.querySelectorAll(selectors.join(","))
-    );
-
-    const forbiddenTexts = [
+    const forbidden = [
       "voir les détails",
       "see ad details",
       "détails de la publicité",
@@ -90,26 +336,29 @@
       "inactive",
       "inactif",
       "bibliothèque publicitaire",
-      "ad library"
+      "ad library",
+      "id dans la bibliothèque",
+      "id de la bibliothèque",
+      "library id"
     ];
 
-    for (const element of elements) {
+    for (const element of card.querySelectorAll(selectors.join(","))) {
       if (!isVisible(element)) {
         continue;
       }
 
       const text = cleanText(element.textContent);
-      const lowerText = text.toLowerCase();
+      const lower = normalizeText(text);
 
       if (!text || text.length < 2 || text.length > 120) {
         continue;
       }
 
-      if (forbiddenTexts.some((forbidden) => lowerText.includes(forbidden))) {
+      if (forbidden.some((value) => lower.includes(normalizeText(value)))) {
         continue;
       }
 
-      if (/^\d+$/.test(text)) {
+      if (/^[0-9\s]+$/.test(text)) {
         continue;
       }
 
@@ -120,34 +369,31 @@
   }
 
   function findLandingPage(card) {
-    const links = Array.from(card.querySelectorAll("a[href]"));
-
-    for (const link of links) {
+    for (const link of card.querySelectorAll("a[href]")) {
       try {
         const href = link.getAttribute("href");
-
         if (!href) {
           continue;
         }
 
         const url = new URL(href, window.location.href);
-        const hostname = url.hostname.toLowerCase();
+        const host = url.hostname.toLowerCase();
 
-        const isMetaLink =
-          hostname.includes("facebook.com") ||
-          hostname.includes("instagram.com") ||
-          hostname.includes("meta.com") ||
-          hostname === window.location.hostname;
+        const isMeta =
+          host.includes("facebook.com") ||
+          host.includes("instagram.com") ||
+          host.includes("meta.com") ||
+          host === window.location.hostname;
 
         if (
-          url.protocol.startsWith("http") &&
-          !isMetaLink &&
+          /^https?:$/.test(url.protocol) &&
+          !isMeta &&
           !url.href.startsWith("javascript:")
         ) {
           return url.href;
         }
       } catch {
-        // On ignore les liens invalides.
+        // Lien invalide : ignoré.
       }
     }
 
@@ -155,9 +401,7 @@
   }
 
   function findCreativeUrl(card) {
-    const videos = Array.from(card.querySelectorAll("video"));
-
-    for (const video of videos) {
+    for (const video of card.querySelectorAll("video")) {
       const url =
         video.currentSrc ||
         video.src ||
@@ -169,9 +413,10 @@
       }
     }
 
-    const images = Array.from(card.querySelectorAll("img"));
+    let bestImage = null;
+    let bestArea = 0;
 
-    for (const image of images) {
+    for (const image of card.querySelectorAll("img")) {
       const url =
         image.currentSrc ||
         image.src ||
@@ -180,14 +425,15 @@
 
       const width = image.naturalWidth || image.width || 0;
       const height = image.naturalHeight || image.height || 0;
+      const area = width * height;
 
-      // Évite de récupérer les petites photos de profil et les icônes.
-      if (url && (width >= 200 || height >= 200)) {
-        return url;
+      if (url && width >= 180 && height >= 120 && area > bestArea) {
+        bestImage = url;
+        bestArea = area;
       }
     }
 
-    return "";
+    return bestImage || "";
   }
 
   function findCreativeType(card) {
@@ -203,20 +449,14 @@
   }
 
   function findCallToAction(card) {
-    const elements = Array.from(
-      card.querySelectorAll(
-        'button, a[role="button"], div[role="button"], span'
-      )
-    );
-
-    const possibleCtas = [
+    const ctas = [
       "acheter",
       "acheter maintenant",
       "shop now",
       "en savoir plus",
       "learn more",
-      "s’inscrire",
       "s'inscrire",
+      "s’inscrire",
       "sign up",
       "réserver",
       "book now",
@@ -228,10 +468,14 @@
       "contact us",
       "postuler",
       "apply now",
-      "voir l’offre",
       "voir l'offre",
+      "voir l’offre",
       "get offer"
     ];
+
+    const elements = card.querySelectorAll(
+      'button, a[role="button"], div[role="button"], span'
+    );
 
     for (const element of elements) {
       if (!isVisible(element)) {
@@ -239,14 +483,12 @@
       }
 
       const text = cleanText(element.textContent);
-      const lowerText = text.toLowerCase();
+      const lower = normalizeText(text);
 
       if (
         text &&
         text.length <= 60 &&
-        possibleCtas.some(
-          (cta) => lowerText === cta || lowerText.includes(cta)
-        )
+        ctas.some((cta) => lower.includes(normalizeText(cta)))
       ) {
         return text;
       }
@@ -256,8 +498,7 @@
   }
 
   function findPublishedDate(card) {
-    const text = cleanText(card.innerText);
-
+    const text = getElementText(card);
     const patterns = [
       /Diffusion commencée le\s+([^|•]+)/i,
       /Début de diffusion\s*:?\s*([^|•]+)/i,
@@ -268,7 +509,6 @@
 
     for (const pattern of patterns) {
       const match = text.match(pattern);
-
       if (match?.[1]) {
         return cleanText(match[1]).slice(0, 100);
       }
@@ -280,7 +520,7 @@
   function extractAdText(card) {
     const clone = card.cloneNode(true);
 
-    if (!(clone instanceof HTMLElement)) {
+    if (!isHTMLElement(clone)) {
       return "";
     }
 
@@ -290,35 +530,25 @@
       )
       .forEach((element) => element.remove());
 
-    const fullText = cleanText(clone.innerText);
-
-    return fullText.slice(0, 8000);
+    return cleanText(clone.innerText).slice(0, 8000);
   }
 
   function extractAdData(card) {
-    const cardText = cleanText(card.innerText);
-    const libraryId = extractLibraryId(cardText);
-    const advertiserName = findAdvertiserName(card);
-    const landingPage = findLandingPage(card);
-    const creativeUrl = findCreativeUrl(card);
-    const creativeType = findCreativeType(card);
-    const callToAction = findCallToAction(card);
-    const publishedAt = findPublishedDate(card);
-    const adText = extractAdText(card);
+    const cardText = getElementText(card);
 
     return {
       sourcePlatform: "meta",
       platform: "meta",
       source: "extension",
       sourceUrl: window.location.href,
-      libraryId,
-      advertiserName,
-      adText,
-      callToAction,
-      landingPage,
-      publishedAt,
-      creativeUrl,
-      creativeType,
+      libraryId: extractLibraryId(cardText),
+      advertiserName: findAdvertiserName(card),
+      adText: extractAdText(card),
+      callToAction: findCallToAction(card),
+      landingPage: findLandingPage(card),
+      publishedAt: findPublishedDate(card),
+      creativeUrl: findCreativeUrl(card),
+      creativeType: findCreativeType(card),
       capturedAt: new Date().toISOString()
     };
   }
@@ -336,24 +566,18 @@
 
   function openInUgcGrowth(adData) {
     try {
-      const payload = encodePayload(adData);
-
       const params = new URLSearchParams({
         source: "extension",
         platform: "meta",
-        payload
+        payload: encodePayload(adData)
       });
 
       const destination =
         `${APP_URL}/dashboard/import-ad?${params.toString()}`;
 
-      window.open(destination, "_blank");
+      window.open(destination, "_blank", "noopener,noreferrer");
     } catch (error) {
-      console.error(
-        "[UGC Growth] Impossible d’envoyer la publicité :",
-        error
-      );
-
+      console.error(`${DEBUG_PREFIX} Envoi impossible :`, error);
       window.alert(
         "UGC Growth n’a pas réussi à envoyer cette publicité."
       );
@@ -377,204 +601,77 @@
       event.stopImmediatePropagation();
 
       const adData = extractAdData(card);
-
-      console.log(
-        "[UGC Growth] Publicité détectée :",
-        adData
-      );
-
+      console.log(`${DEBUG_PREFIX} Publicité envoyée :`, adData);
       openInUgcGrowth(adData);
     });
 
     return button;
   }
 
-  function scoreCard(element) {
-    if (!(element instanceof HTMLElement) || !isVisible(element)) {
-      return -1;
-    }
-
-    const text = cleanText(element.innerText);
-    const rect = element.getBoundingClientRect();
-
-    let score = 0;
-
-    if (containsLibraryIdentifier(text)) {
-      score += 10;
-    }
-
-    if (extractLibraryId(text)) {
-      score += 10;
-    }
-
-    if (element.querySelector("video")) {
-      score += 6;
-    }
-
-    if (element.querySelector("img")) {
-      score += 3;
-    }
-
-    if (
-      element.querySelector(
-        'a[href*="view_all_page_id"], a[href*="page_id"]'
-      )
-    ) {
-      score += 5;
-    }
-
-    if (
-      text.toLowerCase().includes("voir les détails") ||
-      text.toLowerCase().includes("see ad details")
-    ) {
-      score += 4;
-    }
-
-    if (rect.width >= 250 && rect.width <= 1000) {
-      score += 3;
-    }
-
-    if (rect.height >= 250 && rect.height <= 2500) {
-      score += 3;
-    }
-
-    if (text.length > 150 && text.length < 15000) {
-      score += 2;
-    }
-
-    return score;
-  }
-
-  function findCardFromLibraryElement(element) {
-    let current = element;
-    let bestCard = null;
-    let bestScore = -1;
-    let level = 0;
-
-    while (
-      current instanceof HTMLElement &&
-      current !== document.body &&
-      level < 12
-    ) {
-      const score = scoreCard(current);
-
-      if (score > bestScore) {
-        bestScore = score;
-        bestCard = current;
-      }
-
-      current = current.parentElement;
-      level += 1;
-    }
-
-    return bestScore >= 20 ? bestCard : null;
-  }
-
-  function findLibraryTextElements() {
-    const elements = Array.from(
-      document.querySelectorAll(
-        "div, span, p, strong"
-      )
-    );
-
-    return elements.filter((element) => {
-      if (!isVisible(element)) {
-        return false;
-      }
-
-      const text = cleanText(element.textContent);
-
-      return (
-        text.length > 0 &&
-        text.length < 300 &&
-        containsLibraryIdentifier(text)
-      );
-    });
-  }
-
-  function findAdCards() {
-    const libraryElements = findLibraryTextElements();
-    const cards = new Set();
-
-    for (const libraryElement of libraryElements) {
-      const card = findCardFromLibraryElement(libraryElement);
-
-      if (card) {
-        cards.add(card);
-      }
-    }
-
-    return Array.from(cards);
-  }
-
   function injectButton(card) {
-    if (!(card instanceof HTMLElement)) {
+    if (!isHTMLElement(card)) {
       return;
     }
 
-    if (card.hasAttribute(CARD_MARKER)) {
-      return;
-    }
-
-    if (card.querySelector(`.${BUTTON_CLASS}`)) {
+    if (
+      card.hasAttribute(CARD_MARKER) ||
+      card.querySelector(`.${BUTTON_CLASS}`)
+    ) {
       card.setAttribute(CARD_MARKER, "true");
       return;
     }
-
-    card.setAttribute(CARD_MARKER, "true");
 
     const wrapper = document.createElement("div");
     wrapper.className = WRAPPER_CLASS;
     wrapper.appendChild(createAnalyzeButton(card));
 
+    card.setAttribute(CARD_MARKER, "true");
     card.prepend(wrapper);
   }
 
-  let injectionScheduled = false;
+  let scheduled = false;
+  let lastLogCount = null;
 
   function injectButtons() {
-    injectionScheduled = false;
+    scheduled = false;
 
     const cards = findAdCards();
-
     cards.forEach(injectButton);
 
-    console.log(
-      `[UGC Growth] ${cards.length} publicité(s) détectée(s).`
-    );
+    if (lastLogCount !== cards.length) {
+      console.log(
+        `${DEBUG_PREFIX} ${cards.length} publicité(s) détectée(s).`
+      );
+      lastLogCount = cards.length;
+    }
   }
 
   function scheduleInjection() {
-    if (injectionScheduled) {
+    if (scheduled) {
       return;
     }
 
-    injectionScheduled = true;
+    scheduled = true;
 
     window.requestAnimationFrame(() => {
-      window.setTimeout(injectButtons, 150);
+      window.setTimeout(injectButtons, 180);
     });
   }
 
-  const observer = new MutationObserver(() => {
-    scheduleInjection();
-  });
+  const observer = new MutationObserver(scheduleInjection);
 
   observer.observe(document.documentElement, {
     childList: true,
-    subtree: true
+    subtree: true,
+    characterData: true
   });
 
-  window.addEventListener(
-    "scroll",
-    scheduleInjection,
-    { passive: true }
-  );
+  window.addEventListener("scroll", scheduleInjection, {
+    passive: true
+  });
 
-  window.addEventListener(
-    "load",
-    scheduleInjection
-  );
+  window.addEventListener("load", scheduleInjection);
+  window.addEventListener("pageshow", scheduleInjection);
 
   scheduleInjection();
 })();

@@ -49,69 +49,18 @@
     return "";
   }
 
-  function countDynamicContainers(element) {
-    if (!(element instanceof Element)) return 0;
-    return element.querySelectorAll(DYNAMIC_CONTAINER_SELECTOR).length;
-  }
-
   /**
-   * Meta expose maintenant un conteneur stable par création publicitaire.
-   * On part donc de ce conteneur, puis on remonte jusqu'à la limite juste avant
-   * le parent qui regroupe plusieurs publicités.
+   * Meta fournit un conteneur stable pour chaque création publicitaire.
+   * On utilise directement ces conteneurs, sans filtrage de visibilité
+   * ni remontée fragile dans les parents.
    */
-  function findCardFromDynamicContainer(container) {
-    if (!(container instanceof HTMLElement)) return null;
-
-    let current = container;
-    let best = container;
-    let level = 0;
-
-    while (
-      current.parentElement instanceof HTMLElement &&
-      current.parentElement !== document.body &&
-      level < 18
-    ) {
-      const parent = current.parentElement;
-      const parentContainerCount = countDynamicContainers(parent);
-
-      // Dès que le parent contient plusieurs créations, `current` est la carte locale.
-      if (parentContainerCount > 1) break;
-
-      const rect = parent.getBoundingClientRect();
-      const textLength = cleanText(parent.innerText).length;
-
-      // On évite de remonter dans des wrappers globaux anormalement grands.
-      if (
-        rect.width > 0 &&
-        rect.height > 0 &&
-        rect.width <= Math.max(window.innerWidth * 1.25, 1400) &&
-        rect.height <= 5000 &&
-        textLength <= 20000
-      ) {
-        best = parent;
-      }
-
-      current = parent;
-      level += 1;
-    }
-
-    return best;
-  }
-
   function findAdCards() {
     const containers = Array.from(
       document.querySelectorAll(DYNAMIC_CONTAINER_SELECTOR)
-    ).filter(isVisible);
-
-    const cards = new Set();
-
-    for (const container of containers) {
-      const card = findCardFromDynamicContainer(container);
-      if (card) cards.add(card);
-    }
+    ).filter((element) => element instanceof HTMLElement);
 
     return {
-      cards: Array.from(cards),
+      cards: containers,
       containerCount: containers.length,
     };
   }
@@ -510,7 +459,8 @@
     subtree: true,
   });
 
-  window.addEventListener("scroll", scheduleInjection, { passive: true });
   window.addEventListener("load", scheduleInjection);
+  window.addEventListener("scroll", scheduleInjection, { passive: true });
+
   scheduleInjection();
 })();

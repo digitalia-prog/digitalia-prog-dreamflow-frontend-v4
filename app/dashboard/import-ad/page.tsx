@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import AnalysisResults, { type AnalysisResult } from "./AnalysisResults";
 
 type CapturedAd = {
   sourcePlatform?: string;
@@ -104,7 +105,7 @@ export default function ImportAdPage() {
 
   const [status, setStatus] = useState<AnalysisStatus>("preparing");
   const [message, setMessage] = useState("");
-  const [analysisResult, setAnalysisResult] = useState<unknown>(null);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
 
   const platform =
     ad?.sourcePlatform ||
@@ -461,6 +462,13 @@ export default function ImportAdPage() {
           ) : null}
         </aside>
       </section>
+      {analysisResult ? (
+        <AnalysisResults
+          result={analysisResult}
+          fallbackCreativeType={ad.creativeType}
+        />
+      ) : null}
+
     </main>
   );
 }

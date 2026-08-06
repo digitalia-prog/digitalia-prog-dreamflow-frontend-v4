@@ -69,6 +69,27 @@ function cleanJsonString(value: string) {
     .trim();
 }
 
+function normalizeAnalysis(parsed: any) {
+  return {
+    summary: parsed.summary || "Résumé indisponible",
+    hook: parsed.hook || "Hook non détecté",
+    structure: parsed.structure || "Structure non détectée",
+    angle: parsed.angle || "Angle non détecté",
+    psychology: parsed.psychology?.length ? parsed.psychology : ["Curiosité"],
+    strengths: parsed.strengths?.length ? parsed.strengths : ["Engagement"],
+    weaknesses: parsed.weaknesses?.length ? parsed.weaknesses : ["Manque clarté"],
+    recreateIdeas: parsed.recreateIdeas?.length ? parsed.recreateIdeas : ["Améliorer structure"],
+    similarHooks: parsed.similarHooks?.length ? parsed.similarHooks : ["Hook alternatif"],
+    similarAngles: parsed.similarAngles?.length ? parsed.similarAngles : ["Angle alternatif"],
+    scriptPrompt: parsed.scriptPrompt || "Script optimisé",
+    viralScore: parsed.viralScore || "6/10",
+    whyItWorks: parsed.whyItWorks?.length ? parsed.whyItWorks : ["Contenu relatable"],
+    howToBeat: parsed.howToBeat?.length ? parsed.howToBeat : ["Meilleur hook"],
+    adsAngles: parsed.adsAngles?.length ? parsed.adsAngles : ["Direct response"],
+    creativeType: parsed.creativeType || "UGC",
+  };
+}
+
 async function transcribeVideoUrl(url: string): Promise<string> {
   const res = await fetch(`${VIDEO_WORKER_URL}/transcribe`, {
     method: "POST",
@@ -106,9 +127,7 @@ async function transcribeYoutubeWithSupadata(url: string): Promise<string> {
   }
 
   const res = await fetch(
-    `https://api.supadata.ai/v1/youtube/transcript?videoId=${encodeURIComponent(
-      videoId
-    )}&text=true`,
+    `https://api.supadata.ai/v1/youtube/transcript?videoId=${encodeURIComponent(videoId)}&text=true`,
     {
       method: "GET",
       headers: {
@@ -214,24 +233,151 @@ IMPORTANT :
     parsed = {};
   }
 
-  return {
-    summary: parsed.summary || "Résumé indisponible",
-    hook: parsed.hook || "Hook non détecté",
-    structure: parsed.structure || "Structure non détectée",
-    angle: parsed.angle || "Angle non détecté",
-    psychology: parsed.psychology?.length ? parsed.psychology : ["Curiosité"],
-    strengths: parsed.strengths?.length ? parsed.strengths : ["Engagement"],
-    weaknesses: parsed.weaknesses?.length ? parsed.weaknesses : ["Manque clarté"],
-    recreateIdeas: parsed.recreateIdeas?.length ? parsed.recreateIdeas : ["Améliorer structure"],
-    similarHooks: parsed.similarHooks?.length ? parsed.similarHooks : ["Hook alternatif"],
-    similarAngles: parsed.similarAngles?.length ? parsed.similarAngles : ["Angle alternatif"],
-    scriptPrompt: parsed.scriptPrompt || "Script optimisé",
-    viralScore: parsed.viralScore || "6/10",
-    whyItWorks: parsed.whyItWorks?.length ? parsed.whyItWorks : ["Contenu relatable"],
-    howToBeat: parsed.howToBeat?.length ? parsed.howToBeat : ["Meilleur hook"],
-    adsAngles: parsed.adsAngles?.length ? parsed.adsAngles : ["Direct response"],
-    creativeType: parsed.creativeType || "UGC",
-  };
+  return normalizeAnalysis(parsed);
+}
+
+
+async function downloadImageAsDataUrl(imageUrl: string): Promise<string> {
+  const response = await fetch(imageUrl, {
+    method: "GET",
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/138 Safari/537.36",
+      Accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+      Referer: "https://www.facebook.com/",
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Impossible de télécharger l’image Meta (${response.status})`
+    );
+  }
+
+  const contentType =
+    response.headers.get("content-type")?.split(";")[0] || "image/jpeg";
+
+  if (!contentType.startsWith("image/")) {
+    throw new Error(
+      `Le fichier Meta reçu n’est pas une image (${contentType})`
+    );
+  }
+
+  const arrayBuffer = await response.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  if (!buffer.length) {
+    throw new Error("L’image Meta téléchargée est vide");
+  }
+
+  const maxBytes = 15 * 1024 * 1024;
+
+  if (buffer.length > maxBytes) {
+    throw new Error("L’image Meta dépasse la taille maximale autorisée");
+  }
+
+  return `data:${contentType};base64,${buffer.toString("base64")}`;
+}
+
+async function analyzeImageAd(body: any, language: string) {
+  const outputLanguage = normalizeOutputLanguage(language);
+  const imageUrl = body?.creativeUrl || body?.url;
+
+  if (!imageUrl) {
+    throw new Error("URL image manquante");
+  }
+
+  const imageDataUrl = await downloadImageAsDataUrl(imageUrl);
+
+  const prompt = `
+Analyse cette publicité statique importée depuis Meta Ads Library.
+
+Toute l'analyse doit être en ${outputLanguage}.
+Retourne uniquement un JSON valide.
+
+Métadonnées :
+- Annonceur : ${body?.advertiserName || "Non détecté"}
+- Texte publicitaire : ${body?.adText || "Non détecté"}
+- CTA : ${body?.callToAction || "Non détecté"}
+- Landing page : ${body?.landingPage || "Non détectée"}
+- ID Meta : ${body?.libraryId || "Non détecté"}
+
+Analyse :
+- hook visuel et textuel
+- structure
+- angle marketing
+- psychologie
+- forces
+- faiblesses
+- idées à reproduire
+- hooks similaires
+- angles similaires
+- prompt de script
+- score viral sur 10
+- pourquoi cela fonctionne
+- comment faire mieux
+- angles publicitaires
+- type de créatif
+
+{
+  "summary": "",
+  "hook": "",
+  "structure": "",
+  "angle": "",
+  "psychology": ["", ""],
+  "strengths": ["", ""],
+  "weaknesses": ["", ""],
+  "recreateIdeas": ["", ""],
+  "similarHooks": ["", ""],
+  "similarAngles": ["", ""],
+  "scriptPrompt": "",
+  "viralScore": "",
+  "whyItWorks": ["", ""],
+  "howToBeat": ["", ""],
+  "adsAngles": ["", ""],
+  "creativeType": ""
+}
+`;
+
+  const completion = await openai.chat.completions.create({
+    model:
+      process.env.OPENAI_VISION_MODEL ||
+      process.env.OPENAI_ANALYSIS_MODEL ||
+      "gpt-4.1-mini",
+    temperature: 0.5,
+    messages: [
+      {
+        role: "system",
+        content: `Expert UGC marketing et analyse visuelle. JSON uniquement. Toute la réponse doit être en ${outputLanguage}.`,
+      },
+      {
+        role: "user",
+        content: [
+          { type: "text", text: prompt },
+          {
+            type: "image_url",
+            image_url: {
+              url: imageDataUrl,
+              detail: "high",
+            },
+          },
+        ],
+      },
+    ],
+  });
+
+  const raw = completion.choices[0]?.message?.content || "";
+
+  let parsed: any;
+
+  try {
+    parsed = JSON.parse(cleanJsonString(raw));
+  } catch {
+    parsed = {};
+  }
+
+  return normalizeAnalysis(parsed);
 }
 
 export async function POST(req: Request) {
@@ -242,6 +388,21 @@ export async function POST(req: Request) {
 
     if (!url) {
       return NextResponse.json({ error: "Lien manquant" }, { status: 400 });
+    }
+
+    if (
+      body?.creativeType === "image" &&
+      (body?.creativeUrl || body?.url)
+    ) {
+      const analysis = await analyzeImageAd(body, language);
+
+      return NextResponse.json({
+        platform: body?.sourcePlatform || body?.platform || "meta",
+        language: normalizeOutputLanguage(language),
+        transcript: body?.adText || "",
+        creativeType: "image",
+        ...analysis,
+      });
     }
 
     const platform = detectPlatform(url);

@@ -168,7 +168,21 @@ async function transcribeYoutubeWithSupadata(url: string): Promise<string> {
   return "";
 }
 
-async function analyzeTranscript(transcript: string, language: string) {
+type AnalysisContext = {
+  sourcePlatform?: string;
+  advertiserName?: string;
+  adText?: string;
+  callToAction?: string;
+  landingPage?: string;
+  libraryId?: string;
+  creativeType?: string;
+};
+
+async function analyzeTranscript(
+  transcript: string,
+  language: string,
+  context: AnalysisContext = {}
+) {
   const outputLanguage = normalizeOutputLanguage(language);
 
   const prompt = `
@@ -184,6 +198,21 @@ RÈGLE LANGUE OBLIGATOIRE :
 
 Transcript :
 ${transcript}
+
+CONTEXTE PUBLICITAIRE CAPTURÉ :
+- Plateforme : ${context.sourcePlatform || "Non détectée"}
+- Annonceur : ${context.advertiserName || "Non détecté"}
+- Texte publicitaire : ${context.adText || "Non détecté"}
+- Appel à l’action : ${context.callToAction || "Non détecté"}
+- Landing page : ${context.landingPage || "Non détectée"}
+- ID publicitaire : ${context.libraryId || "Non détecté"}
+- Type de créatif : ${context.creativeType || "Non détecté"}
+
+RÈGLE D’ANALYSE :
+- Analyse la PUBLICITÉ COMPLÈTE, pas seulement la transcription.
+- Si la transcription contient seulement de la musique, des silences ou très peu de paroles, base l’analyse sur le texte publicitaire, l’annonceur, le CTA, la landing page et le contexte capturé.
+- Ne conclus jamais qu’il n’y a aucun message marketing si les métadonnées contiennent une promesse, une offre, un événement ou un appel à l’action.
+- Distingue ce qui vient de l’audio et ce qui vient du texte publicitaire.
 
 IMPORTANT :
 - Remplis TOUS les champs
@@ -454,7 +483,15 @@ export async function POST(req: Request) {
       );
     }
 
-    const analysis = await analyzeTranscript(transcript, language);
+    const analysis = await analyzeTranscript(transcript, language, {
+      sourcePlatform: body?.sourcePlatform || body?.platform || platform,
+      advertiserName: body?.advertiserName || "",
+      adText: body?.adText || "",
+      callToAction: body?.callToAction || "",
+      landingPage: body?.landingPage || "",
+      libraryId: body?.libraryId || "",
+      creativeType: body?.creativeType || "video",
+    });
 
     return NextResponse.json({
       platform,

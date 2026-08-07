@@ -101,6 +101,12 @@ export default function ImportAdPage() {
 
   const ad = useMemo(() => decodePayload(payload), [payload]);
 
+const [mounted, setMounted] = useState(false);
+
+useEffect(() => {
+setMounted(true);
+}, []);
+
   const hasStartedAutomatically = useRef(false);
 
   const [status, setStatus] = useState<AnalysisStatus>("preparing");
@@ -229,7 +235,19 @@ export default function ImportAdPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ad]);
 
-  if (!ad) {
+  if (!mounted) {
+return (
+<main className="mx-auto flex min-h-[70vh] w-full max-w-4xl items-center px-4 py-10">
+<div className="w-full rounded-3xl border border-white/10 bg-[#151526] p-7">
+<p className="text-sm text-white/60">
+UGC Growth prépare l'import publicitaire...
+</p>
+</div>
+</main>
+);
+}
+
+if (!ad) {
     return (
       <main className="mx-auto flex min-h-[70vh] w-full max-w-4xl items-center px-4 py-10">
         <div className="w-full rounded-3xl border border-red-500/20 bg-red-500/10 p-7">

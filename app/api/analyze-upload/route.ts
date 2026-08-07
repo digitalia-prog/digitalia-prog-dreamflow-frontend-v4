@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { PSYCHOLOGY_ANALYSIS_CORE, normalizePsychologyArray } from "@/lib/psychologyCore";
 
 export const runtime = "nodejs";
 
@@ -79,6 +80,7 @@ async function analyzeTranscript({
   audience,
   notes,
   language,
+mode,
 }: {
   transcript: string;
   platform: string;
@@ -86,6 +88,7 @@ async function analyzeTranscript({
   audience: string;
   notes: string;
   language: string;
+mode: "CREATOR" | "AGENCY";
 }) {
   const outputLanguage = normalizeOutputLanguage(language);
 
@@ -108,6 +111,15 @@ Contexte :
 - Audience : ${audience}
 - Notes : ${notes}
 - Langue de sortie demandée : ${outputLanguage}
+
+- Mode : ${mode}
+
+${PSYCHOLOGY_ANALYSIS_CORE}
+
+MODE D’UTILISATION
+- Si mode = AGENCY : rends la lecture plus stratégique, performance-oriented et exploitable pour paid media / tests créatifs.
+- Si mode = CREATOR : garde la même profondeur psychologique mais formule les recommandations de façon directement exploitable et filmable.
+- Le mode ne change jamais les faits observés ; il change seulement le niveau d’exploitation de l’analyse.
 
 Transcript réel :
 """
@@ -145,8 +157,8 @@ Format :
     messages: [
       {
         role: "system",
-        content:
-          `Tu es un expert marketing UGC. Tu réponds uniquement en JSON valide complet. Toute la réponse doit être en ${outputLanguage}.`,
+        content: `${PSYCHOLOGY_ANALYSIS_CORE}
+Tu réponds uniquement en JSON valide complet. Toute la réponse doit être en ${outputLanguage}.`,
       },
       { role: "user", content: prompt },
     ],
@@ -167,9 +179,7 @@ Format :
     hook: parsed.hook || "Hook non détecté.",
     structure: parsed.structure || "Structure non détectée.",
     angle: parsed.angle || "Angle marketing non détecté.",
-    psychology: Array.isArray(parsed.psychology)
-      ? parsed.psychology
-      : ["Curiosité", "Identification"],
+    psychology: normalizePsychologyArray(parsed.psychology),
     strengths: Array.isArray(parsed.strengths)
       ? parsed.strengths
       : ["Contenu engageant", "Sujet clair"],
@@ -304,6 +314,7 @@ export async function POST(req: NextRequest) {
       audience,
       notes,
       language,
+  mode: requestMode,
     });
 
     return NextResponse.json({

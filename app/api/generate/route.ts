@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkQuota } from "@/lib/security";
+import { PSYCHOLOGY_GENERATION_CORE } from "@/lib/psychologyCore";
 
 type Mode = "AGENCY" | "CREATOR";
 
@@ -171,6 +172,8 @@ If a price is provided, use it strategically when relevant:
 - premium value
 - comparison logic
 - testable product logic
+
+${PSYCHOLOGY_GENERATION_CORE}
 
 ADVANCED PSYCHOLOGICAL ENGINE
 Before writing each script, analyze:

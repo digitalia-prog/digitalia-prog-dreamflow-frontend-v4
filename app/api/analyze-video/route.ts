@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import { PSYCHOLOGY_ANALYSIS_CORE, normalizePsychologyArray } from "@/lib/psychologyCore";
 
 export const runtime = "nodejs";
 
@@ -75,7 +76,7 @@ function normalizeAnalysis(parsed: any) {
     hook: parsed.hook || "Hook non détecté",
     structure: parsed.structure || "Structure non détectée",
     angle: parsed.angle || "Angle non détecté",
-    psychology: parsed.psychology?.length ? parsed.psychology : ["Curiosité"],
+    psychology: normalizePsychologyArray(parsed.psychology),
     strengths: parsed.strengths?.length ? parsed.strengths : ["Engagement"],
     weaknesses: parsed.weaknesses?.length ? parsed.weaknesses : ["Manque clarté"],
     recreateIdeas: parsed.recreateIdeas?.length ? parsed.recreateIdeas : ["Améliorer structure"],
@@ -214,9 +215,12 @@ RÈGLE D’ANALYSE :
 - Ne conclus jamais qu’il n’y a aucun message marketing si les métadonnées contiennent une promesse, une offre, un événement ou un appel à l’action.
 - Distingue ce qui vient de l’audio et ce qui vient du texte publicitaire.
 
+${PSYCHOLOGY_ANALYSIS_CORE}
+
 IMPORTANT :
-- Remplis TOUS les champs
-- Aucun champ vide
+- Remplis TOUS les champs à partir des éléments réellement disponibles
+- psychology doit contenir les mécanismes psychologiques réellement détectés et leur effet concret
+- whyItWorks doit expliquer la logique de performance, pas répéter psychology
 - JSON uniquement
 - Tous les textes doivent être en ${outputLanguage}
 
@@ -246,7 +250,8 @@ IMPORTANT :
     messages: [
       {
         role: "system",
-        content: `Expert UGC marketing. JSON complet uniquement. Toute la réponse doit être en ${outputLanguage}.`,
+        content: `${PSYCHOLOGY_ANALYSIS_CORE}
+JSON complet uniquement. Toute la réponse doit être en ${outputLanguage}.`,
       },
       { role: "user", content: prompt },
     ],
@@ -332,11 +337,13 @@ Métadonnées :
 - Landing page : ${body?.landingPage || "Non détectée"}
 - ID Meta : ${body?.libraryId || "Non détecté"}
 
+${PSYCHOLOGY_ANALYSIS_CORE}
+
 Analyse :
 - hook visuel et textuel
 - structure
 - angle marketing
-- psychologie
+- psychologie profonde, reliée aux éléments réellement visibles et au texte publicitaire
 - forces
 - faiblesses
 - idées à reproduire
@@ -378,7 +385,8 @@ Analyse :
     messages: [
       {
         role: "system",
-        content: `Expert UGC marketing et analyse visuelle. JSON uniquement. Toute la réponse doit être en ${outputLanguage}.`,
+        content: `${PSYCHOLOGY_ANALYSIS_CORE}
+Tu analyses aussi les éléments visuels réellement présents dans l’image. JSON uniquement. Toute la réponse doit être en ${outputLanguage}.`,
       },
       {
         role: "user",
@@ -429,9 +437,9 @@ export async function POST(req: Request) {
         platform: body?.sourcePlatform || body?.platform || "meta",
         language: normalizeOutputLanguage(language),
         transcript: body?.adText || "",
-        creativeType: "image",
         ...analysis,
-      });
+      creativeType: "image",
+  });
     }
 
     const platform = detectPlatform(url);

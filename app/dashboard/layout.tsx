@@ -7,12 +7,19 @@ export default function DashboardLayout({
   children: ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-[#0B0B12] text-white">
-      <Sidebar />
+    <div className="relative min-h-screen bg-[#08080d] text-white">
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -left-40 top-[-180px] h-[420px] w-[420px] rounded-full bg-violet-700/[0.08] blur-[110px]" />
+        <div className="absolute right-[-160px] top-[22%] h-[360px] w-[360px] rounded-full bg-fuchsia-700/[0.045] blur-[120px]" />
+      </div>
 
-      <main className="flex-1 overflow-y-auto p-6">
-        {children}
-      </main>
+      <div className="relative flex min-h-screen">
+        <Sidebar />
+
+        <main className="min-w-0 flex-1 px-4 pb-28 pt-[88px] sm:px-6 lg:px-8 lg:pb-10 lg:pt-8 xl:px-10">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

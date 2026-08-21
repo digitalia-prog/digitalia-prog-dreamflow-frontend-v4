@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import AnalysisResults, { type AnalysisResult } from "./AnalysisResults";
+import { saveRecentCreative } from "@/lib/recentCreatives";
 
 type CapturedAd = {
   sourcePlatform?: string;
@@ -213,6 +214,16 @@ setMounted(true);
       setAnalysisResult(result);
       setStatus("success");
       setMessage("La publicité a été envoyée au moteur d’analyse.");
+
+      saveRecentCreative({
+        platform,
+        advertiserName: ad.advertiserName || "",
+        sourceUrl,
+        creativeUrl,
+        creativeType: ad.creativeType || "unknown",
+        adText: ad.adText || "",
+        capturedAt: ad.capturedAt || "",
+      });
     } catch (error) {
       setStatus("error");
       setMessage(

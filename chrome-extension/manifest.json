@@ -12,7 +12,9 @@
     "https://ads.tiktok.com/business/creativecenter/*",
     "https://www.youtube.com/*",
     "http://localhost:3000/*",
-    "https://ugcgrowth.io/*"
+    "https://ugcgrowth.io/*",
+    "https://ads.tiktok.com/creativecenter/*",
+    "https://ads.tiktok.com/*"
   ],
   "content_scripts": [
     {
@@ -21,6 +23,32 @@
       ],
       "js": [
         "content-meta.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://ads.tiktok.com/business/creativecenter/*",
+        "https://ads.tiktok.com/creativecenter/*",
+        "https://ads.tiktok.com/*"
+      ],
+      "js": [
+        "content-tiktok.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.youtube.com/*"
+      ],
+      "js": [
+        "content-youtube.js"
       ],
       "css": [
         "content.css"

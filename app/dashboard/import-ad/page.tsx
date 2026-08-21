@@ -121,6 +121,19 @@ setMounted(true);
 
   const creativeUrl = ad?.creativeUrl?.trim() || "";
   const sourceUrl = ad?.sourceUrl?.trim() || "";
+
+  const platformLabel =
+    platform === "tiktok"
+      ? "TikTok"
+      : platform === "youtube"
+        ? "YouTube"
+        : platform === "instagram"
+          ? "Instagram"
+          : platform === "meta"
+            ? "Meta"
+            : platform
+              ? platform.charAt(0).toUpperCase() + platform.slice(1)
+              : "publicitaire";
   const analysisUrl = creativeUrl || sourceUrl;
 
   const creativeIsImage =
@@ -147,7 +160,7 @@ setMounted(true);
     if (isBlobUrl(analysisUrl)) {
       setStatus("error");
       setMessage(
-        "Meta a transmis une URL vidéo temporaire. La publicité est bien détectée, mais cette URL ne peut pas encore être analysée depuis un autre onglet."
+        `${platformLabel} a transmis une URL vidéo temporaire. La publicité est bien détectée, mais cette URL ne peut pas encore être analysée depuis un autre onglet.`
       );
       return;
     }
@@ -277,7 +290,7 @@ if (!ad) {
         </p>
 
         <h1 className="mt-3 text-3xl font-bold text-white">
-          Publicité Meta détectée
+          {`Publicité ${platformLabel} détectée`}
         </h1>
 
         <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">
@@ -382,7 +395,13 @@ if (!ad) {
                   rel="noreferrer"
                   className="mt-1 block break-all text-sm text-purple-300 hover:text-purple-200"
                 >
-                  Ouvrir la publicité dans Meta Ads Library
+                  {platform === "tiktok"
+                  ? "Ouvrir la publicité dans TikTok Creative Center"
+                  : platform === "youtube"
+                    ? "Ouvrir la publicité sur YouTube"
+                    : platform === "instagram"
+                      ? "Ouvrir la publicité sur Instagram"
+                      : "Ouvrir la publicité dans Meta Ads Library"}
                 </a>
               ) : (
                 <p className="mt-1 text-sm text-white/45">

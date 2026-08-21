@@ -2,7 +2,7 @@
   "use strict";
 
   const VERSION = "tiktok-direct-v1";
-  const APP_URL = "http://localhost:3000";
+  const APP_URL = "https://ugcgrowth.io";
   const BUTTON_CLASS = "ugc-growth-analyze-button";
   const WRAPPER_CLASS = "ugc-growth-button-wrapper";
   const CARD_MARKER = "data-ugc-growth-tiktok-ready";

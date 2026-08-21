@@ -2,7 +2,7 @@
   "use strict";
 
   const VERSION = "meta-direct-v1";
-  const APP_URL = "http://localhost:3000";
+  const APP_URL = "https://ugcgrowth.io";
   const DYNAMIC_CONTAINER_SELECTOR =
     '[data-testid="ad-library-dynamic-content-container"]';
   const BUTTON_CLASS = "ugc-growth-analyze-button";

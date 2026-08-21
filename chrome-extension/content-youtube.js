@@ -2,7 +2,7 @@
   "use strict";
 
   const VERSION = "youtube-direct-v1";
-  const APP_URL = "http://localhost:3000";
+  const APP_URL = "https://ugcgrowth.io";
   const BUTTON_ID = "ugc-growth-youtube-button";
   const WRAPPER_ID = "ugc-growth-youtube-wrapper";
 

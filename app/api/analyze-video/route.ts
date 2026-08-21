@@ -444,10 +444,10 @@ export async function POST(req: Request) {
 
     const platform = detectPlatform(url);
 
-    if (platform === "instagram" || platform === "facebook") {
+    if (platform === "facebook") {
       return NextResponse.json(
         {
-          error: "Instagram non supporté via lien. Upload la vidéo.",
+          error: "Facebook non supporté via lien. Upload la vidéo.",
           fallback: "upload",
         },
         { status: 422 }

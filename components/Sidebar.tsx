@@ -12,7 +12,8 @@ type IconName =
   | "campaign"
   | "agency"
   | "creator"
-  | "settings";
+  | "settings"
+  | "extensions";
 
 type NavItem = {
   label: string;
@@ -24,6 +25,7 @@ type NavItem = {
 const primaryLinks: NavItem[] = [
   { label: "Dashboard", shortLabel: "Accueil", href: "/dashboard/overview", icon: "home" },
   { label: "Analyse créative", shortLabel: "Analyser", href: "/dashboard/analyze-upload", icon: "sparkles" },
+  { label: "Extensions", shortLabel: "Extensions", href: "/dashboard/extensions", icon: "extensions" },
   { label: "Script Engine", shortLabel: "Scripts", href: "/dashboard/ai", icon: "wand" },
   { label: "Media Engine", shortLabel: "Media", href: "/dashboard/media", icon: "media" },
 ];
@@ -40,6 +42,14 @@ const settingsLink: NavItem = {
   href: "/dashboard/settings",
   icon: "settings",
 };
+
+const mobileLinks: NavItem[] = [
+  { label: "Dashboard", shortLabel: "Accueil", href: "/dashboard/overview", icon: "home" },
+  { label: "Analyse créative", shortLabel: "Analyser", href: "/dashboard/analyze-upload", icon: "sparkles" },
+  { label: "Extensions", shortLabel: "Extensions", href: "/dashboard/extensions", icon: "extensions" },
+  { label: "Script Engine", shortLabel: "Scripts", href: "/dashboard/ai", icon: "wand" },
+  { label: "Media Engine", shortLabel: "Media", href: "/dashboard/media", icon: "media" },
+];
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/dashboard/overview") {
@@ -117,6 +127,12 @@ function NavIcon({
       <>
         <circle cx="12" cy="12" r="3" />
         <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z" />
+      </>
+    ),
+    extensions: (
+      <>
+        <rect x="7" y="7" width="10" height="10" rx="2" />
+        <path d="M12 3.5V7M12 17v3.5M3.5 12H7M17 12h3.5" />
       </>
     ),
   };
@@ -260,7 +276,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="fixed inset-x-3 bottom-3 z-50 grid grid-cols-5 rounded-[24px] border border-white/[0.09] bg-[#0d0d16]/92 p-1.5 shadow-[0_18px_60px_rgba(0,0,0,0.55)] backdrop-blur-2xl lg:hidden">
-        {[...primaryLinks, settingsLink].map((item) => {
+        {mobileLinks.map((item) => {
           const active = isActivePath(pathname, item.href);
 
           return (

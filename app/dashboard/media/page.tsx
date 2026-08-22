@@ -751,25 +751,25 @@ export default function MediaPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[#070711] px-6 py-10 text-white">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-10">
-          <p className="text-sm uppercase tracking-[0.3em] text-violet-300">
+    <main className="text-white">
+      <div className="mx-auto w-full max-w-7xl space-y-6">
+        <div className="rounded-[28px] border border-white/[0.07] bg-[#101018] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.18)] md:p-8">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-violet-300/70">
             {t.mediaIntelligence}
           </p>
 
-          <h1 className="mt-3 text-4xl font-bold tracking-tight">{t.title}</h1>
+          <h1 className="mt-4 text-3xl font-bold tracking-[-0.035em] text-white md:text-4xl">{t.title}</h1>
 
-          <p className="mt-4 max-w-3xl text-white/60">{t.subtitle}</p>
+          <p className="mt-3 max-w-4xl text-sm leading-6 text-white/42 md:text-[15px]">{t.subtitle}</p>
         </div>
 
-        <div className="mb-6 flex gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-2">
+        <div className="grid gap-3 rounded-[24px] border border-white/[0.07] bg-white/[0.02] p-2 md:grid-cols-2">
           <button
             onClick={() => setMode("text")}
-            className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold transition ${
+            className={`rounded-[18px] border px-4 py-4 text-left text-sm font-semibold transition ${
               mode === "text"
-                ? "bg-violet-500 text-white"
-                : "text-white/50 hover:bg-white/5"
+                ? "border-violet-400/20 bg-violet-500/[0.12] text-violet-100"
+                : "border-transparent text-white/40 hover:border-white/[0.06] hover:bg-white/[0.025] hover:text-white/70"
             }`}
           >
             {t.textMode}
@@ -777,28 +777,28 @@ export default function MediaPage() {
 
           <button
             onClick={() => setMode("upload")}
-            className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold transition ${
+            className={`rounded-[18px] border px-4 py-4 text-left text-sm font-semibold transition ${
               mode === "upload"
-                ? "bg-violet-500 text-white"
-                : "text-white/50 hover:bg-white/5"
+                ? "border-violet-400/20 bg-violet-500/[0.12] text-violet-100"
+                : "border-transparent text-white/40 hover:border-white/[0.06] hover:bg-white/[0.025] hover:text-white/70"
             }`}
           >
             {t.uploadMode}
           </button>
         </div>
 
-        <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-          <p className="mb-3 text-sm font-medium text-white/80">
+        <div className="rounded-[24px] border border-white/[0.07] bg-white/[0.02] p-5">
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.17em] text-white/30">
             {t.analysisMode}
           </p>
 
           <div className="grid gap-3 md:grid-cols-2">
             <button
               onClick={() => setAnalysisMode("founder")}
-              className={`rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${
+              className={`rounded-[18px] border px-4 py-4 text-left text-sm font-semibold transition ${
                 analysisMode === "founder"
-                  ? "bg-violet-500 text-white"
-                  : "bg-black/20 text-white/60 hover:bg-white/5"
+                  ? "border-violet-400/20 bg-violet-500/[0.12] text-violet-100"
+                  : "border-white/[0.055] bg-black/[0.12] text-white/45 hover:border-white/[0.10] hover:bg-white/[0.025]"
               }`}
             >
               <span className="block">{t.founder}</span>
@@ -809,10 +809,10 @@ export default function MediaPage() {
 
             <button
               onClick={() => setAnalysisMode("agency")}
-              className={`rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${
+              className={`rounded-[18px] border px-4 py-4 text-left text-sm font-semibold transition ${
                 analysisMode === "agency"
-                  ? "bg-violet-500 text-white"
-                  : "bg-black/20 text-white/60 hover:bg-white/5"
+                  ? "border-violet-400/20 bg-violet-500/[0.12] text-violet-100"
+                  : "border-white/[0.055] bg-black/[0.12] text-white/45 hover:border-white/[0.10] hover:bg-white/[0.025]"
               }`}
             >
               <span className="block">{t.agency}</span>
@@ -823,8 +823,8 @@ export default function MediaPage() {
           </div>
         </div>
 
-        <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-          <p className="mb-3 text-sm font-medium text-white/80">
+        <div className="rounded-[24px] border border-white/[0.07] bg-white/[0.02] p-5">
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.17em] text-white/30">
             {t.reportLanguage}
           </p>
 
@@ -836,10 +836,10 @@ export default function MediaPage() {
                   setReportLanguage(language.value);
                   setResult(null);
                 }}
-                className={`rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${
+                className={`rounded-[16px] border px-3 py-3 text-left text-xs font-semibold transition ${
                   reportLanguage === language.value
-                    ? "bg-violet-500 text-white"
-                    : "bg-black/20 text-white/60 hover:bg-white/5"
+                    ? "border-violet-400/20 bg-violet-500/[0.12] text-violet-100"
+                    : "border-white/[0.055] bg-black/[0.12] text-white/40 hover:border-white/[0.10] hover:bg-white/[0.025]"
                 }`}
               >
                 {language.label}
@@ -848,7 +848,7 @@ export default function MediaPage() {
           </div>
         </div>
 
-        <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 shadow-2xl shadow-violet-950/30">
+        <section className="rounded-[28px] border border-white/[0.07] bg-[#101018] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.16)] md:p-6">
           {mode === "text" ? (
             <>
               <label className="text-sm font-medium text-white/80">
@@ -859,7 +859,7 @@ export default function MediaPage() {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder={t.notesPlaceholder}
-                className="mt-3 min-h-[260px] w-full rounded-2xl border border-white/10 bg-black/30 p-4 text-sm text-white outline-none placeholder:text-white/30 focus:border-violet-400"
+                className="mt-3 min-h-[260px] w-full rounded-[20px] border border-white/[0.07] bg-black/[0.16] p-4 text-sm leading-6 text-white/80 outline-none placeholder:text-white/25 focus:border-violet-400/40"
               />
             </>
           ) : (
@@ -868,7 +868,7 @@ export default function MediaPage() {
                 {t.uploadLabel}
               </label>
 
-              <div className="mt-3 rounded-2xl border border-dashed border-violet-400/40 bg-black/30 p-6">
+              <div className="mt-3 rounded-[22px] border border-dashed border-violet-400/20 bg-black/[0.14] p-6">
                 <input
                   type="file"
                   accept="audio/*,video/*,.mp3,.wav,.m4a,.mp4,.mov,.webm,.ogg"
@@ -891,12 +891,12 @@ export default function MediaPage() {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder={t.optionalNotesPlaceholder}
-                className="mt-3 min-h-[150px] w-full rounded-2xl border border-white/10 bg-black/30 p-4 text-sm text-white outline-none placeholder:text-white/30 focus:border-violet-400"
+                className="mt-3 min-h-[150px] w-full rounded-[20px] border border-white/[0.07] bg-black/[0.16] p-4 text-sm leading-6 text-white/80 outline-none placeholder:text-white/25 focus:border-violet-400/40"
               />
             </>
           )}
 
-          <div className="mt-5 flex items-center justify-between gap-4">
+          <div className="mt-5 flex flex-col gap-4 border-t border-white/[0.06] pt-5 md:flex-row md:items-center md:justify-between">
             <p className="text-xs text-white/40">
               {mode === "text" ? t.textFlow : t.uploadFlow}
             </p>
@@ -904,7 +904,7 @@ export default function MediaPage() {
             <button
               onClick={handleGenerate}
               disabled={loading || (!notes.trim() && !file)}
-              className="rounded-2xl bg-violet-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-violet-400 disabled:cursor-not-allowed disabled:opacity-50"
+              className="min-h-12 rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-6 py-3 text-sm font-bold text-white shadow-[0_14px_32px_rgba(109,40,217,0.20)] transition hover:-translate-y-0.5 hover:from-violet-500 hover:to-fuchsia-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
             >
               {loading ? t.generating : t.generate}
             </button>
@@ -912,8 +912,8 @@ export default function MediaPage() {
         </section>
 
         {result && (
-          <section className="mt-8 grid gap-5">
-            <div className="rounded-3xl border border-violet-400/20 bg-violet-500/10 p-6">
+          <section className="grid gap-4 pt-2">
+            <div className="rounded-[24px] border border-violet-400/12 bg-violet-500/[0.07] p-5 md:p-6">
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                   <p className="text-xs uppercase tracking-[0.25em] text-violet-200">
@@ -1080,7 +1080,7 @@ export default function MediaPage() {
 
             <ResultList title={t.missingInfo} items={result.missingInformation} />
 
-            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+            <div className="rounded-[22px] border border-white/[0.07] bg-white/[0.02] p-5">
               <p className="text-xs uppercase tracking-[0.25em] text-white/40">
                 {t.source}
               </p>
@@ -1115,10 +1115,10 @@ function HeaderBlock({
 }) {
   return (
     <div
-      className={`rounded-3xl border p-6 ${
+      className={`rounded-[22px] border p-5 md:p-6 ${
         muted
-          ? "border-white/10 bg-white/[0.03]"
-          : "border-violet-400/20 bg-violet-500/10"
+          ? "border-white/[0.07] bg-white/[0.02]"
+          : "border-violet-400/12 bg-violet-500/[0.07]"
       }`}
     >
       <p
@@ -1147,14 +1147,14 @@ function ResultBlock({
 
   return (
     <div
-      className={`rounded-3xl border p-6 ${
+      className={`rounded-[22px] border p-5 md:p-6 ${
         highlight
-          ? "border-violet-400/20 bg-violet-500/10"
-          : "border-white/10 bg-white/[0.03]"
+          ? "border-violet-400/12 bg-violet-500/[0.07]"
+          : "border-white/[0.07] bg-white/[0.02]"
       }`}
     >
-      <h2 className="mb-3 text-xl font-semibold text-violet-200">{title}</h2>
-      <p className="whitespace-pre-wrap text-sm leading-7 text-white/70">
+      <h2 className="mb-3 text-sm font-semibold tracking-[-0.015em] text-violet-200/90">{title}</h2>
+      <p className="whitespace-pre-wrap text-sm leading-6 text-white/62">
         {content}
       </p>
     </div>
@@ -1165,8 +1165,8 @@ function ResultList({ title, items }: { title: string; items?: TextItem[] }) {
   if (!items?.length) return null;
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-      <h2 className="mb-3 text-xl font-semibold text-violet-200">{title}</h2>
+    <div className="rounded-[22px] border border-white/[0.07] bg-white/[0.02] p-5">
+      <h2 className="mb-3 text-sm font-semibold tracking-[-0.015em] text-violet-200/90">{title}</h2>
       <ul className="space-y-3 text-sm text-white/70">
         {items.map((item, index) => (
           <li
@@ -1198,8 +1198,8 @@ function MediaKitBlock({
   }
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-      <h2 className="mb-5 text-xl font-semibold text-violet-200">
+    <div className="rounded-[22px] border border-white/[0.07] bg-white/[0.02] p-5">
+      <h2 className="mb-5 text-sm font-semibold tracking-[-0.015em] text-violet-200/90">
         {t.mediaKit}
       </h2>
 
@@ -1229,8 +1229,8 @@ function EditorialStructureBlock({
   }
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-      <h2 className="mb-5 text-xl font-semibold text-violet-200">
+    <div className="rounded-[22px] border border-white/[0.07] bg-white/[0.02] p-5">
+      <h2 className="mb-5 text-sm font-semibold tracking-[-0.015em] text-violet-200/90">
         {t.editorialStructure}
       </h2>
 

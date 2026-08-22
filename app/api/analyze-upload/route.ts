@@ -62,12 +62,29 @@ async function transcribeUploadWithWorker(file: File) {
     body: formData,
   });
 
-  const data = await response.json().catch(() => null);
+  const raw = await response.text();
+  let data: any = null;
+
+  if (raw.trim()) {
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      data = null;
+    }
+  }
 
   if (!response.ok) {
+    const compact = raw.replace(/\s+/g, " ").trim().slice(0, 220);
     throw new Error(
-      data?.detail || data?.error || "Erreur worker upload transcription"
+      data?.detail ||
+        data?.error ||
+        compact ||
+        `Erreur worker upload transcription (${response.status})`
     );
+  }
+
+  if (!data) {
+    throw new Error("Réponse worker upload transcription illisible");
   }
 
   return typeof data?.transcript === "string" ? data.transcript : "";

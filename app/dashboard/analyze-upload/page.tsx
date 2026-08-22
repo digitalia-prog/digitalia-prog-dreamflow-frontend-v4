@@ -139,6 +139,37 @@ export default function AnalyzeUploadPage() {
     : "Déposez une interview, un podcast ou un fichier audio. UGC Growth le transforme en recommandations exploitables.";
 
   async function onAnalyze() {
+    const parseApiResponse = async (response: Response) => {
+      const raw = await response.text();
+
+      if (!raw.trim()) {
+        if (!response.ok) throw new Error(`Erreur serveur (${response.status}).`);
+        return {};
+      }
+
+      try {
+        return JSON.parse(raw);
+      } catch {
+        const compact = raw.replace(/\s+/g, " ").trim();
+        const payloadTooLarge =
+          response.status === 413 ||
+          /request entity too large|payload too large|function_payload_too_large/i.test(compact);
+
+        if (payloadTooLarge) {
+          throw new Error(
+            "Fichier trop volumineux pour l’upload direct en production. La requête dépasse la limite d’upload de l’hébergement. Utilise un fichier plus léger ou un lien vidéo pendant qu’on active le flux gros fichiers."
+          );
+        }
+
+        const preview = compact.slice(0, 180);
+        throw new Error(
+          response.ok
+            ? "Le serveur a renvoyé une réponse illisible."
+            : `Erreur serveur (${response.status})${preview ? ` : ${preview}` : "."}`
+        );
+      }
+    };
+
     setLoading(true);
     setError("");
     setFallbackMessage("");
@@ -160,7 +191,7 @@ export default function AnalyzeUploadPage() {
           body: JSON.stringify({ url, platform, language, offer, audience, notes: extraNotes }),
         });
 
-        const data = await response.json();
+        const data = await parseApiResponse(response);
         if (data?.fallback === "upload") {
           setMode("video_file");
           setFile(null);
@@ -186,7 +217,7 @@ export default function AnalyzeUploadPage() {
       formData.append("uploadType", mode === "video_file" ? "video" : "audio");
 
       const response = await fetch("/api/analyze-upload", { method: "POST", body: formData });
-      const data = await response.json();
+      const data = await parseApiResponse(response);
       if (!response.ok) throw new Error(data?.details || data?.error || "Analyse impossible");
       setResult(mapResponseToResult(data));
     } catch (e: any) {

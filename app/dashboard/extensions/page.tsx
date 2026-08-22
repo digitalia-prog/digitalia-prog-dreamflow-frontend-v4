@@ -1,6 +1,6 @@
 const platforms = [
   ["Meta", "Stable", "Meta Ads Library", "https://www.facebook.com/ads/library/", "Analyse des publicités depuis Meta Ads Library."],
-  ["TikTok", "Stable", "TikTok Creative Center", "https://ads.tiktok.com/creativecenter/", "Import direct depuis TikTok Creative Center."],
+  ["TikTok", "Stable", "TikTok Creative Center", "https://ads.tiktok.com/creative/creativeCenter/trends?region=france", "Import direct depuis TikTok Creative Center."],
   ["YouTube", "Stable", "YouTube", "https://www.youtube.com/", "Analyse vidéo et Shorts avec transcription audio."],
   ["Instagram", "Beta", "Instagram", "https://www.instagram.com/", "Posts image pris en charge. Certains Reels restent bloqués."],
 ];

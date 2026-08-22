@@ -11,7 +11,7 @@ export type RecentCreative = {
 };
 
 const STORAGE_KEY = "ugc-growth-recent-creatives-v1";
-const MAX_ITEMS = 12;
+const MAX_ITEMS = 60;
 
 function safeArray(value: unknown): RecentCreative[] {
   if (!Array.isArray(value)) return [];

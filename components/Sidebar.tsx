@@ -13,7 +13,8 @@ type IconName =
   | "agency"
   | "creator"
   | "settings"
-  | "extensions";
+  | "extensions"
+  | "library";
 
 type NavItem = {
   label: string;
@@ -25,6 +26,7 @@ type NavItem = {
 const primaryLinks: NavItem[] = [
   { label: "Dashboard", shortLabel: "Accueil", href: "/dashboard/overview", icon: "home" },
   { label: "Analyse créative", shortLabel: "Analyser", href: "/dashboard/analyze-upload", icon: "sparkles" },
+  { label: "Bibliothèque", shortLabel: "Bibliothèque", href: "/dashboard/library", icon: "library" },
   { label: "Extensions", shortLabel: "Extensions", href: "/dashboard/extensions", icon: "extensions" },
   { label: "Script Engine", shortLabel: "Scripts", href: "/dashboard/ai", icon: "wand" },
   { label: "Media Engine", shortLabel: "Media", href: "/dashboard/media", icon: "media" },
@@ -127,6 +129,12 @@ function NavIcon({
       <>
         <circle cx="12" cy="12" r="3" />
         <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z" />
+      </>
+    ),
+    library: (
+      <>
+        <rect x="4" y="4" width="16" height="16" rx="3" />
+        <path d="M8 8h8M8 12h8M8 16h5" />
       </>
     ),
     extensions: (

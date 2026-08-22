@@ -357,10 +357,10 @@ export default function OverviewPage() {
             </div>
 
             <Link
-              href="/dashboard/media"
+              href="/dashboard/library"
               className="hidden text-xs font-medium text-white/35 transition hover:text-violet-300 sm:inline-flex"
             >
-              Voir Media Engine →
+              Voir toute la bibliothèque →
             </Link>
           </div>
 

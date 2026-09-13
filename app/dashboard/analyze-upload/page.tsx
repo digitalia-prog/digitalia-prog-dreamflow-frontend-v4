@@ -5,6 +5,10 @@ import { useSearchParams } from "next/navigation";
 
 type AnalyzeMode = "video_url" | "video_file" | "audio_file";
 
+const VIDEO_WORKER_URL =
+  process.env.NEXT_PUBLIC_VIDEO_WORKER_URL ||
+  "https://ugc-growth-video-worker-production.up.railway.app";
+
 type AnalyzeResponse = {
   transcript?: string;
   summary?: string;
@@ -207,16 +211,61 @@ export default function AnalyzeUploadPage() {
         throw new Error(mode === "video_file" ? "Ajoute un fichier vidéo." : "Ajoute un fichier audio.");
       }
 
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("platform", platform);
-      formData.append("language", language);
-      formData.append("offer", offer);
-      formData.append("audience", audience);
-      formData.append("extraNotes", extraNotes);
-      formData.append("uploadType", mode === "video_file" ? "video" : "audio");
+      // Le media lourd contourne Vercel et part directement vers le worker.
+      const workerFormData = new FormData();
+      workerFormData.append("file", file);
+      workerFormData.append("platform", platform);
+      workerFormData.append("product", offer || "-");
+      workerFormData.append("audience", audience || "-");
+      workerFormData.append("notes", extraNotes || "-");
 
-      const response = await fetch("/api/analyze-upload", { method: "POST", body: formData });
+      let workerResponse: Response;
+      try {
+        workerResponse = await fetch(`${VIDEO_WORKER_URL}/upload-analyze`, {
+          method: "POST",
+          body: workerFormData,
+        });
+      } catch {
+        throw new Error(
+          "Impossible d’envoyer le fichier au service de transcription. Vérifie ta connexion puis réessaie."
+        );
+      }
+
+      const workerData = await parseApiResponse(workerResponse);
+      if (!workerResponse.ok) {
+        throw new Error(
+          workerData?.detail ||
+            workerData?.error ||
+            "La transcription du fichier a échoué."
+        );
+      }
+
+      const transcript =
+        typeof workerData?.transcript === "string"
+          ? workerData.transcript.trim()
+          : "";
+
+      if (!transcript) {
+        throw new Error(
+          "Le fichier a bien été reçu, mais aucune parole exploitable n’a été détectée."
+        );
+      }
+
+      // Seul le transcript léger traverse ensuite la Function Vercel.
+      const response = await fetch("/api/analyze-upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transcript,
+          platform,
+          language,
+          offer,
+          audience,
+          extraNotes,
+          uploadType: mode === "video_file" ? "video" : "audio",
+        }),
+      });
+
       const data = await parseApiResponse(response);
       if (!response.ok) throw new Error(data?.details || data?.error || "Analyse impossible");
       setResult(mapResponseToResult(data));

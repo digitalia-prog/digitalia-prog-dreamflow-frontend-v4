@@ -57,7 +57,7 @@ async function transcribeUploadWithWorker(file: File) {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(`${VIDEO_WORKER_URL}/upload-transcribe`, {
+  const response = await fetch(`${VIDEO_WORKER_URL}/upload-analyze`, {
     method: "POST",
     body: formData,
   });
@@ -238,18 +238,54 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const formData = await req.formData();
+    const contentType = req.headers.get("content-type") || "";
+    const isTranscriptRequest = contentType.includes("application/json");
 
-    const file = formData.get("file") as File | null;
-    const platform = toText(formData.get("platform"), "TikTok");
-    const product =
-      toText(formData.get("product"), "") || toText(formData.get("offer"), "-");
-    const audience = toText(formData.get("audience"), "-");
-    const notes =
-      toText(formData.get("notes"), "") ||
-      toText(formData.get("extraNotes"), "-");
-    const mode = toText(formData.get("mode"), "CREATOR");
-    const language = toText(formData.get("language"), "French");
+    let file: File | null = null;
+    let suppliedTranscript = "";
+    let platform = "TikTok";
+    let product = "-";
+    let audience = "-";
+    let notes = "-";
+    let mode = "CREATOR";
+    let language = "French";
+
+    if (isTranscriptRequest) {
+      const body = await req.json().catch(() => null);
+
+      if (!body || typeof body !== "object") {
+        return NextResponse.json(
+          { error: "Corps JSON invalide" },
+          { status: 400 }
+        );
+      }
+
+      const jsonText = (value: unknown, fallback = "-") =>
+        typeof value === "string" && value.trim() ? value.trim() : fallback;
+
+      suppliedTranscript = jsonText(body.transcript, "");
+      platform = jsonText(body.platform, "TikTok");
+      product =
+        jsonText(body.product, "") || jsonText(body.offer, "-");
+      audience = jsonText(body.audience, "-");
+      notes =
+        jsonText(body.notes, "") || jsonText(body.extraNotes, "-");
+      mode = jsonText(body.mode, "CREATOR");
+      language = jsonText(body.language, "French");
+    } else {
+      const formData = await req.formData();
+
+      file = formData.get("file") as File | null;
+      platform = toText(formData.get("platform"), "TikTok");
+      product =
+        toText(formData.get("product"), "") || toText(formData.get("offer"), "-");
+      audience = toText(formData.get("audience"), "-");
+      notes =
+        toText(formData.get("notes"), "") ||
+        toText(formData.get("extraNotes"), "-");
+      mode = toText(formData.get("mode"), "CREATOR");
+      language = toText(formData.get("language"), "French");
+    }
 
     const requestMode = mode === "AGENCY" ? "AGENCY" : "CREATOR";
     const forwardedFor = req.headers.get("x-forwarded-for") || "";
@@ -268,50 +304,62 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!file) {
-      return NextResponse.json(
-        { error: "Aucun fichier uploadé" },
-        { status: 400 }
-      );
+    let transcript = suppliedTranscript;
+
+    if (isTranscriptRequest) {
+      if (!transcript.trim()) {
+        return NextResponse.json(
+          { error: "Transcript manquant" },
+          { status: 400 }
+        );
+      }
+    } else {
+      // Compatibilite avec les anciens clients et les petits fichiers.
+      if (!file) {
+        return NextResponse.json(
+          { error: "Aucun fichier uploadé" },
+          { status: 400 }
+        );
+      }
+
+      const allowedTypes = [
+        "video/mp4",
+        "video/webm",
+        "video/mpeg",
+        "video/quicktime",
+        "video/x-m4v",
+        "audio/mpeg",
+        "audio/mp3",
+        "audio/wav",
+        "audio/x-wav",
+        "audio/mp4",
+        "audio/m4a",
+        "audio/x-m4a",
+        "audio/webm",
+        "audio/ogg",
+      ];
+
+      const fileName = file.name || "";
+      const fileType = file.type || "";
+      const allowedExtensions = /\.(mp4|mov|webm|mpeg|mp3|wav|m4a|ogg)$/i;
+
+      const isAllowedFile =
+        allowedTypes.includes(fileType) || allowedExtensions.test(fileName);
+
+      if (!isAllowedFile) {
+        return NextResponse.json(
+          {
+            error: "Format non supporté",
+            details:
+              "Utilise MP4, MOV, WEBM, MP3, WAV ou M4A. La vidéo n’est pas stockée.",
+            type: fileType || "unknown",
+          },
+          { status: 400 }
+        );
+      }
+
+      transcript = await transcribeUploadWithWorker(file);
     }
-
-    const allowedTypes = [
-      "video/mp4",
-      "video/webm",
-      "video/mpeg",
-      "video/quicktime",
-      "video/x-m4v",
-      "audio/mpeg",
-      "audio/mp3",
-      "audio/wav",
-      "audio/x-wav",
-      "audio/mp4",
-      "audio/m4a",
-      "audio/x-m4a",
-      "audio/webm",
-      "audio/ogg",
-    ];
-
-    const fileName = file.name || "";
-    const fileType = file.type || "";
-    const allowedExtensions = /\.(mp4|mov|webm|mpeg|mp3|wav|m4a|ogg)$/i;
-
-    const isAllowedFile =
-      allowedTypes.includes(fileType) || allowedExtensions.test(fileName);
-
-    if (!isAllowedFile) {
-      return NextResponse.json(
-        {
-          error: "Format non supporté",
-          details:
-            "Utilise MP4, MOV, WEBM, MP3, WAV ou M4A. La vidéo n’est pas stockée.",
-          type: fileType || "unknown",
-        },
-        { status: 400 }
-      );
-    }
-
-    const transcript = await transcribeUploadWithWorker(file);
 
     if (!transcript.trim()) {
       return NextResponse.json(

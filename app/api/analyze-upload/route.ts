@@ -57,7 +57,7 @@ async function transcribeUploadWithWorker(file: File) {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(`${VIDEO_WORKER_URL}/upload-analyze`, {
+  const response = await fetch(`${VIDEO_WORKER_URL}/upload-transcribe`, {
     method: "POST",
     body: formData,
   });

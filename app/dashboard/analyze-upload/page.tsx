@@ -214,14 +214,10 @@ export default function AnalyzeUploadPage() {
       // Le media lourd contourne Vercel et part directement vers le worker.
       const workerFormData = new FormData();
       workerFormData.append("file", file);
-      workerFormData.append("platform", platform);
-      workerFormData.append("product", offer || "-");
-      workerFormData.append("audience", audience || "-");
-      workerFormData.append("notes", extraNotes || "-");
 
       let workerResponse: Response;
       try {
-        workerResponse = await fetch(`${VIDEO_WORKER_URL}/upload-analyze`, {
+        workerResponse = await fetch(`${VIDEO_WORKER_URL}/upload-transcribe`, {
           method: "POST",
           body: workerFormData,
         });

@@ -12,6 +12,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.116.0",
     "@upstash/redis": "^1.37.0",
     "framer-motion": "^12.34.3",
     "jspdf": "^4.2.1",

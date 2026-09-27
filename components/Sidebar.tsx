@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import type { ReactNode } from "react";
 
 type IconName =
@@ -189,8 +190,16 @@ function DesktopLink({
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar({ userEmail = "" }: { userEmail?: string }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function signOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  }
 
   return (
     <>
@@ -246,6 +255,19 @@ export default function Sidebar() {
         <div className="mt-5 border-t border-white/[0.07] pt-4">
           <DesktopLink item={settingsLink} pathname={pathname} />
 
+          <div className="mt-3 rounded-2xl border border-white/[0.07] bg-white/[0.025] p-3.5">
+            <p className="truncate text-[11px] text-white/45">
+              {userEmail || "Compte UGC Growth"}
+            </p>
+            <button
+              type="button"
+              onClick={signOut}
+              className="mt-2 text-[11px] font-semibold text-violet-300/75 transition hover:text-violet-200"
+            >
+              Se déconnecter
+            </button>
+          </div>
+
           <div className="mt-3 rounded-2xl border border-violet-400/10 bg-gradient-to-br from-violet-500/[0.08] to-fuchsia-500/[0.03] p-3.5">
             <div className="flex items-center gap-2 text-xs font-medium text-white/65">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_9px_rgba(52,211,153,0.75)]" />
@@ -274,13 +296,23 @@ export default function Sidebar() {
           </span>
         </Link>
 
-        <Link
-          href="/dashboard/analyze-upload"
-          aria-label="Nouvelle analyse"
-          className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-[14px] border border-violet-300/20 bg-violet-500/15 text-violet-200 shadow-[0_8px_25px_rgba(109,40,217,0.18)]"
-        >
-          <NavIcon name="sparkles" className="h-[18px] w-[18px]" />
-        </Link>
+        <div className="pointer-events-auto flex items-center gap-2">
+          <button
+            type="button"
+            onClick={signOut}
+            aria-label="Se déconnecter"
+            className="flex h-10 w-10 items-center justify-center rounded-[14px] border border-white/[0.08] bg-white/[0.035] text-sm text-white/45"
+          >
+            ⎋
+          </button>
+          <Link
+            href="/dashboard/analyze-upload"
+            aria-label="Nouvelle analyse"
+            className="flex h-10 w-10 items-center justify-center rounded-[14px] border border-violet-300/20 bg-violet-500/15 text-violet-200 shadow-[0_8px_25px_rgba(109,40,217,0.18)]"
+          >
+            <NavIcon name="sparkles" className="h-[18px] w-[18px]" />
+          </Link>
+        </div>
       </div>
 
       <nav className="fixed inset-x-3 bottom-3 z-50 grid grid-cols-5 rounded-[24px] border border-white/[0.09] bg-[#0d0d16]/92 p-1.5 shadow-[0_18px_60px_rgba(0,0,0,0.55)] backdrop-blur-2xl lg:hidden">

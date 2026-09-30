@@ -1,4 +1,5 @@
 "use client";
+import SaveCreative from "@/components/SaveCreative";
 
 import React, { useMemo, useState } from "react";
 
@@ -271,6 +272,7 @@ export default function AiPage() {
 
   return (
     <div className="p-6 md:p-10">
+      {result && <SaveCreative creative={{kind:"scripts",result,platform:platform,advertiserName:offer || "Scripts Agency",sourceUrl:"",creativeUrl:"",creativeType:"scripts",adText:"",capturedAt:""}} />}
       <div className="flex flex-col gap-6">
         <div className="rounded-3xl border border-purple-400/20 bg-gradient-to-br from-purple-600/20 via-white/5 to-black/20 p-6">
           <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">

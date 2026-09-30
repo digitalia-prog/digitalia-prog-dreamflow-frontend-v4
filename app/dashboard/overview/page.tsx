@@ -1,4 +1,5 @@
 "use client";
+import {useCreativeLibrary} from "@/lib/useCreativeLibrary";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -197,23 +198,7 @@ function CreativePreview({ creative }: { creative: RecentCreative }) {
 
 export default function OverviewPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [recentCreatives, setRecentCreatives] = useState<RecentCreative[]>([]);
-
-  useEffect(() => {
-    const refreshRecents = () => {
-      setRecentCreatives(getRecentCreatives());
-    };
-
-    refreshRecents();
-
-    window.addEventListener("storage", refreshRecents);
-    window.addEventListener("ugc-growth-recent-creatives-updated", refreshRecents);
-
-    return () => {
-      window.removeEventListener("storage", refreshRecents);
-      window.removeEventListener("ugc-growth-recent-creatives-updated", refreshRecents);
-    };
-  }, []);
+  const {creatives: recentCreatives, error: libraryLoadError, refresh: refreshLibrary} = useCreativeLibrary();
 
   function openModal() {
     setIsModalOpen(true);
@@ -345,7 +330,8 @@ export default function OverviewPage() {
                 <h2 className="text-base font-semibold tracking-[-0.02em] text-white">
                   Créatives récentes
                 </h2>
-                {recentCreatives.length > 0 ? (
+                {libraryLoadError && <p role="alert">{libraryLoadError} <button className="underline" onClick={() => void refreshLibrary()}>Réessayer</button></p>}
+          {recentCreatives.length > 0 ? (
                   <span className="rounded-full border border-violet-400/10 bg-violet-500/[0.07] px-2 py-0.5 text-[9px] font-semibold text-violet-300/80">
                     {recentCreatives.length}
                   </span>
@@ -369,8 +355,8 @@ export default function OverviewPage() {
               {recentCreatives.slice(0, 4).map((creative) => (
                 <a
                   key={creative.id}
-                  href={creative.sourceUrl || creative.creativeUrl || "#"}
-                  target={creative.sourceUrl || creative.creativeUrl ? "_blank" : undefined}
+                  href={`/dashboard/library/${creative.id}`}
+
                   rel="noreferrer"
                   className="group overflow-hidden rounded-[22px] border border-white/[0.07] bg-white/[0.025] transition duration-200 hover:-translate-y-0.5 hover:border-violet-400/20 hover:bg-white/[0.04]"
                 >

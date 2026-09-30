@@ -1,4 +1,5 @@
 "use client";
+import SaveCreative from "@/components/SaveCreative";
 
 import { useState } from "react";
 
@@ -148,6 +149,7 @@ export default function AnalyzePage() {
 
   return (
     <main className="min-h-screen bg-black text-white px-6 py-10">
+      {result && <SaveCreative creative={{kind:"analysis",result,platform:platform,advertiserName:offer || "Analyse créative",sourceUrl:url,creativeUrl:"",creativeType:"analysis",adText:"",capturedAt:""}} />}
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="rounded-2xl border border-white/10 bg-[#14121c] p-6">
           <h1 className="text-3xl font-bold mb-2">

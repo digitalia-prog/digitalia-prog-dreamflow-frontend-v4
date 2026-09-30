@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import {useCreativeLibrary} from "@/lib/useCreativeLibrary";
+import LegacyLibraryImport from "@/components/LegacyLibraryImport";
 import {
   getRecentCreatives,
   type RecentCreative,
@@ -91,22 +93,9 @@ function CreativePreview({ creative }: { creative: RecentCreative }) {
 }
 
 export default function CreativeLibraryPage() {
-  const [creatives, setCreatives] = useState<RecentCreative[]>([]);
+  const {creatives, loading, error, refresh} = useCreativeLibrary();
   const [query, setQuery] = useState("");
   const [platform, setPlatform] = useState("all");
-
-  useEffect(() => {
-    const refresh = () => setCreatives(getRecentCreatives());
-    refresh();
-
-    window.addEventListener("storage", refresh);
-    window.addEventListener("ugc-growth-recent-creatives-updated", refresh);
-
-    return () => {
-      window.removeEventListener("storage", refresh);
-      window.removeEventListener("ugc-growth-recent-creatives-updated", refresh);
-    };
-  }, []);
 
   const platforms = useMemo(() => {
     const values = Array.from(
@@ -139,6 +128,9 @@ export default function CreativeLibraryPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
+      <LegacyLibraryImport />
+      {loading && <p role="status">Chargement de votre bibliothèque…</p>}
+      {error && <p role="alert" className="text-amber-200">{error} <button onClick={() => void refresh()} className="underline">Réessayer</button></p>}
       <header className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -155,8 +147,7 @@ export default function CreativeLibraryPage() {
             Bibliothèque créative
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-white/45 md:text-[15px]">
-            Retrouvez les publicités capturées par l&apos;extension et déjà envoyées
-            dans Creative Intelligence.
+            Retrouvez vos analyses, scripts et créations Media sauvegardés dans votre compte.
           </p>
         </div>
 
@@ -226,13 +217,11 @@ export default function CreativeLibraryPage() {
       {filtered.length > 0 ? (
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {filtered.map((creative) => {
-            const href = creative.sourceUrl || creative.creativeUrl || "";
+            const href = `/dashboard/library/${creative.id}`;
             return (
               <a
                 key={`${creative.id}-${creative.savedAt}`}
                 href={href || undefined}
-                target={href ? "_blank" : undefined}
-                rel={href ? "noreferrer" : undefined}
                 className="group overflow-hidden rounded-[22px] border border-white/[0.07] bg-white/[0.025] transition duration-200 hover:-translate-y-0.5 hover:border-violet-400/20 hover:bg-white/[0.04]"
               >
                 <div className="relative aspect-[16/10] overflow-hidden bg-[#0d0d15]">
@@ -261,7 +250,7 @@ export default function CreativeLibraryPage() {
                   <div className="mt-3 flex items-center justify-between border-t border-white/[0.055] pt-3">
                     <span className="inline-flex items-center gap-1.5 text-[9px] font-medium uppercase tracking-[0.12em] text-emerald-300/65">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                      Analysée
+                      {creative.kind === "legacy" ? "Fiche importée" : creative.kind === "scripts" ? "Scripts" : creative.kind === "media" ? "Media" : "Analysée"}
                     </span>
                     <span className="text-[9px] text-white/22">
                       {formatDate(creative.savedAt || creative.capturedAt)}
@@ -272,7 +261,7 @@ export default function CreativeLibraryPage() {
             );
           })}
         </section>
-      ) : (
+      ) : !loading && !error ? (
         <section className="rounded-[28px] border border-dashed border-white/[0.08] bg-white/[0.015] px-6 py-16 text-center">
           <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-violet-400/10 bg-violet-500/[0.07] text-xl text-violet-300">
             ✦
@@ -284,7 +273,7 @@ export default function CreativeLibraryPage() {
           </h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-white/35">
             {creatives.length === 0
-              ? "Analysez une publicité depuis l’extension UGC Growth. Elle apparaîtra automatiquement ici."
+              ? "Lancez une analyse ou une génération : son résultat sera enregistré ici."
               : "Essayez une autre plateforme ou effacez votre recherche."}
           </p>
           {creatives.length === 0 ? (
@@ -296,7 +285,7 @@ export default function CreativeLibraryPage() {
             </Link>
           ) : null}
         </section>
-      )}
+      ) : null}
 
       <p className="pb-2 text-[10px] leading-5 text-white/20">
         Bibliothèque V1 · sauvegarde locale dans ce navigateur. La persistance

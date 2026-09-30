@@ -1,4 +1,5 @@
 "use client";
+import SaveCreative from "@/components/SaveCreative";
 
 import React, { useMemo, useState } from "react";
 
@@ -133,6 +134,7 @@ export default function CreatorEnginePage() {
 
   return (
     <div className="p-6 md:p-10">
+      {result && <SaveCreative creative={{kind:"scripts",result,platform:platform,advertiserName:product || "Scripts Creator",sourceUrl:"",creativeUrl:"",creativeType:"scripts",adText:"",capturedAt:""}} />}
       <div className="flex flex-col gap-6">
         <div>
           <div className="text-sm text-white/60">UGC Growth • Creator</div>

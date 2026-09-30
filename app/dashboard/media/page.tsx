@@ -1,4 +1,5 @@
 "use client";
+import SaveCreative from "@/components/SaveCreative";
 
 import { useState } from "react";
 import { jsPDF } from "jspdf";
@@ -752,6 +753,7 @@ export default function MediaPage() {
 
   return (
     <main className="text-white">
+      {result && <SaveCreative creative={{kind:"media",result,platform:"Media",advertiserName:file?.name || "Création Media",sourceUrl:"",creativeUrl:"",creativeType:"media",adText:"",capturedAt:""}} />}
       <div className="mx-auto w-full max-w-7xl space-y-6">
         <div className="rounded-[28px] border border-white/[0.07] bg-[#101018] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.18)] md:p-8">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-violet-300/70">

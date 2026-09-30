@@ -1,4 +1,5 @@
 "use client";
+import SaveCreative from "@/components/SaveCreative";
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -274,6 +275,7 @@ export default function AnalyzeUploadPage() {
 
   return (
     <main className="text-white">
+      {result && <SaveCreative creative={{kind:"analysis",result,platform:platform,advertiserName:file?.name || offer || "Analyse créative",sourceUrl:mode === "video_url" ? url : "",creativeUrl:"",creativeType:"analysis",adText:"",capturedAt:""}} />}
       <div className="mx-auto w-full max-w-7xl space-y-7">
         <section className="overflow-hidden rounded-[28px] border border-white/[0.07] bg-[#101018] shadow-[0_24px_80px_rgba(0,0,0,0.18)]">
           <div className="border-b border-white/[0.06] bg-gradient-to-br from-violet-600/[0.12] via-fuchsia-500/[0.04] to-transparent px-6 py-7 sm:px-8 sm:py-8">

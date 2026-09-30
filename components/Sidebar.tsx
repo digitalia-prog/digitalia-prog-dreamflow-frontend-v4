@@ -49,6 +49,7 @@ const settingsLink: NavItem = {
 const mobileLinks: NavItem[] = [
   { label: "Dashboard", shortLabel: "Accueil", href: "/dashboard/overview", icon: "home" },
   { label: "Analyse créative", shortLabel: "Analyser", href: "/dashboard/analyze-upload", icon: "sparkles" },
+  { label: "Bibliothèque", shortLabel: "Biblio", href: "/dashboard/library", icon: "library" },
   { label: "Extensions", shortLabel: "Extensions", href: "/dashboard/extensions", icon: "extensions" },
   { label: "Script Engine", shortLabel: "Scripts", href: "/dashboard/ai", icon: "wand" },
   { label: "Media Engine", shortLabel: "Media", href: "/dashboard/media", icon: "media" },
@@ -280,9 +281,9 @@ export default function Sidebar({ userEmail = "" }: { userEmail?: string }) {
         </div>
       </aside>
 
-      <div className="pointer-events-none fixed inset-x-0 top-0 z-40 flex h-[68px] items-center justify-between border-b border-white/[0.07] bg-[#09090f]/85 px-4 backdrop-blur-2xl lg:hidden">
-        <Link href="/dashboard/overview" className="pointer-events-auto flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-[14px] bg-gradient-to-br from-violet-500 to-fuchsia-600 text-xs font-black text-white shadow-[0_8px_25px_rgba(124,58,237,0.3)]">
+      <div className="ugc-mobile-header pointer-events-none fixed inset-x-0 top-0 z-40 flex h-[68px] items-center justify-between border-b border-white/[0.07] bg-[#09090f]/85 px-4 backdrop-blur-2xl lg:hidden">
+        <Link href="/dashboard/overview" className="pointer-events-auto flex min-w-0 items-center gap-2.5">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br from-violet-500 to-fuchsia-600 text-xs font-black text-white shadow-[0_8px_25px_rgba(124,58,237,0.3)]">
             UG
           </span>
 
@@ -296,7 +297,7 @@ export default function Sidebar({ userEmail = "" }: { userEmail?: string }) {
           </span>
         </Link>
 
-        <div className="pointer-events-auto flex items-center gap-2">
+        <div className="pointer-events-auto flex shrink-0 items-center gap-2">
           <button
             type="button"
             onClick={signOut}
@@ -315,7 +316,7 @@ export default function Sidebar({ userEmail = "" }: { userEmail?: string }) {
         </div>
       </div>
 
-      <nav className="fixed inset-x-3 bottom-3 z-50 grid grid-cols-5 rounded-[24px] border border-white/[0.09] bg-[#0d0d16]/92 p-1.5 shadow-[0_18px_60px_rgba(0,0,0,0.55)] backdrop-blur-2xl lg:hidden">
+      <nav className="ugc-mobile-nav fixed inset-x-3 bottom-3 z-50 grid grid-cols-6 rounded-[24px] border border-white/[0.09] bg-[#0d0d16]/92 p-1.5 shadow-[0_18px_60px_rgba(0,0,0,0.55)] backdrop-blur-2xl lg:hidden">
         {mobileLinks.map((item) => {
           const active = isActivePath(pathname, item.href);
 
@@ -323,6 +324,8 @@ export default function Sidebar({ userEmail = "" }: { userEmail?: string }) {
             <Link
               key={item.href}
               href={item.href}
+              aria-label={item.label}
+              aria-current={active ? "page" : undefined}
               className={`relative flex min-w-0 flex-col items-center justify-center gap-1 rounded-[18px] px-1 py-2 text-[9px] font-medium transition ${
                 active ? "bg-white/[0.08] text-violet-200" : "text-white/35"
               }`}

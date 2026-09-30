@@ -24,3 +24,49 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* UGC mobile v1: dashboard-only sizing and device safe areas. */
+@media (max-width: 1023px) {
+  .ugc-mobile-header {
+    box-sizing: border-box;
+    height: calc(68px + env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    gap: 8px;
+  }
+
+  .ugc-mobile-nav {
+    bottom: max(12px, env(safe-area-inset-bottom, 0px));
+    left: max(12px, env(safe-area-inset-left, 0px));
+    right: max(12px, env(safe-area-inset-right, 0px));
+    min-height: 68px;
+  }
+
+  .ugc-mobile-nav > a {
+    min-height: 54px;
+  }
+
+  .ugc-dashboard-main {
+    min-width: 0;
+    padding-top: calc(88px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+    overflow-wrap: anywhere;
+  }
+
+  .ugc-dashboard-main > *,
+  .ugc-dashboard-main .grid > *,
+  .ugc-dashboard-main .flex > * {
+    min-width: 0;
+  }
+
+  .ugc-dashboard-main > * {
+    max-width: 100%;
+  }
+
+  .ugc-dashboard-main pre {
+    max-width: 100%;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}

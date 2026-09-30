@@ -22,7 +22,7 @@ export default function SaveCreative({creative}: {creative:Input}) {
   useEffect(() => {
     // Une seule écriture par résultat, y compris sous React StrictMode.
     if (!job.current || job.current.input.result !== latest.current.result) {
-      job.current={input:latest.current,id:crypto.randomUUID(),owner:"",running:false};
+      job.current={input:latest.current,id:(globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`),owner:"",running:false};
       void save();
     }
   },[creative.result]);

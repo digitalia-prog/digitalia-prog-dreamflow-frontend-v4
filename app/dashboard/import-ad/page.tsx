@@ -93,14 +93,47 @@ function isBlobUrl(url: string): boolean {
   return url.startsWith("blob:");
 }
 
+function inferPlatformFromUrl(url: string): string {
+  const value = url.toLowerCase();
+
+  if (value.includes("tiktok.com")) return "tiktok";
+  if (value.includes("youtube.com") || value.includes("youtu.be")) return "youtube";
+  if (value.includes("instagram.com")) return "instagram";
+  if (value.includes("facebook.com") || value.includes("fb.watch")) return "meta";
+
+  return "web";
+}
+
 export default function ImportAdPage() {
   const searchParams = useSearchParams();
 
   const payload = searchParams.get("payload");
+  const shareUrl = searchParams.get("shareUrl");
   const platformFromUrl = searchParams.get("platform");
   const sourceFromUrl = searchParams.get("source");
 
-  const ad = useMemo(() => decodePayload(payload), [payload]);
+  const ad = useMemo(() => {
+    const decoded = decodePayload(payload);
+    if (decoded) {
+      return decoded;
+    }
+
+    const sharedUrl = shareUrl?.trim();
+    if (!sharedUrl) {
+      return null;
+    }
+
+    const detectedPlatform = inferPlatformFromUrl(sharedUrl);
+
+    return {
+      sourcePlatform: detectedPlatform,
+      platform: detectedPlatform,
+      source: "ios-share",
+      sourceUrl: sharedUrl,
+      creativeType: "unknown",
+      capturedAt: new Date().toISOString(),
+    } satisfies CapturedAd;
+  }, [payload, shareUrl]);
 
 const [mounted, setMounted] = useState(false);
 

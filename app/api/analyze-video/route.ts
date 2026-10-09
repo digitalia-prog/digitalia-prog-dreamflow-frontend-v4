@@ -128,7 +128,7 @@ async function transcribeYoutubeWithSupadata(url: string): Promise<string> {
   }
 
   const res = await fetch(
-    `https://api.supadata.ai/v1/youtube/transcript?videoId=${encodeURIComponent(videoId)}&text=true`,
+    `https://api.supadata.ai/v1/transcript?url=${encodeURIComponent(url)}&mode=generate&text=true`,
     {
       method: "GET",
       headers: {
@@ -193,6 +193,7 @@ RÈGLE LANGUE OBLIGATOIRE :
 - La vidéo peut être dans n'importe quelle langue.
 - Tu dois retourner toute l'analyse finale en ${outputLanguage}.
 - Si le transcript est dans une autre langue, traduis le sens avant d'écrire l'analyse.
+- IMPORTANT : ne traduis, ne réécris et ne corriges jamais le transcript source. La langue choisie concerne uniquement l’analyse, pas la transcription.
 - Tous les champs JSON doivent être rédigés en ${outputLanguage}.
 - Ne mélange pas les langues.
 - Si la langue demandée est English, aucun champ ne doit rester en français sauf noms propres ou citations nécessaires.
@@ -504,8 +505,8 @@ export async function POST(req: Request) {
     return NextResponse.json({
       platform,
       language: normalizeOutputLanguage(language),
-      transcript,
       ...analysis,
+      transcript,
     });
   } catch (err: any) {
     return NextResponse.json(

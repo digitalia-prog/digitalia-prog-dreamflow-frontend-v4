@@ -118,6 +118,7 @@ RÈGLE LANGUE OBLIGATOIRE :
 - La vidéo ou l'audio peut être dans n'importe quelle langue.
 - Tu dois retourner toute l'analyse finale en ${outputLanguage}.
 - Si le transcript est dans une autre langue, traduis le sens avant d'écrire l'analyse.
+- IMPORTANT : ne traduis, ne réécris et ne corriges jamais le transcript source. La langue choisie concerne uniquement l’analyse, pas la transcription.
 - Tous les champs JSON doivent être rédigés en ${outputLanguage}.
 - Ne mélange pas les langues.
 - Si ${outputLanguage} est English, aucun champ ne doit rester en français sauf noms de marque ou citations nécessaires.
@@ -148,7 +149,6 @@ Ne laisse aucun champ vide.
 
 Format :
 {
-  "transcript": "",
   "summary": "",
   "hook": "",
   "structure": "",
@@ -191,7 +191,7 @@ Tu réponds uniquement en JSON valide complet. Toute la réponse doit être en $
   }
 
   return {
-    transcript: parsed.transcript || transcript,
+    transcript,
     summary: parsed.summary || "Résumé non détecté.",
     hook: parsed.hook || "Hook non détecté.",
     structure: parsed.structure || "Structure non détectée.",
@@ -388,6 +388,7 @@ export async function POST(req: NextRequest) {
       platform,
       language: normalizeOutputLanguage(language),
       ...result,
+      transcript,
     });
   } catch (err: any) {
     console.error("Erreur API analyze-upload:", err);

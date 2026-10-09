@@ -147,11 +147,20 @@ setMounted(true);
   const [message, setMessage] = useState("");
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
 
-  const platform =
+  const rawPlatform =
     ad?.sourcePlatform ||
     ad?.platform ||
     platformFromUrl ||
     "meta";
+
+  const platform =
+    ["youtube_shorts", "youtube-short", "youtubeshorts"].includes(
+      rawPlatform.toLowerCase()
+    )
+      ? "youtube"
+      : rawPlatform.toLowerCase() === "facebook"
+        ? "meta"
+        : rawPlatform.toLowerCase();
 
   const creativeUrl = ad?.creativeUrl?.trim() || "";
   const sourceUrl = ad?.sourceUrl?.trim() || "";
@@ -357,14 +366,16 @@ if (!ad) {
               </p>
             </div>
 
-            <div>
-              <p className="text-xs uppercase tracking-wider text-white/35">
-                ID Meta
-              </p>
-              <p className="mt-1 text-sm text-white">
-                {ad.libraryId || "Non détecté"}
-              </p>
-            </div>
+            {platform === "meta" ? (
+              <div>
+                <p className="text-xs uppercase tracking-wider text-white/35">
+                  ID Meta
+                </p>
+                <p className="mt-1 text-sm text-white">
+                  {ad.libraryId || "Non détecté"}
+                </p>
+              </div>
+            ) : null}
 
             <div>
               <p className="text-xs uppercase tracking-wider text-white/35">
@@ -432,11 +443,11 @@ if (!ad) {
                   className="mt-1 block break-all text-sm text-purple-300 hover:text-purple-200"
                 >
                   {platform === "tiktok"
-                  ? "Ouvrir la publicité dans TikTok Creative Center"
+                  ? "Ouvrir sur TikTok"
                   : platform === "youtube"
-                    ? "Ouvrir la publicité sur YouTube"
+                    ? "Ouvrir sur YouTube"
                     : platform === "instagram"
-                      ? "Ouvrir la publicité sur Instagram"
+                      ? "Ouvrir sur Instagram"
                       : "Ouvrir la publicité dans Meta Ads Library"}
                 </a>
               ) : (

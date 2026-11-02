@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import AnalysisResults, { type AnalysisResult } from "./AnalysisResults";
 import SaveCreative from "@/components/SaveCreative";
 import VideoIntelligenceCoverage from "@/components/VideoIntelligenceCoverage";
+import { extractDescriptionEvidence } from "@/lib/creativeSourceEvidence";
 
 type CapturedAd = {
   sourcePlatform?: string;
@@ -179,6 +180,7 @@ setMounted(true);
               ? platform.charAt(0).toUpperCase() + platform.slice(1)
               : "publicitaire";
   const analysisUrl = creativeUrl || sourceUrl;
+  const descriptionEvidence = extractDescriptionEvidence(ad?.adText);
 
   const creativeIsImage =
     ad?.creativeType === "image" ||
@@ -363,7 +365,7 @@ if (!ad) {
                 Annonceur
               </p>
               <p className="mt-1 text-sm text-white">
-                {ad.advertiserName || "Non détecté"}
+                {ad.advertiserName || "Non transmis par l’extension"}
               </p>
             </div>
 
@@ -388,6 +390,34 @@ if (!ad) {
               <p className="mt-1 text-xs leading-5 text-white/40">Un CTA écrit dans la description peut être présent même si aucun bouton n’a été détecté.</p>
             </div>
 
+            {descriptionEvidence.websiteMentions.length ? (
+              <div className="sm:col-span-2">
+                <p className="text-xs uppercase tracking-wider text-white/35">
+                  Site(s) cité(s) dans la description
+                </p>
+                <p className="mt-1 break-words text-sm text-cyan-200">
+                  {descriptionEvidence.websiteMentions.join(" · ")}
+                </p>
+                <p className="mt-1 text-xs leading-5 text-white/45">
+                  Indices de marque ou de destination, pas une confirmation de l'annonceur.
+                </p>
+              </div>
+            ) : null}
+            {descriptionEvidence.descriptionCtas.length ? (
+              <div className="sm:col-span-2">
+                <p className="text-xs uppercase tracking-wider text-white/35">
+                  Appels à l’action dans la description
+                </p>
+                <ul className="mt-1 space-y-1 text-sm text-cyan-200">
+                  {descriptionEvidence.descriptionCtas.map((cta) => (
+                    <li key={cta}>• {cta}</li>
+                  ))}
+                </ul>
+                <p className="mt-1 text-xs leading-5 text-white/45">
+                  Mention écrite : pas un CTA confirmé à l'image ou à l'oral.
+                </p>
+              </div>
+            ) : null}
             <div>
               <p className="text-xs uppercase tracking-wider text-white/35">
                 Date de diffusion

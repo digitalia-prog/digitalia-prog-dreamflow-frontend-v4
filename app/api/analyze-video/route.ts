@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { PSYCHOLOGY_ANALYSIS_CORE } from "@/lib/psychologyCore";
+import { extractDescriptionEvidence } from "@/lib/creativeSourceEvidence";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -311,6 +312,8 @@ CONTEXTE PUBLICITAIRE CAPTURÉ :
 - Landing page : ${context.landingPage || "Non détectée"}
 - ID publicitaire : ${context.libraryId || "Non détecté"}
 - Type de créatif : ${context.creativeType || "Non détecté"}
+- Site(s) cités dans la description (NON vérifiés comme annonceur) : ${extractDescriptionEvidence(context.adText).websiteMentions.join(", ") || "Aucun"}
+- CTA dans la description (NON vérifiés dans la vidéo) : ${extractDescriptionEvidence(context.adText).descriptionCtas.join(" ; ") || "Aucun"}
 
 RÈGLE D’ANALYSE :
 - À cette étape, tu analyses UNIQUEMENT le transcript et les métadonnées capturées. Tu ne dois jamais prétendre avoir vu les images de la vidéo.
@@ -319,6 +322,11 @@ RÈGLE D’ANALYSE :
 - Distingue clairement ce qui vient de l’audio et ce qui vient des métadonnées.
 - Identifie d'abord le type de contenu et l'intention probable ; ne qualifie pas automatiquement un extrait de film ou une interview de publicité UGC.
 - Un CTA figurant dans une description n'est PAS un CTA vu ou entendu dans la vidéo. Distingue leurs provenances.
+- Un site cité dans la description est un indice de marque ou de destination, PAS une preuve de l'identité de l'annonceur. Ne prétends jamais avoir vérifié l'annonceur.
+- Si le contenu est un extrait de film ou une bande-annonce, analyse l'intention probable de promouvoir le film (si étayée par le contexte). NE recommande PAS par réflexe un témoignage d'expert, une preuve sociale ou un CTA de vente ; propose des tests adaptés au film (accroche dramatique, carton titre, destination explicitement citée, rythme) et seulement lorsque pertinent.
+- Une personne filmée en train de parler n'est pas automatiquement un témoignage UGC commercial.
+- N'utilise pas l'expression « La vidéo montre » en l'absence de captures réellement accessibles. Ne présente pas de conclusions sur le montage, la lumière, les personnes visibles, ni les expressions faciales en analyse transcript-only.
+- Formule les effets de curiosité, de confiance et d'engagement comme des hypothèses, pas des comportements mesurés.
 - N'affirme jamais que la vidéo retient l'attention ou convertit : sans métriques, exprime seulement des hypothèses créatives.
 - N'invente ni autorité, ni urgence, ni impact psychologique certain sans indice précis dans les sources.
 - N’invente aucune métrique de performance : CTR, rétention, ROAS, conversion, vues ou benchmark.
@@ -356,7 +364,7 @@ IMPORTANT :
 
   const completion = await openai.chat.completions.create({
     model: process.env.OPENAI_ANALYSIS_MODEL || "gpt-4.1-mini",
-    temperature: 0.5,
+    temperature: 0.2,
     messages: [
       {
         role: "system",
@@ -460,7 +468,7 @@ Analyse :
 - hooks similaires
 - angles similaires
 - prompt de script
-- score viral sur 10
+- aucun score viral ni performance réelle en l’absence de métriques
 - pourquoi cela fonctionne
 - comment faire mieux
 - angles publicitaires
@@ -547,6 +555,7 @@ export async function POST(req: Request) {
         platform: body?.sourcePlatform || body?.platform || "meta",
         language: normalizeOutputLanguage(language),
         transcript: body?.adText || "",
+        sourceEvidence: extractDescriptionEvidence(body?.adText),
         ...analysis,
       creativeType: "image",
   });
@@ -629,6 +638,7 @@ export async function POST(req: Request) {
       language: normalizeOutputLanguage(language),
       ...analysis,
       ...visualAnalysis,
+      sourceEvidence: extractDescriptionEvidence(body?.adText),
       transcript,
     });
   } catch (err: any) {

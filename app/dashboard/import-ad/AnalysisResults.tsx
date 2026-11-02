@@ -18,6 +18,11 @@ export type AnalysisResult = {
   howToBeat?: string[];
   adsAngles?: string[];
   creativeType?: string;
+  sourceEvidence?: {
+    websiteMentions?: string[];
+    descriptionCtas?: string[];
+    sourceLabel?: "description";
+  };
   visualAnalysisAvailable?: boolean;
   visualAnalysisNote?: string;
   durationSeconds?: number;
@@ -123,6 +128,24 @@ export default function AnalysisResults({
 
           </div>
         </div>
+
+        {(result.sourceEvidence?.websiteMentions?.length || result.sourceEvidence?.descriptionCtas?.length) ? (
+          <div className="mt-6 rounded-2xl border border-cyan-400/20 bg-cyan-500/[0.06] p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
+              Preuves issues de la description · non vérifiées dans la vidéo
+            </p>
+            {result.sourceEvidence?.websiteMentions?.length ? (
+              <p className="mt-2 text-sm leading-6 text-white/70">
+                Site(s) cité(s) : {result.sourceEvidence.websiteMentions.join(" · ")}. Cela ne confirme pas l'identité de l'annonceur.
+              </p>
+            ) : null}
+            {result.sourceEvidence?.descriptionCtas?.length ? (
+              <p className="mt-2 text-sm leading-6 text-white/70">
+                CTA écrit(s) : {result.sourceEvidence.descriptionCtas.join(" · ")}. Leur présence à l'écran ou à l'oral n'a pas été démontrée.
+              </p>
+            ) : null}
+          </div>
+        ) : null}
 
         <div className="mt-7 grid gap-4 lg:grid-cols-2">
           <article className="rounded-2xl border border-white/10 bg-black/15 p-5 lg:col-span-2">

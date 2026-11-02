@@ -1,5 +1,6 @@
 "use client";
 import SaveCreative from "@/components/SaveCreative";
+import VideoIntelligenceCoverage from "@/components/VideoIntelligenceCoverage";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -544,6 +545,12 @@ export default function AnalyzeUploadPage() {
               </h2>
             </div>
 
+            <VideoIntelligenceCoverage
+              result={result}
+              input={mode === "video_file" ? "file" : mode === "audio_file" ? "audio" : "url"}
+              hasLocalPlayer={mode === "video_file" && Boolean(previewUrl)}
+              platform={platform}
+            />
             {/* V1.6: local video with evidence markers. The media file never enters the saved analysis JSON. */}
             {mode === "video_file" && previewUrl && (
               <Block title="Video Intelligence · Lecteur synchronisé">
@@ -658,7 +665,6 @@ export default function AnalyzeUploadPage() {
             <Block title="Idées à reproduire"><ListBlock items={result.recreateIdeas} /></Block>
             <Block title="Hooks similaires"><ListBlock items={result.similarHooks} /></Block>
             <Block title="Angles similaires"><ListBlock items={result.similarAngles} /></Block>
-            {result.viralScore && <Block title="Évaluation créative"><TextBlock value={result.viralScore} /></Block>}
             <Block title="Facteurs créatifs potentiels (performance non mesurée)"><ListBlock items={result.whyItWorks} /></Block>
             <Block title="Comment battre cette créa"><ListBlock items={result.howToBeat} /></Block>
             <Block title="Angles Ads"><ListBlock items={result.adsAngles} /></Block>

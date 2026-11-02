@@ -261,12 +261,13 @@ async function analyzeVideoVisuallySafe(
     const data = await response.json().catch(() => null);
 
     if (!response.ok || !data?.visualAnalysisAvailable) {
+      const reason = String(data?.detail || data?.visualAnalysisNote || "");
+      const isYoutubeBlock = /HTTP Error 429|too many requests|sign in to confirm|not a bot|cookies/i.test(reason);
       return {
         visualAnalysisAvailable: false,
-        visualAnalysisNote:
-          data?.detail ||
-          data?.visualAnalysisNote ||
-          "Analyse visuelle indisponible pour cette source. L’analyse textuelle reste disponible.",
+        visualAnalysisNote: isYoutubeBlock
+          ? "YouTube bloque la récupération automatique de cette vidéo (limitation 429 ou vérification anti-bot). La transcription reste disponible ; pour les images et les données à 1 Hz, importe un fichier vidéo autorisé."
+          : "Analyse des images indisponible pour cette source. La transcription peut être exploitée, mais les images n'ont pas été vérifiées.",
       };
     }
 
@@ -275,8 +276,7 @@ async function analyzeVideoVisuallySafe(
     return {
       visualAnalysisAvailable: false,
       visualAnalysisNote:
-        error?.message ||
-        "Analyse visuelle indisponible pour cette source. L’analyse textuelle reste disponible.",
+        "Le service visuel ne répond pas pour cette source. Le transcript peut rester disponible. Aucune donnée vidéo n'a été mesurée.",
     };
   }
 }
@@ -289,7 +289,7 @@ async function analyzeTranscript(
   const outputLanguage = normalizeOutputLanguage(language);
 
   const prompt = `
-Analyse cette vidéo marketing UGC.
+Analyse ce contenu vidéo, qui peut être une publicité, un extrait de film, une interview ou un contenu non commercial.
 
 RÈGLE LANGUE OBLIGATOIRE :
 - La vidéo peut être dans n'importe quelle langue.
@@ -317,6 +317,10 @@ RÈGLE D’ANALYSE :
 - Si la transcription contient seulement de la musique, des silences ou très peu de paroles, utilise uniquement les métadonnées réellement fournies.
 - Ne conclus jamais qu’un CTA, une preuve visuelle, un produit, un texte à l’écran ou un élément de montage existe si cette information n’est pas explicitement présente dans le transcript ou les métadonnées.
 - Distingue clairement ce qui vient de l’audio et ce qui vient des métadonnées.
+- Identifie d'abord le type de contenu et l'intention probable ; ne qualifie pas automatiquement un extrait de film ou une interview de publicité UGC.
+- Un CTA figurant dans une description n'est PAS un CTA vu ou entendu dans la vidéo. Distingue leurs provenances.
+- N'affirme jamais que la vidéo retient l'attention ou convertit : sans métriques, exprime seulement des hypothèses créatives.
+- N'invente ni autorité, ni urgence, ni impact psychologique certain sans indice précis dans les sources.
 - N’invente aucune métrique de performance : CTR, rétention, ROAS, conversion, vues ou benchmark.
 
 ${PSYCHOLOGY_ANALYSIS_CORE}
@@ -326,7 +330,7 @@ IMPORTANT :
 - N’invente jamais de score, CTA, preuve, texte à l’écran, métrique ou comportement visuel.
 - Le champ viralScore doit rester vide : aucune donnée de performance réelle ne permet de calculer un score viral.
 - psychology doit contenir les mécanismes psychologiques réellement détectés et leur effet concret
-- whyItWorks doit expliquer la logique de performance, pas répéter psychology
+- whyItWorks doit présenter des hypothèses à tester, jamais des performances constatées
 - JSON uniquement
 - Tous les textes doivent être en ${outputLanguage}
 

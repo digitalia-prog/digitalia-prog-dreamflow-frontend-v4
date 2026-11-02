@@ -108,11 +108,11 @@ export default function AnalysisResults({
               Creative Intelligence
             </p>
             <h2 className="mt-2 text-2xl font-bold text-white">
-              Analyse complète de la publicité
+              Diagnostic créatif · données disponibles
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-white/55">
-              Décryptage du hook, de la structure, de l’angle marketing et des
-              mécanismes psychologiques.
+              Analyse du transcript, du contexte transmis par l’extension et, si
+              disponibles, des images réellement décodées.
             </p>
           </div>
 
@@ -120,11 +120,7 @@ export default function AnalysisResults({
             <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-white/65">
               {result.creativeType || fallbackCreativeType || "Créatif"}
             </span>
-            {result.viralScore ? (
-              <span className="rounded-full border border-fuchsia-400/20 bg-fuchsia-500/10 px-3 py-1.5 text-xs font-semibold text-fuchsia-200">
-                Évaluation créative : {result.viralScore}
-              </span>
-            ) : null}
+
           </div>
         </div>
 
@@ -182,7 +178,7 @@ export default function AnalysisResults({
               ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-200"
               : "border-amber-400/20 bg-amber-500/10 text-amber-200"
           }`}>
-            {result.visualAnalysisAvailable ? "Captures réelles analysées" : "Visuel indisponible"}
+            {result.visualAnalysisAvailable ? "Captures réelles analysées" : "Visuel indisponible : analyse textuelle"}
           </span>
         </div>
 
@@ -208,11 +204,7 @@ export default function AnalysisResults({
                 </div>
                 <p className="mt-3 text-sm font-semibold text-white">{moment.label}</p>
                 <p className="mt-2 text-sm leading-6 text-white/65">{moment.observation}</p>
-                {moment.attentionRisk !== "unknown" ? (
-                  <p className="mt-3 text-xs leading-5 text-amber-200/80">
-                    Risque d’attention estimé : {moment.attentionRisk}
-                  </p>
-                ) : null}
+
               </div>
             ))}
           </div>
@@ -295,7 +287,7 @@ export default function AnalysisResults({
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Analyse psychologique" items={result.psychology} />
         <Card
-          title="Pourquoi cette publicité fonctionne"
+          title="Hypothèses créatives · performance non mesurée"
           items={result.whyItWorks}
         />
       </div>

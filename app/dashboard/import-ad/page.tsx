@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import AnalysisResults, { type AnalysisResult } from "./AnalysisResults";
 import SaveCreative from "@/components/SaveCreative";
+import VideoIntelligenceCoverage from "@/components/VideoIntelligenceCoverage";
 
 type CapturedAd = {
   sourcePlatform?: string;
@@ -339,8 +340,8 @@ if (!ad) {
         </h1>
 
         <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55">
-          Les données ont été envoyées automatiquement depuis la
-          bibliothèque publicitaire.
+          Données transmises depuis l’extension. Les images et statistiques ne sont
+          disponibles que si la source les autorise.
         </p>
       </header>
 
@@ -382,8 +383,9 @@ if (!ad) {
                 Appel à l’action
               </p>
               <p className="mt-1 text-sm text-white">
-                {ad.callToAction || "Non détecté"}
+                {ad.callToAction || "Non détecté dans le champ structuré"}
               </p>
+              <p className="mt-1 text-xs leading-5 text-white/40">Un CTA écrit dans la description peut être présent même si aucun bouton n’a été détecté.</p>
             </div>
 
             <div>
@@ -539,14 +541,22 @@ if (!ad) {
               </p>
 
               <p className="mt-2 text-sm leading-6 text-emerald-100/70">
-                L’import fonctionne. Nous connecterons ensuite cette réponse
-                à l’écran complet des résultats d’analyse.
+                Résultat reçu. Vérifie ci-dessous les données réellement accessibles :
+                la transcription peut fonctionner même si YouTube bloque les images.
               </p>
             </div>
           ) : null}
         </aside>
       </section>
       {analysisResult && <SaveCreative creative={{kind:"analysis",result:analysisResult,platform,advertiserName:ad.advertiserName || "",sourceUrl,creativeUrl,creativeType:ad.creativeType || "unknown",adText:ad.adText || "",capturedAt:ad.capturedAt || ""}} />}
+      {analysisResult ? (
+        <VideoIntelligenceCoverage
+          result={analysisResult}
+          input="extension"
+          hasLocalPlayer={false}
+          platform={platform}
+        />
+      ) : null}
       {analysisResult ? (
         <AnalysisResults
           result={analysisResult}

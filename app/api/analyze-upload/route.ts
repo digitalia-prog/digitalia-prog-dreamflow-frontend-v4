@@ -91,7 +91,7 @@ async function transcribeUploadWithWorker(file: File) {
 }
 
 // UGC_DIAGNOSTIC_V15 — preuves visuelles bornées, et non instructions du contenu.
-function visualEvidenceForAnalysis(source: any): string {
+function visualEvidenceForAnalysis(source: any, transcriptSegments: any[] = []): string {
   if (!source || source.visualAnalysisAvailable !== true || !Array.isArray(source.visualTimeline)) return "";
   const short = (value: unknown, max = 380): string =>
     typeof value === "string" ? value.slice(0, max) : "";
@@ -110,6 +110,16 @@ function visualEvidenceForAnalysis(source: any): string {
     visualCta: {status: short(source.ctaAnalysis?.status, 24), text: short(source.ctaAnalysis?.text, 260), explanation: short(source.ctaAnalysis?.explanation, 360)},
     visualProof: {status: short(source.proofAnalysis?.status, 24), observation: short(source.proofAnalysis?.observation, 360)},
     samplingLimitations: Array.isArray(source.dataIntegrity?.limitations) ? source.dataIntegrity.limitations.slice(0, 4).map((v: unknown) => short(v, 260)) : [],
+    technicalMeasures: source.videoIntelligenceV16 && typeof source.videoIntelligenceV16 === "object" ? {
+      source: "FFmpeg sampled grayscale at 1 Hz (NOT retention or full-second AI semantics)",
+      durationSeconds: source.videoIntelligenceV16.durationSeconds,
+      coverageSeconds: source.videoIntelligenceV16.coverageSeconds,
+      meanPixelChangePercent: source.videoIntelligenceV16.meanChangePercent,
+      limitations: Array.isArray(source.videoIntelligenceV16.limitations) ? source.videoIntelligenceV16.limitations.slice(0, 4).map((v: unknown) => short(v, 220)) : [],
+    } : null,
+    timedSpeech: Array.isArray(transcriptSegments) ? transcriptSegments.slice(0, 70).map((s: any) => ({
+      start: Number(s?.start), end: Number(s?.end), text: short(s?.text, 240)
+    })).filter((s: any) => Number.isFinite(s.start) && Number.isFinite(s.end) && s.start >= 0 && s.end >= s.start && s.text) : [],
   };
   return JSON.stringify(evidence);
 }
@@ -201,7 +211,9 @@ RÈGLES ESSENTIELLES DE DIAGNOSTIC MULTIMODAL :
 - Sépare les FAITS rapportés (audio/visuel), les INTERPRÉTATIONS et les HYPOTHÈSES. En psychologie, explique le stimulus observable et indique un effet possible, jamais garanti.
 - N'invente aucune performance, rétention, CTR, conversion, ROAS, benchmark, niveau d'attention mesuré ou authenticité.
 - Identifie CTA commercial, CTA d'engagement, CTA comportemental/sensibilisation ou CTA indéterminé. Si un appel existe dans l'audio sans être visible, indique sa source audio.
-- N'invente pas de synchronisation audio/timecode : les timecodes fournis concernent seulement les captures visuelles.
+- Les timecodes des captures concernent seulement les images ; les segments de parole ont leurs propres timecodes Whisper si fournis. Ne les confonds pas.
+- Une variation de pixels mesurée à 1 Hz n'est ni un changement de plan confirmé, ni une mesure d'attention, ni une analyse IA de chaque seconde. N'invente pas ce qui se passe entre les captures.
+- Un conseil ou une mise en garde explicite peut constituer un CTA comportemental, même sans demande de partage ou de vente.
 - "whyItWorks" doit décrire des leviers CRÉATIFS PLAUSIBLES, et non prétendre à une performance observée.
 - Si une conclusion manque de preuves, dis-le et laisse les champs correspondants vides plutôt que d'inventer.
 - Propose deux versions A et B avec modifications DIFFÉRENTES, chacune avec hypothèse testable et mesure à RECUEILLIR après diffusion (pas de métrique inventée).
@@ -319,7 +331,7 @@ export async function POST(req: NextRequest) {
         typeof value === "string" && value.trim() ? value.trim() : fallback;
 
       suppliedTranscript = jsonText(body.transcript, "");
-      visualContext = visualEvidenceForAnalysis(body.visualPayload);
+      visualContext = visualEvidenceForAnalysis(body.visualPayload, Array.isArray(body.transcriptSegments) ? body.transcriptSegments : []);
       visualAnalysisAvailable = !!visualContext;
       platform = jsonText(body.platform, "TikTok");
       product =

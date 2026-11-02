@@ -1,7 +1,7 @@
 "use client";
 import SaveCreative from "@/components/SaveCreative";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 type AnalyzeMode = "video_url" | "video_file" | "audio_file";
@@ -50,6 +50,15 @@ type AnalyzeResponse = {
   ctaAnalysis?: {status?:string;text?:string;timecode?:string;explanation?:string};
   priorityFixes?: Array<{priority:number;diagnosis:string;evidence:string;action:string;test?:string}>;
   dataIntegrity?: {observed?:string[];estimated?:string[];imported?:string[];limitations?:string[];unavailableMetrics?:string[]};
+  videoIntelligenceV16?: {
+    version?: string; durationSeconds?: number; coverageSeconds?: number;
+    videoWidth?: number | null; videoHeight?: number | null;
+    frameRate?: number | null; hasAudio?: boolean | null;
+    meanChangePercent?: number | null; samplingHz?: number;
+    samples?: Array<{second:number;changePercent:number|null}>;
+    limitations?: string[];
+  };
+  transcriptSegments?: Array<{start:number;end:number;text:string}>;
   error?: string;
   details?: string;
 };
@@ -122,7 +131,14 @@ function mapResponseToResult(data: any): AnalyzeResponse {
     ctaAnalysis: data?.ctaAnalysis,
     priorityFixes: data?.priorityFixes,
     dataIntegrity: data?.dataIntegrity,
+    videoIntelligenceV16: data?.videoIntelligenceV16,
+    transcriptSegments: data?.transcriptSegments,
   };
+}
+
+function formatSecond(value: number): string {
+  const s = Math.max(0, Math.floor(value));
+  return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 }
 
 function modeFromQuery(value: string | null): AnalyzeMode | null {
@@ -149,6 +165,28 @@ export default function AnalyzeUploadPage() {
   const [error, setError] = useState("");
   const [fallbackMessage, setFallbackMessage] = useState("");
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [playbackSecond, setPlaybackSecond] = useState(0);
+  const videoPlayer = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    if (mode !== "video_file" || !file) {
+      setPreviewUrl("");
+      return;
+    }
+    const localUrl = URL.createObjectURL(file);
+    setPreviewUrl(localUrl);
+    setPlaybackSecond(0);
+    return () => URL.revokeObjectURL(localUrl);
+  }, [file, mode]);
+
+  const seekToSecond = (second: number) => {
+    const element = videoPlayer.current;
+    if (element && Number.isFinite(second)) {
+      element.currentTime = Math.max(0, Math.min(second, Number.isFinite(element.duration) ? element.duration : second));
+      setPlaybackSecond(element.currentTime);
+    }
+  };
 
   useEffect(() => {
     const queryMode = modeFromQuery(searchParams.get("mode"));
@@ -273,6 +311,10 @@ export default function AnalyzeUploadPage() {
         typeof workerData?.transcript === "string"
           ? workerData.transcript.trim()
           : "";
+      const transcriptSegments = Array.isArray(workerData?.transcriptSegments)
+        ? workerData.transcriptSegments.slice(0, 300).filter((s: any) =>
+            typeof s?.text === "string" && Number.isFinite(s?.start) && Number.isFinite(s?.end) && s.start <= s.end)
+        : [];
 
       // UGC_VISUAL_V14: le média lourd reste envoyé directement à Railway.
       // L'échec visuel ne casse pas l'analyse texte, et inversement.
@@ -306,6 +348,7 @@ export default function AnalyzeUploadPage() {
           visualAnalysisAvailable: !!visual?.visualAnalysisAvailable,
           visualPayload: visual?.visualAnalysisAvailable ? visual : null,
           transcript,
+          transcriptSegments,
           platform,
           language,
           offer,
@@ -317,7 +360,7 @@ export default function AnalyzeUploadPage() {
 
       const data = await parseApiResponse(response);
       if (!response.ok) throw new Error(data?.details || data?.error || "Analyse impossible");
-      setResult(mapResponseToResult({...data, ...(visual || {})}));
+      setResult(mapResponseToResult({...data, ...(visual || {}), transcriptSegments}));
     } catch (e: any) {
       setError(String(e?.message ?? e ?? "Erreur inconnue"));
     } finally {
@@ -361,6 +404,7 @@ export default function AnalyzeUploadPage() {
                       onClick={() => {
                         setMode(item);
                         setFile(null);
+                        setResult(null);
                         setFallbackMessage("");
                       }}
                       className={cn(
@@ -378,7 +422,7 @@ export default function AnalyzeUploadPage() {
                 <input className={inputCls} placeholder="Collez un lien TikTok, YouTube ou Shorts..." value={url} onChange={(e) => setUrl(e.target.value)} />
               ) : (
                 <label className="group block cursor-pointer rounded-[24px] border border-dashed border-white/[0.10] bg-black/[0.12] p-9 text-center transition hover:border-violet-400/25 hover:bg-violet-500/[0.025]">
-                  <input key={mode} type="file" accept={acceptValue} className="sr-only" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+                  <input key={mode} type="file" accept={acceptValue} className="sr-only" onChange={(e) => { setFile(e.target.files?.[0] || null); setResult(null); setError(""); }} />
                   <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[18px] border border-violet-400/10 bg-violet-500/10 text-xl text-violet-200 transition group-hover:scale-105">{mode === "video_file" ? "▶" : "♪"}</div>
                   <div className="mt-4 font-semibold text-white">{file ? file.name : mode === "video_file" ? "Cliquez pour sélectionner une vidéo" : "Cliquez pour sélectionner un fichier audio"}</div>
                   <div className="mt-2 text-sm text-white/45">{file ? "Le fichier est prêt pour l’analyse." : mode === "video_file" ? "MP4, MOV, WEBM, MKV, AVI ou MPEG" : "MP3, WAV, M4A, MPGA, MPEG ou WEBM"}</div>
@@ -500,6 +544,65 @@ export default function AnalyzeUploadPage() {
               </h2>
             </div>
 
+            {/* V1.6: local video with evidence markers. The media file never enters the saved analysis JSON. */}
+            {mode === "video_file" && previewUrl && (
+              <Block title="Video Intelligence · Lecteur synchronisé">
+                <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                  <div className="space-y-3">
+                    <video ref={videoPlayer} key={previewUrl} src={previewUrl} controls playsInline preload="metadata"
+                      onTimeUpdate={(event) => setPlaybackSecond(event.currentTarget.currentTime)}
+                      className="max-h-[460px] w-full rounded-2xl bg-black" />
+                    <p className="text-xs text-white/50">Lecture locale depuis ton navigateur · ce fichier vidéo n'est pas enregistré dans le rapport.</p>
+                    <div className="text-sm text-violet-200">Position : {formatSecond(playbackSecond)}</div>
+                    {result.videoIntelligenceV16 ? (
+                      <div className="rounded-xl border border-violet-400/20 bg-violet-500/[0.04] p-3">
+                        <p className="mb-2 text-xs font-semibold text-white/80">Variation d'image mesurée à 1 Hz (pas une rétention réelle)</p>
+                        <div className="flex h-16 w-full items-end gap-px overflow-x-auto" role="group" aria-label="Variation visuelle par seconde">
+                          {(result.videoIntelligenceV16.samples || []).map((sample) => (
+                            <button key={sample.second} type="button"
+                              onClick={() => seekToSecond(sample.second)}
+                              title={`${formatSecond(sample.second)} : ${sample.changePercent === null ? "image initiale" : `${sample.changePercent}% de variation visuelle`}`}
+                              aria-label={`Aller à ${formatSecond(sample.second)}`}
+                              className={cn("h-full min-w-[3px] flex-1 rounded-t-sm transition hover:bg-fuchsia-300", Math.floor(playbackSecond) === sample.second ? "bg-fuchsia-300" : "bg-violet-500/70")}
+                              style={{ height: `${Math.max(8, Math.min(100, (sample.changePercent ?? 0) * 3 + 8))}%` }}
+                            />
+                          ))}
+                        </div>
+                        <p className="mt-2 text-xs text-white/45">La hauteur des barres traduit uniquement les différences de pixels entre deux images prises à une seconde d'intervalle.</p>
+                        <div className="mt-3 flex flex-wrap gap-2 text-xs text-white/70">
+                          <span>Durée : {formatSecond(result.videoIntelligenceV16.durationSeconds || 0)}</span>
+                          {!!result.videoIntelligenceV16.videoWidth && !!result.videoIntelligenceV16.videoHeight &&
+                            <span>· {result.videoIntelligenceV16.videoWidth} × {result.videoIntelligenceV16.videoHeight}</span>}
+                          {!!result.videoIntelligenceV16.frameRate && <span>· {result.videoIntelligenceV16.frameRate} images/s</span>}
+                          <span>· Couverture technique : {result.videoIntelligenceV16.coverageSeconds || 0} s</span>
+                        </div>
+                        {(result.videoIntelligenceV16.limitations || []).map((lim, i) => <p key={i} className="mt-2 text-xs text-white/45">{lim}</p>)}
+                      </div>
+                    ) : <p className="text-xs text-white/45">Mesures V1.6 indisponibles : le worker Railway doit être mis à jour avant le nouveau test.</p>}
+                  </div>
+                  <div className="max-h-[530px] space-y-3 overflow-y-auto">
+                    <p className="text-sm font-semibold text-white">Observations vidéo · cliquer pour avancer</p>
+                    {(result.visualTimeline || []).map((scene, i) => {
+                      const match = /^([0-9]+):([0-9]+(?:\.[0-9]+)?)$/.exec(scene.timecode || "");
+                      const at = match ? Number(match[1]) * 60 + Number(match[2]) : NaN;
+                      return <button key={`${scene.frameIndex}-${i}`} type="button" onClick={() => seekToSecond(at)}
+                        className={cn("block w-full rounded-xl border bg-white/[0.025] p-3 text-left text-xs leading-5 hover:border-violet-400/50", Math.abs(playbackSecond - at) < 1.5 ? "border-violet-400/70 text-white" : "border-white/10 text-white/75")}>
+                        <span className="font-mono text-violet-300">{scene.timecode}</span> · <strong>{scene.label}</strong>
+                        <span className="mt-1 block">{scene.observation}</span>
+                      </button>;
+                    })}
+                    {!!result.transcriptSegments?.length && <>
+                      <p className="pt-2 text-sm font-semibold text-white">Paroles horodatées · Whisper</p>
+                      {result.transcriptSegments.map((segment, i) => <button key={`${segment.start}-${i}`} type="button"
+                        onClick={() => seekToSecond(segment.start)}
+                        className={cn("block w-full rounded-lg border p-2 text-left text-xs leading-5", playbackSecond >= segment.start && playbackSecond <= segment.end ? "border-violet-400/60 bg-violet-500/15 text-white" : "border-white/10 text-white/65 hover:border-white/30")}>
+                        <span className="font-mono text-violet-300">{formatSecond(segment.start)}–{formatSecond(segment.end)}</span> · {segment.text}
+                      </button>)}
+                    </>}
+                  </div>
+                </div>
+              </Block>
+            )}
             {result.diagnosticV15 && (
               <Block title="Diagnostic unifié · Audio + visuel">
                 <div className="space-y-4 text-sm leading-6 text-white/75">

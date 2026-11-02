@@ -28,6 +28,18 @@ type AnalyzeResponse = {
   howToBeat?: string[];
   adsAngles?: string[];
   creativeType?: string;
+  // UGC_DIAGNOSTIC_V15: une synthèse argumentée, distincte des observations brutes.
+  diagnosticV15?: {
+    objective?: string;
+    synopsis?: string;
+    facts?: string[];
+    hypotheses?: string[];
+    ctaType?: string;
+    ctaEvidence?: string;
+    recommendations?: string[];
+    tests?: Array<{variant?: string; hypothesis?: string; change?: string; whatToObserve?: string}>;
+    limitations?: string[];
+  } | null;
   // UGC_VISUAL_V14 — observations sourcées, non métriques plateforme.
   visualAnalysisAvailable?: boolean;
   visualAnalysisNote?: string;
@@ -100,6 +112,7 @@ function mapResponseToResult(data: any): AnalyzeResponse {
     howToBeat: Array.isArray(data?.howToBeat) ? data.howToBeat : [],
     adsAngles: Array.isArray(data?.adsAngles) ? data.adsAngles : [],
     creativeType: data?.creativeType,
+    diagnosticV15: data?.diagnosticV15,
     visualAnalysisAvailable: data?.visualAnalysisAvailable,
     visualAnalysisNote: data?.visualAnalysisNote,
     visualTimeline: data?.visualTimeline,
@@ -291,6 +304,7 @@ export default function AnalyzeUploadPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           visualAnalysisAvailable: !!visual?.visualAnalysisAvailable,
+          visualPayload: visual?.visualAnalysisAvailable ? visual : null,
           transcript,
           platform,
           language,
@@ -486,21 +500,44 @@ export default function AnalyzeUploadPage() {
               </h2>
             </div>
 
+            {result.diagnosticV15 && (
+              <Block title="Diagnostic unifié · Audio + visuel">
+                <div className="space-y-4 text-sm leading-6 text-white/75">
+                  <p className="text-xs text-violet-300">Synthèse fondée sur les éléments disponibles. Aucune performance réelle n'est déduite des images.</p>
+                  {result.diagnosticV15.objective && <p><strong>Objectif probable :</strong> {result.diagnosticV15.objective}</p>}
+                  {result.diagnosticV15.synopsis && <p><strong>Lecture d'ensemble :</strong> {result.diagnosticV15.synopsis}</p>}
+                  {!!result.diagnosticV15.facts?.length && <div><strong>Éléments observables ou déclarés</strong><ListBlock items={result.diagnosticV15.facts} /></div>}
+                  {!!result.diagnosticV15.hypotheses?.length && <div><strong>Hypothèses psychologiques (à vérifier)</strong><ListBlock items={result.diagnosticV15.hypotheses} /></div>}
+                  {(result.diagnosticV15.ctaType || result.diagnosticV15.ctaEvidence) && <p><strong>Appel à l'action · {result.diagnosticV15.ctaType || "non déterminé"} :</strong> {result.diagnosticV15.ctaEvidence || "Non vérifiable."}</p>}
+                  {!!result.diagnosticV15.recommendations?.length && <div><strong>Améliorations fondées sur le contenu</strong><ListBlock items={result.diagnosticV15.recommendations} /></div>}
+                  {!!result.diagnosticV15.tests?.length && <div className="grid gap-3 md:grid-cols-2">
+                    {result.diagnosticV15.tests.map((test, i) => (
+                      <div key={`${test.variant || "test"}-${i}`} className="rounded-xl border border-violet-400/20 bg-violet-500/[0.05] p-4">
+                        <p className="font-semibold text-violet-200">Version {test.variant || (i === 0 ? "A" : "B")}</p>
+                        {test.hypothesis && <p><strong>Hypothèse :</strong> {test.hypothesis}</p>}
+                        {test.change && <p><strong>Modification :</strong> {test.change}</p>}
+                        {test.whatToObserve && <p><strong>À mesurer après diffusion :</strong> {test.whatToObserve}</p>}
+                      </div>
+                    ))}
+                  </div>}
+                  {!!result.diagnosticV15.limitations?.length && <div><strong>Limites et points non vérifiés</strong><ListBlock items={result.diagnosticV15.limitations} /></div>}
+                </div>
+              </Block>
+            )}
             {result.visualAnalysisAvailable !== undefined && (
               <Block title="Creative Debugger · Analyse visuelle">
                 <div className="space-y-4 text-sm text-white/75">
                   <p>{result.visualAnalysisAvailable ? "Captures réelles analysées" : "Analyse visuelle indisponible"}</p>
                   {result.visualAnalysisNote && <p className="text-white/50">{result.visualAnalysisNote}</p>}
                   {result.visualAnalysisAvailable && <>
-                    {result.visualHook?.observation && <p><strong>Hook :</strong> {result.visualHook.observation}</p>}
-                    {result.pacing?.observation && <p><strong>Rythme :</strong> {result.pacing.observation}</p>}
-                    {result.ctaAnalysis && <p><strong>CTA :</strong> {result.ctaAnalysis.status === "unknown" ? "Non vérifiable" : result.ctaAnalysis.text || result.ctaAnalysis.status}</p>}
+                    {result.visualHook?.observation && <p><strong>Hook visuel :</strong> {result.visualHook.observation}</p>}
+                    {result.pacing?.observation && <p><strong>Rythme visuel estimé :</strong> {result.pacing.observation}</p>}
+                    {result.ctaAnalysis && <p><strong>CTA visible dans les captures :</strong> {result.ctaAnalysis.status === "unknown" ? "Non vérifiable" : result.ctaAnalysis.text || result.ctaAnalysis.status}</p>}
                     {(result.visualTimeline || []).map((scene, i) => <div key={`${scene.frameIndex}-${i}`} className="rounded-xl border border-white/10 p-3">
                       <span className="font-mono text-violet-300">{scene.timecode}</span> · {scene.label}
                       <p>{scene.observation}</p>
-                      {scene.attentionRisk && scene.attentionRisk !== "unknown" && <p className="text-xs text-white/45">Risque d’attention estimé : {scene.attentionRisk}</p>}
                     </div>)}
-                    {!!result.priorityFixes?.length && <div><strong>Corrections prioritaires</strong>{result.priorityFixes.map((fix) => <p key={fix.priority}>{fix.priority}. {fix.diagnosis} — {fix.action} ({fix.evidence})</p>)}</div>}
+                    {!!result.priorityFixes?.length && !result.diagnosticV15 && <div><strong>Corrections prioritaires</strong>{result.priorityFixes.map((fix) => <p key={fix.priority}>{fix.priority}. {fix.diagnosis} — {fix.action} ({fix.evidence})</p>)}</div>}
                     {!!result.dataIntegrity?.limitations?.length && <div><strong>Limites de l’analyse</strong>{result.dataIntegrity.limitations.map((limitation, i) => <p key={i}>{limitation}</p>)}</div>}
                   </>}
                 </div>
@@ -519,7 +556,7 @@ export default function AnalyzeUploadPage() {
             <Block title="Hooks similaires"><ListBlock items={result.similarHooks} /></Block>
             <Block title="Angles similaires"><ListBlock items={result.similarAngles} /></Block>
             {result.viralScore && <Block title="Évaluation créative"><TextBlock value={result.viralScore} /></Block>}
-            <Block title="Pourquoi ça performe"><ListBlock items={result.whyItWorks} /></Block>
+            <Block title="Facteurs créatifs potentiels (performance non mesurée)"><ListBlock items={result.whyItWorks} /></Block>
             <Block title="Comment battre cette créa"><ListBlock items={result.howToBeat} /></Block>
             <Block title="Angles Ads"><ListBlock items={result.adsAngles} /></Block>
             <Block title="Type de créa"><TextBlock value={result.creativeType} /></Block>

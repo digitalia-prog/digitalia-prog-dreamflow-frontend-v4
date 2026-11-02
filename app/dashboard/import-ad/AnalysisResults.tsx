@@ -18,6 +18,56 @@ export type AnalysisResult = {
   howToBeat?: string[];
   adsAngles?: string[];
   creativeType?: string;
+  visualAnalysisAvailable?: boolean;
+  visualAnalysisNote?: string;
+  durationSeconds?: number;
+  frameCount?: number;
+  visualTimeline?: Array<{
+    frameIndex: number;
+    timestampSeconds: number;
+    timecode: string;
+    label: string;
+    observation: string;
+    assessment: "strong" | "medium" | "weak" | "neutral";
+    attentionRisk: "low" | "medium" | "high" | "unknown";
+    evidence: "observed" | "estimated";
+  }>;
+  visualHook?: {
+    observation?: string;
+    assessment?: string;
+    evidence?: string;
+  };
+  pacing?: {
+    observation?: string;
+    assessment?: string;
+    evidence?: string;
+  };
+  proofAnalysis?: {
+    status?: "observed" | "not_observed" | "unknown";
+    observation?: string;
+    evidenceSource?: "visual" | "audio" | "imported" | "none";
+  };
+  ctaAnalysis?: {
+    status?: "explicit" | "implicit" | "absent" | "unknown";
+    text?: string;
+    timecode?: string;
+    evidenceSource?: "visual" | "audio" | "imported" | "none";
+    explanation?: string;
+  };
+  onScreenText?: string[];
+  priorityFixes?: Array<{
+    priority: number;
+    diagnosis: string;
+    evidence: string;
+    action: string;
+    test: string;
+  }>;
+  dataIntegrity?: {
+    observed?: string[];
+    estimated?: string[];
+    imported?: string[];
+    unavailableMetrics?: string[];
+  };
 };
 
 type Props = {
@@ -70,9 +120,11 @@ export default function AnalysisResults({
             <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-white/65">
               {result.creativeType || fallbackCreativeType || "Créatif"}
             </span>
-            <span className="rounded-full border border-fuchsia-400/20 bg-fuchsia-500/10 px-3 py-1.5 text-xs font-semibold text-fuchsia-200">
-              Score viral : {result.viralScore || "Non évalué"}
-            </span>
+            {result.viralScore ? (
+              <span className="rounded-full border border-fuchsia-400/20 bg-fuchsia-500/10 px-3 py-1.5 text-xs font-semibold text-fuchsia-200">
+                Évaluation créative : {result.viralScore}
+              </span>
+            ) : null}
           </div>
         </div>
 
@@ -114,6 +166,131 @@ export default function AnalysisResults({
           </article>
         </div>
       </div>
+
+      <article className="rounded-3xl border border-cyan-400/20 bg-[#121826] p-6 md:p-8">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
+              Creative Debugger · Analyse visuelle
+            </p>
+            <h3 className="mt-2 text-xl font-bold text-white">
+              Ce que la vidéo montre réellement
+            </h3>
+          </div>
+          <span className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+            result.visualAnalysisAvailable
+              ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-200"
+              : "border-amber-400/20 bg-amber-500/10 text-amber-200"
+          }`}>
+            {result.visualAnalysisAvailable ? "Captures réelles analysées" : "Visuel indisponible"}
+          </span>
+        </div>
+
+        <p className="mt-4 text-sm leading-6 text-white/60">
+          {result.visualAnalysisNote ||
+            "L’analyse distingue les observations réelles, les estimations créatives et les données importées."}
+        </p>
+
+        {result.visualAnalysisAvailable && result.visualTimeline?.length ? (
+          <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {result.visualTimeline.map((moment, index) => (
+              <div
+                key={`${moment.frameIndex}-${index}`}
+                className="rounded-2xl border border-white/10 bg-black/20 p-4"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-mono text-xs font-semibold text-cyan-200">
+                    {moment.timecode}
+                  </span>
+                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/55">
+                    Observé
+                  </span>
+                </div>
+                <p className="mt-3 text-sm font-semibold text-white">{moment.label}</p>
+                <p className="mt-2 text-sm leading-6 text-white/65">{moment.observation}</p>
+                {moment.attentionRisk !== "unknown" ? (
+                  <p className="mt-3 text-xs leading-5 text-amber-200/80">
+                    Risque d’attention estimé : {moment.attentionRisk}
+                  </p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        {result.visualAnalysisAvailable ? (
+          <div className="mt-6 grid gap-4 lg:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-white/40">Hook visuel</p>
+              <p className="mt-2 text-sm leading-6 text-white/70">
+                {result.visualHook?.observation || "Non déterminable."}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-white/40">Rythme</p>
+              <p className="mt-2 text-sm leading-6 text-white/70">
+                {result.pacing?.observation || "Non déterminable."}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-white/40">CTA vérifié</p>
+              <p className="mt-2 text-sm leading-6 text-white/70">
+                {result.ctaAnalysis?.status || "unknown"}
+                {result.ctaAnalysis?.text ? ` · ${result.ctaAnalysis.text}` : ""}
+              </p>
+              <p className="mt-2 text-xs leading-5 text-white/45">
+                Source : {result.ctaAnalysis?.evidenceSource || "none"}
+                {result.ctaAnalysis?.timecode ? ` · ${result.ctaAnalysis.timecode}` : ""}
+              </p>
+            </div>
+          </div>
+        ) : null}
+      </article>
+
+      {result.priorityFixes?.length ? (
+        <article className="rounded-3xl border border-fuchsia-400/20 bg-[#151526] p-6 md:p-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fuchsia-300">
+            3 corrections prioritaires
+          </p>
+          <div className="mt-5 grid gap-4 lg:grid-cols-3">
+            {result.priorityFixes.map((fix) => (
+              <div key={fix.priority} className="rounded-2xl border border-white/10 bg-black/15 p-5">
+                <p className="text-xs font-semibold text-fuchsia-200">Priorité {fix.priority}</p>
+                <p className="mt-2 text-sm font-semibold text-white">{fix.diagnosis}</p>
+                <p className="mt-2 text-sm leading-6 text-white/60">{fix.evidence}</p>
+                <p className="mt-3 text-sm leading-6 text-white/75">À faire : {fix.action}</p>
+                {fix.test ? (
+                  <p className="mt-2 text-xs leading-5 text-cyan-200/75">Test : {fix.test}</p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </article>
+      ) : null}
+
+      {result.dataIntegrity ? (
+        <article className="rounded-3xl border border-white/10 bg-[#11111B] p-6">
+          <h3 className="text-lg font-semibold text-white">Transparence des données</h3>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div className="rounded-2xl border border-emerald-400/10 bg-emerald-500/[0.04] p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-emerald-200">Observé / importé</p>
+              <p className="mt-2 text-sm leading-6 text-white/60">
+                {[...(result.dataIntegrity.observed || []), ...(result.dataIntegrity.imported || [])]
+                  .filter(Boolean)
+                  .join(" · ") || "Aucune donnée disponible."}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-amber-400/10 bg-amber-500/[0.04] p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-amber-200">Estimé / non disponible</p>
+              <p className="mt-2 text-sm leading-6 text-white/60">
+                {[...(result.dataIntegrity.estimated || []), ...(result.dataIntegrity.unavailableMetrics || [])]
+                  .filter(Boolean)
+                  .join(" · ") || "Aucune estimation."}
+              </p>
+            </div>
+          </div>
+        </article>
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Analyse psychologique" items={result.psychology} />

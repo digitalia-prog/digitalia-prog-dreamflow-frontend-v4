@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
-import { PSYCHOLOGY_ANALYSIS_CORE, normalizePsychologyArray } from "@/lib/psychologyCore";
+import { PSYCHOLOGY_ANALYSIS_CORE } from "@/lib/psychologyCore";
 
 export const runtime = "nodejs";
+export const maxDuration = 120;
 
 const VIDEO_WORKER_URL =
   process.env.VIDEO_WORKER_URL ||
@@ -70,24 +71,33 @@ function cleanJsonString(value: string) {
     .trim();
 }
 
+function asStringArray(value: any): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item) => typeof item === "string")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function normalizeAnalysis(parsed: any) {
   return {
-    summary: parsed.summary || "Résumé indisponible",
-    hook: parsed.hook || "Hook non détecté",
-    structure: parsed.structure || "Structure non détectée",
-    angle: parsed.angle || "Angle non détecté",
-    psychology: normalizePsychologyArray(parsed.psychology),
-    strengths: parsed.strengths?.length ? parsed.strengths : ["Engagement"],
-    weaknesses: parsed.weaknesses?.length ? parsed.weaknesses : ["Manque clarté"],
-    recreateIdeas: parsed.recreateIdeas?.length ? parsed.recreateIdeas : ["Améliorer structure"],
-    similarHooks: parsed.similarHooks?.length ? parsed.similarHooks : ["Hook alternatif"],
-    similarAngles: parsed.similarAngles?.length ? parsed.similarAngles : ["Angle alternatif"],
-    scriptPrompt: parsed.scriptPrompt || "Script optimisé",
-    viralScore: parsed.viralScore || "6/10",
-    whyItWorks: parsed.whyItWorks?.length ? parsed.whyItWorks : ["Contenu relatable"],
-    howToBeat: parsed.howToBeat?.length ? parsed.howToBeat : ["Meilleur hook"],
-    adsAngles: parsed.adsAngles?.length ? parsed.adsAngles : ["Direct response"],
-    creativeType: parsed.creativeType || "UGC",
+    summary: parsed?.summary || "Analyse non disponible avec les éléments reçus.",
+    hook: parsed?.hook || "Hook non déterminable avec les éléments reçus.",
+    structure: parsed?.structure || "Structure non déterminable avec les éléments reçus.",
+    angle: parsed?.angle || "Angle non déterminable avec les éléments reçus.",
+    psychology: asStringArray(parsed?.psychology),
+    strengths: asStringArray(parsed?.strengths),
+    weaknesses: asStringArray(parsed?.weaknesses),
+    recreateIdeas: asStringArray(parsed?.recreateIdeas),
+    similarHooks: asStringArray(parsed?.similarHooks),
+    similarAngles: asStringArray(parsed?.similarAngles),
+    scriptPrompt: parsed?.scriptPrompt || "",
+    // Conservé pour compatibilité avec les anciennes analyses, mais jamais inventé.
+    viralScore: typeof parsed?.viralScore === "string" ? parsed.viralScore.trim() : "",
+    whyItWorks: asStringArray(parsed?.whyItWorks),
+    howToBeat: asStringArray(parsed?.howToBeat),
+    adsAngles: asStringArray(parsed?.adsAngles),
+    creativeType: parsed?.creativeType || "Créatif non déterminé",
   };
 }
 
@@ -179,6 +189,98 @@ type AnalysisContext = {
   creativeType?: string;
 };
 
+type VisualAnalysisPayload = {
+  visualAnalysisAvailable: boolean;
+  visualAnalysisNote?: string;
+  durationSeconds?: number;
+  frameCount?: number;
+  visualTimeline?: Array<{
+    frameIndex: number;
+    timestampSeconds: number;
+    timecode: string;
+    label: string;
+    observation: string;
+    assessment: "strong" | "medium" | "weak" | "neutral";
+    attentionRisk: "low" | "medium" | "high" | "unknown";
+    evidence: "observed" | "estimated";
+  }>;
+  visualHook?: {
+    observation?: string;
+    assessment?: string;
+    evidence?: string;
+  };
+  pacing?: {
+    observation?: string;
+    assessment?: string;
+    evidence?: string;
+  };
+  proofAnalysis?: {
+    status?: "observed" | "not_observed" | "unknown";
+    observation?: string;
+    evidenceSource?: "visual" | "audio" | "imported" | "none";
+  };
+  ctaAnalysis?: {
+    status?: "explicit" | "implicit" | "absent" | "unknown";
+    text?: string;
+    frameIndex?: number | null;
+    timestampSeconds?: number | null;
+    timecode?: string;
+    evidenceSource?: "visual" | "audio" | "imported" | "none";
+    explanation?: string;
+  };
+  onScreenText?: string[];
+  priorityFixes?: Array<{
+    priority: number;
+    diagnosis: string;
+    evidence: string;
+    action: string;
+    test: string;
+  }>;
+  dataIntegrity?: {
+    observed?: string[];
+    estimated?: string[];
+    imported?: string[];
+    unavailableMetrics?: string[];
+  };
+};
+
+async function analyzeVideoVisuallySafe(
+  url: string,
+  transcript: string,
+  language: string,
+  context: AnalysisContext
+): Promise<VisualAnalysisPayload> {
+  try {
+    const response = await fetch(`${VIDEO_WORKER_URL}/visual-analyze`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url, transcript, language, context }),
+      cache: "no-store",
+    });
+
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok || !data?.visualAnalysisAvailable) {
+      return {
+        visualAnalysisAvailable: false,
+        visualAnalysisNote:
+          data?.detail ||
+          data?.visualAnalysisNote ||
+          "Analyse visuelle indisponible pour cette source. L’analyse textuelle reste disponible.",
+      };
+    }
+
+    return data as VisualAnalysisPayload;
+  } catch (error: any) {
+    return {
+      visualAnalysisAvailable: false,
+      visualAnalysisNote:
+        error?.message ||
+        "Analyse visuelle indisponible pour cette source. L’analyse textuelle reste disponible.",
+    };
+  }
+}
+
 async function analyzeTranscript(
   transcript: string,
   language: string,
@@ -211,15 +313,18 @@ CONTEXTE PUBLICITAIRE CAPTURÉ :
 - Type de créatif : ${context.creativeType || "Non détecté"}
 
 RÈGLE D’ANALYSE :
-- Analyse la PUBLICITÉ COMPLÈTE, pas seulement la transcription.
-- Si la transcription contient seulement de la musique, des silences ou très peu de paroles, base l’analyse sur le texte publicitaire, l’annonceur, le CTA, la landing page et le contexte capturé.
-- Ne conclus jamais qu’il n’y a aucun message marketing si les métadonnées contiennent une promesse, une offre, un événement ou un appel à l’action.
-- Distingue ce qui vient de l’audio et ce qui vient du texte publicitaire.
+- À cette étape, tu analyses UNIQUEMENT le transcript et les métadonnées capturées. Tu ne dois jamais prétendre avoir vu les images de la vidéo.
+- Si la transcription contient seulement de la musique, des silences ou très peu de paroles, utilise uniquement les métadonnées réellement fournies.
+- Ne conclus jamais qu’un CTA, une preuve visuelle, un produit, un texte à l’écran ou un élément de montage existe si cette information n’est pas explicitement présente dans le transcript ou les métadonnées.
+- Distingue clairement ce qui vient de l’audio et ce qui vient des métadonnées.
+- N’invente aucune métrique de performance : CTR, rétention, ROAS, conversion, vues ou benchmark.
 
 ${PSYCHOLOGY_ANALYSIS_CORE}
 
 IMPORTANT :
-- Remplis TOUS les champs à partir des éléments réellement disponibles
+- Ne remplis un champ que si les éléments disponibles permettent de le justifier. Sinon indique qu’il n’est pas déterminable.
+- N’invente jamais de score, CTA, preuve, texte à l’écran, métrique ou comportement visuel.
+- Le champ viralScore doit rester vide : aucune donnée de performance réelle ne permet de calculer un score viral.
 - psychology doit contenir les mécanismes psychologiques réellement détectés et leur effet concret
 - whyItWorks doit expliquer la logique de performance, pas répéter psychology
 - JSON uniquement
@@ -492,7 +597,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const analysis = await analyzeTranscript(transcript, language, {
+    const analysisContext: AnalysisContext = {
       sourcePlatform: body?.sourcePlatform || body?.platform || platform,
       advertiserName: body?.advertiserName || "",
       adText: body?.adText || "",
@@ -500,12 +605,26 @@ export async function POST(req: Request) {
       landingPage: body?.landingPage || "",
       libraryId: body?.libraryId || "",
       creativeType: body?.creativeType || "video",
-    });
+    };
+
+    const analysis = await analyzeTranscript(
+      transcript,
+      language,
+      analysisContext
+    );
+
+    const visualAnalysis = await analyzeVideoVisuallySafe(
+      url,
+      transcript,
+      language,
+      analysisContext
+    );
 
     return NextResponse.json({
       platform,
       language: normalizeOutputLanguage(language),
       ...analysis,
+      ...visualAnalysis,
       transcript,
     });
   } catch (err: any) {

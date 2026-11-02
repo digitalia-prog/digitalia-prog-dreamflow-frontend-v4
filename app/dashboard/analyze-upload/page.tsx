@@ -28,6 +28,16 @@ type AnalyzeResponse = {
   howToBeat?: string[];
   adsAngles?: string[];
   creativeType?: string;
+  // UGC_VISUAL_V14 — observations sourcées, non métriques plateforme.
+  visualAnalysisAvailable?: boolean;
+  visualAnalysisNote?: string;
+  visualTimeline?: Array<{frameIndex:number;timecode:string;label:string;observation:string;attentionRisk?:string;evidence?:string}>;
+  visualHook?: {observation?:string};
+  pacing?: {observation?:string};
+  proofAnalysis?: {status?:string;observation?:string};
+  ctaAnalysis?: {status?:string;text?:string;timecode?:string;explanation?:string};
+  priorityFixes?: Array<{priority:number;diagnosis:string;evidence:string;action:string;test?:string}>;
+  dataIntegrity?: {observed?:string[];estimated?:string[];imported?:string[];limitations?:string[];unavailableMetrics?:string[]};
   error?: string;
   details?: string;
 };
@@ -90,6 +100,15 @@ function mapResponseToResult(data: any): AnalyzeResponse {
     howToBeat: Array.isArray(data?.howToBeat) ? data.howToBeat : [],
     adsAngles: Array.isArray(data?.adsAngles) ? data.adsAngles : [],
     creativeType: data?.creativeType,
+    visualAnalysisAvailable: data?.visualAnalysisAvailable,
+    visualAnalysisNote: data?.visualAnalysisNote,
+    visualTimeline: data?.visualTimeline,
+    visualHook: data?.visualHook,
+    pacing: data?.pacing,
+    proofAnalysis: data?.proofAnalysis,
+    ctaAnalysis: data?.ctaAnalysis,
+    priorityFixes: data?.priorityFixes,
+    dataIntegrity: data?.dataIntegrity,
   };
 }
 
@@ -242,17 +261,36 @@ export default function AnalyzeUploadPage() {
           ? workerData.transcript.trim()
           : "";
 
-      if (!transcript) {
-        throw new Error(
-          "Le fichier a bien été reçu, mais aucune parole exploitable n’a été détectée."
-        );
+      // UGC_VISUAL_V14: le média lourd reste envoyé directement à Railway.
+      // L'échec visuel ne casse pas l'analyse texte, et inversement.
+      let visual: any = null;
+      if (mode === "video_file") {
+        try {
+          const visualForm = new FormData();
+          visualForm.append("file", file);
+          visualForm.append("transcript", transcript);
+          visualForm.append("language", language);
+          visualForm.append("context", JSON.stringify({ sourcePlatform: platform, product: offer, audience, notes: extraNotes }));
+          const visualResponse = await fetch(`${VIDEO_WORKER_URL}/visual-analyze-upload`, {
+            method: "POST", body: visualForm,
+          });
+          const visualData = await parseApiResponse(visualResponse);
+          if (visualResponse.ok && visualData?.visualAnalysisAvailable) visual = visualData;
+          else visual = {visualAnalysisAvailable:false,visualAnalysisNote: "Analyse visuelle indisponible. Résultat textuel conservé si disponible."};
+        } catch {
+          visual = {visualAnalysisAvailable:false,visualAnalysisNote: "Analyse visuelle indisponible. Résultat textuel conservé si disponible."};
+        }
+      }
+      if (!transcript && !visual?.visualAnalysisAvailable) {
+        throw new Error("Aucune analyse exploitable : ni transcription ni observation visuelle disponible.");
       }
 
-      // Seul le transcript léger traverse ensuite la Function Vercel.
+      // Seul du JSON léger traverse ensuite la Function Vercel.
       const response = await fetch("/api/analyze-upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          visualAnalysisAvailable: !!visual?.visualAnalysisAvailable,
           transcript,
           platform,
           language,
@@ -265,7 +303,7 @@ export default function AnalyzeUploadPage() {
 
       const data = await parseApiResponse(response);
       if (!response.ok) throw new Error(data?.details || data?.error || "Analyse impossible");
-      setResult(mapResponseToResult(data));
+      setResult(mapResponseToResult({...data, ...(visual || {})}));
     } catch (e: any) {
       setError(String(e?.message ?? e ?? "Erreur inconnue"));
     } finally {
@@ -448,6 +486,26 @@ export default function AnalyzeUploadPage() {
               </h2>
             </div>
 
+            {result.visualAnalysisAvailable !== undefined && (
+              <Block title="Creative Debugger · Analyse visuelle">
+                <div className="space-y-4 text-sm text-white/75">
+                  <p>{result.visualAnalysisAvailable ? "Captures réelles analysées" : "Analyse visuelle indisponible"}</p>
+                  {result.visualAnalysisNote && <p className="text-white/50">{result.visualAnalysisNote}</p>}
+                  {result.visualAnalysisAvailable && <>
+                    {result.visualHook?.observation && <p><strong>Hook :</strong> {result.visualHook.observation}</p>}
+                    {result.pacing?.observation && <p><strong>Rythme :</strong> {result.pacing.observation}</p>}
+                    {result.ctaAnalysis && <p><strong>CTA :</strong> {result.ctaAnalysis.status === "unknown" ? "Non vérifiable" : result.ctaAnalysis.text || result.ctaAnalysis.status}</p>}
+                    {(result.visualTimeline || []).map((scene, i) => <div key={`${scene.frameIndex}-${i}`} className="rounded-xl border border-white/10 p-3">
+                      <span className="font-mono text-violet-300">{scene.timecode}</span> · {scene.label}
+                      <p>{scene.observation}</p>
+                      {scene.attentionRisk && scene.attentionRisk !== "unknown" && <p className="text-xs text-white/45">Risque d’attention estimé : {scene.attentionRisk}</p>}
+                    </div>)}
+                    {!!result.priorityFixes?.length && <div><strong>Corrections prioritaires</strong>{result.priorityFixes.map((fix) => <p key={fix.priority}>{fix.priority}. {fix.diagnosis} — {fix.action} ({fix.evidence})</p>)}</div>}
+                    {!!result.dataIntegrity?.limitations?.length && <div><strong>Limites de l’analyse</strong>{result.dataIntegrity.limitations.map((limitation, i) => <p key={i}>{limitation}</p>)}</div>}
+                  </>}
+                </div>
+              </Block>
+            )}
             <div className="grid gap-4 md:grid-cols-2">
             <Block title="Transcript"><TextBlock value={result.transcript} /></Block>
             <Block title="Résumé"><TextBlock value={result.summary} /></Block>
@@ -460,7 +518,7 @@ export default function AnalyzeUploadPage() {
             <Block title="Idées à reproduire"><ListBlock items={result.recreateIdeas} /></Block>
             <Block title="Hooks similaires"><ListBlock items={result.similarHooks} /></Block>
             <Block title="Angles similaires"><ListBlock items={result.similarAngles} /></Block>
-            <Block title="Score viral"><TextBlock value={result.viralScore} /></Block>
+            {result.viralScore && <Block title="Évaluation créative"><TextBlock value={result.viralScore} /></Block>}
             <Block title="Pourquoi ça performe"><ListBlock items={result.whyItWorks} /></Block>
             <Block title="Comment battre cette créa"><ListBlock items={result.howToBeat} /></Block>
             <Block title="Angles Ads"><ListBlock items={result.adsAngles} /></Block>

@@ -145,7 +145,7 @@ ${transcript}
 """
 
 Réponds uniquement en JSON valide, sans markdown.
-Ne laisse aucun champ vide.
+Ne crée aucun fait non observé. Utilise des chaînes vides ou des tableaux vides si une information est inconnue. Le champ viralScore doit rester vide.
 
 Format :
 {
@@ -190,43 +190,18 @@ Tu réponds uniquement en JSON valide complet. Toute la réponse doit être en $
     parsed = {};
   }
 
-  return {
-    transcript,
-    summary: parsed.summary || "Résumé non détecté.",
-    hook: parsed.hook || "Hook non détecté.",
-    structure: parsed.structure || "Structure non détectée.",
-    angle: parsed.angle || "Angle marketing non détecté.",
-    psychology: normalizePsychologyArray(parsed.psychology),
-    strengths: Array.isArray(parsed.strengths)
-      ? parsed.strengths
-      : ["Contenu engageant", "Sujet clair"],
-    weaknesses: Array.isArray(parsed.weaknesses)
-      ? parsed.weaknesses
-      : ["Hook à renforcer", "CTA à clarifier"],
-    recreateIdeas: Array.isArray(parsed.recreateIdeas)
-      ? parsed.recreateIdeas
-      : ["Recréer la vidéo avec une structure plus claire"],
-    similarHooks: Array.isArray(parsed.similarHooks)
-      ? parsed.similarHooks
-      : ["Tu ne vas pas croire ce qui se passe ici"],
-    similarAngles: Array.isArray(parsed.similarAngles)
-      ? parsed.similarAngles
-      : ["Angle curiosité", "Angle preuve sociale"],
-    scriptPrompt:
-      parsed.scriptPrompt ||
-      "Créer une vidéo UGC courte avec hook fort, preuve, démonstration et CTA.",
-    viralScore: parsed.viralScore || "6/10 — potentiel correct à optimiser.",
-    whyItWorks: Array.isArray(parsed.whyItWorks)
-      ? parsed.whyItWorks
-      : ["Le format peut créer de la curiosité", "Le sujet est facile à comprendre"],
-    howToBeat: Array.isArray(parsed.howToBeat)
-      ? parsed.howToBeat
-      : ["Ajouter un hook plus direct", "Renforcer le CTA final"],
-    adsAngles: Array.isArray(parsed.adsAngles)
-      ? parsed.adsAngles
-      : ["Angle problème/solution", "Angle curiosité", "Angle preuve"],
-    creativeType: parsed.creativeType || "UGC / contenu social",
-  };
+    const strings = (v: any): string[] => Array.isArray(v) ? v.filter((x: any) => typeof x === "string" && x.trim()).map((x: string) => x.trim()) : [];
+    return {
+      transcript,
+      summary: parsed.summary || "Analyse non déterminable avec les éléments reçus.",
+      hook: parsed.hook || "", structure: parsed.structure || "", angle: parsed.angle || "",
+      psychology: strings(parsed.psychology), strengths: strings(parsed.strengths),
+      weaknesses: strings(parsed.weaknesses), recreateIdeas: strings(parsed.recreateIdeas),
+      similarHooks: strings(parsed.similarHooks), similarAngles: strings(parsed.similarAngles),
+      scriptPrompt: parsed.scriptPrompt || "", viralScore: "",
+      whyItWorks: strings(parsed.whyItWorks), howToBeat: strings(parsed.howToBeat),
+      adsAngles: strings(parsed.adsAngles), creativeType: parsed.creativeType || "",
+    };
 }
 
 export async function POST(req: NextRequest) {
@@ -243,6 +218,7 @@ export async function POST(req: NextRequest) {
 
     let file: File | null = null;
     let suppliedTranscript = "";
+    let visualAnalysisAvailable = false;
     let platform = "TikTok";
     let product = "-";
     let audience = "-";
@@ -264,6 +240,7 @@ export async function POST(req: NextRequest) {
         typeof value === "string" && value.trim() ? value.trim() : fallback;
 
       suppliedTranscript = jsonText(body.transcript, "");
+      visualAnalysisAvailable = body.visualAnalysisAvailable === true;
       platform = jsonText(body.platform, "TikTok");
       product =
         jsonText(body.product, "") || jsonText(body.offer, "-");
@@ -307,7 +284,7 @@ export async function POST(req: NextRequest) {
     let transcript = suppliedTranscript;
 
     if (isTranscriptRequest) {
-      if (!transcript.trim()) {
+      if (!transcript.trim() && !visualAnalysisAvailable) {
         return NextResponse.json(
           { error: "Transcript manquant" },
           { status: 400 }
@@ -361,7 +338,7 @@ export async function POST(req: NextRequest) {
       transcript = await transcribeUploadWithWorker(file);
     }
 
-    if (!transcript.trim()) {
+    if (!transcript.trim() && !visualAnalysisAvailable) {
       return NextResponse.json(
         {
           error: "Transcript vide",
@@ -372,7 +349,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await analyzeTranscript({
+    const result = transcript.trim() ? await analyzeTranscript({
       transcript,
       platform,
       product,
@@ -380,7 +357,7 @@ export async function POST(req: NextRequest) {
       notes,
       language,
   mode: requestMode,
-    });
+    }) : { transcript: "", summary: "Analyse audio indisponible : aucune parole détectée.", hook: "", structure: "", angle: "", psychology: [], strengths: [], weaknesses: [], recreateIdeas: [], similarHooks: [], similarAngles: [], scriptPrompt: "", viralScore: "", whyItWorks: [], howToBeat: [], adsAngles: [], creativeType: "" };
 
     return NextResponse.json({
       success: true,

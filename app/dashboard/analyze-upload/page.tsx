@@ -61,6 +61,12 @@ type AnalyzeResponse = {
     limitations?: string[];
   };
   transcriptSegments?: Array<{start:number;end:number;text:string}>;
+  qualityReview?: {
+    status: "reviewed" | "unavailable";
+    notes?: string[];
+    anchors?: Array<{claim:string;source:"visual"|"audio";timecode:string;excerpt:string}>;
+    coverage?: string;
+  };
   error?: string;
   details?: string;
 };
@@ -135,6 +141,7 @@ function mapResponseToResult(data: any): AnalyzeResponse {
     dataIntegrity: data?.dataIntegrity,
     videoIntelligenceV16: data?.videoIntelligenceV16,
     transcriptSegments: data?.transcriptSegments,
+    qualityReview: data?.qualityReview,
   };
 }
 
@@ -598,6 +605,27 @@ export default function AnalyzeUploadPage() {
                     currentSecond={playbackSecond}
                     onSeek={seekToSecond}
                   />
+                </div>
+              </Block>
+            )}
+            {result.qualityReview && (
+              <Block title="Contrôle qualité · seconde lecture">
+                <div className="space-y-3 text-sm text-white/75">
+                  <p className="font-semibold text-violet-200">{result.qualityReview.status === "reviewed"
+                    ? "Relecture de cohérence IA effectuée"
+                    : "Relecture supplémentaire indisponible"}</p>
+                  <p className="text-xs text-white/50">Une seconde lecture IA peut réduire les contradictions, mais ne prouve ni l'authenticité des événements ni les performances publicitaires.</p>
+                  {!!result.qualityReview.notes?.length && <ListBlock items={result.qualityReview.notes} />}
+                  {!!result.qualityReview.anchors?.length && <div className="space-y-2">
+                    <p className="text-sm font-semibold text-white/80">Extraits retrouvés dans les sources</p>
+                    {result.qualityReview.anchors.map((item, i) => (
+                      <div key={`${item.timecode}-${i}`} className="rounded-xl border border-white/10 bg-white/[0.025] p-3 text-xs text-white/70">
+                        <p className="text-violet-200">{item.source === "visual" ? "Image échantillonnée" : "Paroles"}{item.timecode ? ` · ${item.timecode}` : " · horodatage non confirmé"}</p>
+                        <p className="mt-1">{item.claim}</p>
+                        <p className="mt-1 italic text-white/50">« {item.excerpt} »</p>
+                      </div>
+                    ))}
+                  </div>}
                 </div>
               </Block>
             )}

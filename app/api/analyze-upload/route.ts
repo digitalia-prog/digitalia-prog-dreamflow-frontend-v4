@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { PSYCHOLOGY_ANALYSIS_CORE, normalizePsychologyArray } from "@/lib/psychologyCore";
+import { reviewCreativeAnalysis } from "@/lib/adniaQualityReview";
 
 export const runtime = "nodejs";
+export const maxDuration = 120;
 
 const VIDEO_WORKER_URL =
   process.env.VIDEO_WORKER_URL ||
@@ -310,6 +312,7 @@ export async function POST(req: NextRequest) {
     let suppliedTranscript = "";
     let visualAnalysisAvailable = false;
     let visualContext = "";
+    let awaitedSegments: Array<{start:number;end:number;text:string}> = [];
     let platform = "TikTok";
     let product = "-";
     let audience = "-";
@@ -331,6 +334,9 @@ export async function POST(req: NextRequest) {
         typeof value === "string" && value.trim() ? value.trim() : fallback;
 
       suppliedTranscript = jsonText(body.transcript, "");
+      awaitedSegments = Array.isArray(body.transcriptSegments) ? body.transcriptSegments.filter((x:any) =>
+        Number.isFinite(x?.start) && Number.isFinite(x?.end) && x.end >= x.start && typeof x?.text === "string"
+      ).slice(0,300).map((x:any) => ({start:x.start,end:x.end,text:x.text.slice(0,350)})) : [];
       visualContext = visualEvidenceForAnalysis(body.visualPayload, Array.isArray(body.transcriptSegments) ? body.transcriptSegments : []);
       visualAnalysisAvailable = !!visualContext;
       platform = jsonText(body.platform, "TikTok");
@@ -441,7 +447,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = transcript.trim() || visualContext ? await analyzeTranscript({
+    const firstResult = transcript.trim() || visualContext ? await analyzeTranscript({
       visualContext,
       transcript,
       platform,
@@ -452,12 +458,22 @@ export async function POST(req: NextRequest) {
   mode: requestMode,
     }) : { transcript: "", summary: "Analyse audio indisponible : aucune parole détectée.", hook: "", structure: "", angle: "", psychology: [], strengths: [], weaknesses: [], recreateIdeas: [], similarHooks: [], similarAngles: [], scriptPrompt: "", viralScore: "", whyItWorks: [], howToBeat: [], adsAngles: [], creativeType: "" };
 
+    // ADNIA V1.8.2 : relecture critique multimodale, sans modifier le worker ni les droits Agency.
+    const { analysis: result, qualityReview } = await reviewCreativeAnalysis({
+      openai,
+      analysis: firstResult,
+      transcript,
+      visualContext,
+      transcriptSegments: awaitedSegments,
+      language: normalizeOutputLanguage(language),
+    });
     return NextResponse.json({
       success: true,
       noStorage: true,
       platform,
       language: normalizeOutputLanguage(language),
       ...result,
+      qualityReview,
       transcript,
     });
   } catch (err: any) {

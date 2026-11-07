@@ -1,6 +1,7 @@
 "use client";
 import SaveCreative from "@/components/SaveCreative";
 import VideoIntelligenceCoverage from "@/components/VideoIntelligenceCoverage";
+import VideoIntelligenceTimeline from "@/components/VideoIntelligenceTimeline";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -44,7 +45,7 @@ type AnalyzeResponse = {
   // UGC_VISUAL_V14 — observations sourcées, non métriques plateforme.
   visualAnalysisAvailable?: boolean;
   visualAnalysisNote?: string;
-  visualTimeline?: Array<{frameIndex:number;timecode:string;label:string;observation:string;attentionRisk?:string;evidence?:string}>;
+  visualTimeline?: Array<{frameIndex:number;timestampSeconds?:number;timecode:string;label:string;observation:string;attentionRisk?:string;evidence?:string}>;
   visualHook?: {observation?:string};
   pacing?: {observation?:string};
   proofAnalysis?: {status?:string;observation?:string};
@@ -551,6 +552,9 @@ export default function AnalyzeUploadPage() {
               hasLocalPlayer={mode === "video_file" && Boolean(previewUrl)}
               platform={platform}
             />
+            {mode !== "video_file" && (
+              <VideoIntelligenceTimeline scenes={result.visualTimeline} speech={result.transcriptSegments} transcript={result.transcript} />
+            )}
             {/* V1.6: local video with evidence markers. The media file never enters the saved analysis JSON. */}
             {mode === "video_file" && previewUrl && (
               <Block title="Video Intelligence · Lecteur synchronisé">
@@ -587,26 +591,13 @@ export default function AnalyzeUploadPage() {
                       </div>
                     ) : <p className="text-xs text-white/45">Mesures V1.6 indisponibles : le worker Railway doit être mis à jour avant le nouveau test.</p>}
                   </div>
-                  <div className="max-h-[530px] space-y-3 overflow-y-auto">
-                    <p className="text-sm font-semibold text-white">Observations vidéo · cliquer pour avancer</p>
-                    {(result.visualTimeline || []).map((scene, i) => {
-                      const match = /^([0-9]+):([0-9]+(?:\.[0-9]+)?)$/.exec(scene.timecode || "");
-                      const at = match ? Number(match[1]) * 60 + Number(match[2]) : NaN;
-                      return <button key={`${scene.frameIndex}-${i}`} type="button" onClick={() => seekToSecond(at)}
-                        className={cn("block w-full rounded-xl border bg-white/[0.025] p-3 text-left text-xs leading-5 hover:border-violet-400/50", Math.abs(playbackSecond - at) < 1.5 ? "border-violet-400/70 text-white" : "border-white/10 text-white/75")}>
-                        <span className="font-mono text-violet-300">{scene.timecode}</span> · <strong>{scene.label}</strong>
-                        <span className="mt-1 block">{scene.observation}</span>
-                      </button>;
-                    })}
-                    {!!result.transcriptSegments?.length && <>
-                      <p className="pt-2 text-sm font-semibold text-white">Paroles horodatées · Whisper</p>
-                      {result.transcriptSegments.map((segment, i) => <button key={`${segment.start}-${i}`} type="button"
-                        onClick={() => seekToSecond(segment.start)}
-                        className={cn("block w-full rounded-lg border p-2 text-left text-xs leading-5", playbackSecond >= segment.start && playbackSecond <= segment.end ? "border-violet-400/60 bg-violet-500/15 text-white" : "border-white/10 text-white/65 hover:border-white/30")}>
-                        <span className="font-mono text-violet-300">{formatSecond(segment.start)}–{formatSecond(segment.end)}</span> · {segment.text}
-                      </button>)}
-                    </>}
-                  </div>
+                  <VideoIntelligenceTimeline
+                    scenes={result.visualTimeline}
+                    speech={result.transcriptSegments}
+                    transcript={result.transcript}
+                    currentSecond={playbackSecond}
+                    onSeek={seekToSecond}
+                  />
                 </div>
               </Block>
             )}
@@ -643,16 +634,26 @@ export default function AnalyzeUploadPage() {
                     {result.visualHook?.observation && <p><strong>Hook visuel :</strong> {result.visualHook.observation}</p>}
                     {result.pacing?.observation && <p><strong>Rythme visuel estimé :</strong> {result.pacing.observation}</p>}
                     {result.ctaAnalysis && <p><strong>CTA visible dans les captures :</strong> {result.ctaAnalysis.status === "unknown" ? "Non vérifiable" : result.ctaAnalysis.text || result.ctaAnalysis.status}</p>}
-                    {(result.visualTimeline || []).map((scene, i) => <div key={`${scene.frameIndex}-${i}`} className="rounded-xl border border-white/10 p-3">
-                      <span className="font-mono text-violet-300">{scene.timecode}</span> · {scene.label}
-                      <p>{scene.observation}</p>
-                    </div>)}
+                    <p className="text-xs text-white/50">Les observations horodatées sont présentées une seule fois dans la timeline des preuves ci-dessus.</p>
                     {!!result.priorityFixes?.length && !result.diagnosticV15 && <div><strong>Corrections prioritaires</strong>{result.priorityFixes.map((fix) => <p key={fix.priority}>{fix.priority}. {fix.diagnosis} — {fix.action} ({fix.evidence})</p>)}</div>}
                     {!!result.dataIntegrity?.limitations?.length && <div><strong>Limites de l’analyse</strong>{result.dataIntegrity.limitations.map((limitation, i) => <p key={i}>{limitation}</p>)}</div>}
                   </>}
                 </div>
               </Block>
             )}
+            {!result.diagnosticV15 && (
+              <Block title="Diagnostic créatif · Synthèse">
+                <div className="space-y-3 text-sm leading-6 text-white/75">
+                  {result.summary && <p><strong>Résumé :</strong> {result.summary}</p>}
+                  {result.hook && <p><strong>Hook :</strong> {result.hook}</p>}
+                  {result.angle && <p><strong>Angle :</strong> {result.angle}</p>}
+                  <p className="text-xs text-white/45">Diagnostic basé uniquement sur les sources signalées comme disponibles. Les performances restent inconnues sans données publicitaires.</p>
+                </div>
+              </Block>
+            )}
+            <details className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+              <summary className="cursor-pointer text-sm font-semibold text-violet-200">Afficher les analyses complémentaires et le transcript complet</summary>
+              <p className="mt-2 mb-4 text-xs text-white/45">Les champs historiques sont conservés pour les projets déjà enregistrés, mais regroupés pour éviter les répétitions dans le diagnostic principal.</p>
             <div className="grid gap-4 md:grid-cols-2">
             <Block title="Transcript"><TextBlock value={result.transcript} /></Block>
             <Block title="Résumé"><TextBlock value={result.summary} /></Block>
@@ -671,6 +672,7 @@ export default function AnalyzeUploadPage() {
             <Block title="Type de créa"><TextBlock value={result.creativeType} /></Block>
             <div className="md:col-span-2"><Block title="Brief pour recréer une vidéo similaire"><TextBlock value={result.scriptPrompt} /></Block></div>
             </div>
+            </details>
           </section>
         )}
       </div>

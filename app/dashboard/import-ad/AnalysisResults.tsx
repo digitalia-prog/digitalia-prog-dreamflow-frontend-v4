@@ -1,7 +1,10 @@
 "use client";
 
+import VideoIntelligenceTimeline from "@/components/VideoIntelligenceTimeline";
+
 export type AnalysisResult = {
   transcript?: string;
+  transcriptSegments?: Array<{start:number;end:number;text:string}>;
   summary?: string;
   hook?: string;
   structure?: string;
@@ -186,6 +189,10 @@ export default function AnalysisResults({
         </div>
       </div>
 
+      {(result.visualTimeline?.length || result.transcriptSegments?.length || result.transcript) ? (
+        <VideoIntelligenceTimeline scenes={result.visualTimeline} speech={result.transcriptSegments} transcript={result.transcript} />
+      ) : null}
+
       <article className="rounded-3xl border border-cyan-400/20 bg-[#121826] p-6 md:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -211,26 +218,7 @@ export default function AnalysisResults({
         </p>
 
         {result.visualAnalysisAvailable && result.visualTimeline?.length ? (
-          <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {result.visualTimeline.map((moment, index) => (
-              <div
-                key={`${moment.frameIndex}-${index}`}
-                className="rounded-2xl border border-white/10 bg-black/20 p-4"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="font-mono text-xs font-semibold text-cyan-200">
-                    {moment.timecode}
-                  </span>
-                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/55">
-                    Observé
-                  </span>
-                </div>
-                <p className="mt-3 text-sm font-semibold text-white">{moment.label}</p>
-                <p className="mt-2 text-sm leading-6 text-white/65">{moment.observation}</p>
-
-              </div>
-            ))}
-          </div>
+          <p className="mt-4 text-xs text-white/50">Les scènes horodatées sont regroupées dans la timeline des preuves ci-dessus.</p>
         ) : null}
 
         {result.visualAnalysisAvailable ? (
@@ -320,6 +308,9 @@ export default function AnalysisResults({
         <Card title="Faiblesses" items={result.weaknesses} />
       </div>
 
+      <details className="rounded-3xl border border-white/10 bg-[#151526] p-5 md:p-6">
+        <summary className="cursor-pointer text-sm font-semibold text-violet-200">Pistes créatives complémentaires : hooks, angles et brief de script</summary>
+        <div className="mt-5 space-y-5">
       <div className="grid gap-6 lg:grid-cols-3">
         <Card title="Idées à reproduire" items={result.recreateIdeas} />
         <Card title="Hooks similaires" items={result.similarHooks} />
@@ -344,6 +335,9 @@ export default function AnalysisResults({
           </p>
         </div>
       </article>
+
+        </div>
+      </details>
 
       {result.transcript ? (
         <article className="rounded-3xl border border-white/10 bg-[#151526] p-6">

@@ -36,6 +36,16 @@ export default function AgencyPage() {
         </a>
 
         <a
+          href="/dashboard/agency/performance"
+          className="rounded-2xl border border-violet-400/30 bg-violet-600/10 p-6 hover:border-violet-400/60"
+        >
+          <h2 className="text-xl font-semibold">Performance Ads · DATA</h2>
+          <p className="mt-2 text-sm text-white/60">
+            Import CSV Meta, TikTok ou Google Ads et calculs CTR, CPA, ROAS sans données fictives.
+          </p>
+        </a>
+
+        <a
           href="/dashboard/campaigns"
           className="rounded-2xl border border-white/10 bg-white/5 p-6 hover:border-violet-500/40"
         >

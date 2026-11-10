@@ -4,6 +4,7 @@
  * retrouvée mécaniquement dans les données reçues du worker.
  */
 import type OpenAI from "openai";
+import { findVerifiedAudioTimecode, normalizeEvidenceText } from "@/lib/adniaEvidenceTimecode";
 
 export type QualityAnchor = {
   claim: string;
@@ -20,7 +21,7 @@ export type AdniaQualityReview = {
 
 const string = (v: unknown, n = 1200) => typeof v === "string" ? v.trim().slice(0, n) : "";
 const strings = (v: unknown, n = 8): string[] => Array.isArray(v) ? v.filter(x => typeof x === "string").slice(0, n).map(x => string(x, 650)).filter(Boolean) : [];
-const canon = (s: string) => s.normalize("NFKC").toLowerCase().replace(/\s+/g, " ").trim();
+const canon = normalizeEvidenceText;
 
 function extractSceneList(source: string): Array<{timecode: string; observation: string}> {
   if (!source) return [];
@@ -41,28 +42,43 @@ function validateAnchors(
 ): QualityAnchor[] {
   const candidates = Array.isArray(raw) ? raw.slice(0, 12) : [];
   const output: QualityAnchor[] = [];
+  const seen = new Set<string>();
   for (const item of candidates) {
     const claim = string(item?.claim, 250);
     const source = item?.source;
-    const timecode = string(item?.timecode, 25);
+    const rawTimecode = string(item?.timecode, 25);
     const excerpt = string(item?.excerpt, 220);
     if (!claim || !excerpt || excerpt.length < 8 || !["audio", "visual"].includes(source)) continue;
+    let timecode = "";
     if (source === "visual") {
-      const match = scenes.find(s => s.timecode === timecode && canon(s.observation).includes(canon(excerpt)));
+      const match = scenes.find(scene =>
+        scene.timecode === rawTimecode && canon(scene.observation).includes(canon(excerpt))
+      );
       if (!match) continue;
+      timecode = match.timecode;
     } else {
+      // Le modèle ne choisit JAMAIS lui-même l'instant de la preuve audio.
       if (!canon(transcript).includes(canon(excerpt))) continue;
-      // Pas de timecode audio inventé : uniquement une période couverte par Whisper.
-      if (timecode) {
-        const match = segments.some(seg =>
-          `${Math.floor(seg.start)}` === timecode && canon(seg.text).includes(canon(excerpt))
-        );
-        if (!match) continue;
-      }
+      timecode = findVerifiedAudioTimecode(excerpt, transcript, segments) || "";
     }
+    const key = `${source}:${canon(excerpt)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
     output.push({ claim, source, timecode, excerpt });
   }
   return output.slice(0, 6);
+}
+
+// Aucune métrique de rétention n'est reçue par cette API. Les effets
+// psychologiques proposés doivent toujours être présentés comme des hypothèses.
+function qualifyEffect(value: string): string {
+  const v = string(value, 1400);
+  if (!v) return "";
+  const cautious = /\b(peut|pourrait|semble|susceptible|hypothèse|possible|potentiel|probable|à tester|non mesur|estimer|risque)\b/i;
+  const causal = /\b(capte|captent|maintient|maintiennent|augmente|augmentent|renforce|renforcent|améliore|améliorent|garantit|garantissent|favorise|favorisent|déclenche|déclenchent|provoque|provoquent|stimule|stimulent|génère|génèrent|pousse|poussent)\b/i;
+  const outcomes = /\b(attention|rétention|engagement|conversion|confiance|mémorisation|impact|performances?|spectateurs?|audience)\b/i;
+  return causal.test(v) && outcomes.test(v) && !cautious.test(v)
+    ? `Hypothèse à tester (effet non mesuré) : ${v}` : v;
 }
 
 const SUMMARY_KEYS = ["summary", "hook", "structure", "angle", "scriptPrompt", "creativeType"] as const;
@@ -105,7 +121,7 @@ Langue de la réponse: ${language}. Réponds uniquement avec un objet JSON valid
 Examine et CORRIGE le rapport entier. Règles de validation :
 1. Chaque proposition factuelle doit être justifiée par le transcript ou les observations visuelles HORODATÉES reçues. Ne transforme jamais une déclaration en fait vérifié.
 2. Ne prétends pas avoir vu les images si aucune observation visuelle n'est disponible. Une capture échantillonnée ne prouve pas ce qui se passe entre les captures.
-3. Aucune donnée réelle de CTR, ROAS, rétention, audience, conversions ou efficacité n'est fournie. Parle d'HYPOTHÈSES testables et jamais de performance constatée.
+3. Aucune donnée réelle de CTR, ROAS, rétention, audience, conversions ou efficacité n'est fournie. Parle d'HYPOTHÈSES testables et jamais de performance constatée. Interdit d'affirmer qu'une vidéo maintient l'attention, crée de la confiance ou convertit : écris seulement ce qui pourrait être testé.
 4. Distingue CTA audio, CTA visuel, CTA comportemental et absence non vérifiable. Ne déduis pas qu'un CTA est à la fin sans horodatage audio.
 5. Détecte les inversions de sens, répétitions et contradictions entre diagnostic et autres rubriques ; supprime les affirmations impossibles à étayer.
 6. Les tests A et B doivent modifier des LEVIERS créatifs différents et fournir une mesure à collecter après diffusion. Pas de chiffres inventés.
@@ -122,7 +138,7 @@ PREMIER RAPPORT A CORRIGER: ${JSON.stringify(original).slice(0, 22000)}
 Retourne ce schéma JSON, sans autres clés :
 {"revised":{"summary":"","hook":"","structure":"","angle":"","scriptPrompt":"","creativeType":"","psychology":[],"strengths":[],"weaknesses":[],"recreateIdeas":[],"similarHooks":[],"similarAngles":[],"whyItWorks":[],"howToBeat":[],"adsAngles":[],"diagnosticV15":{"objective":"","synopsis":"","facts":[],"hypotheses":[],"ctaType":"","ctaEvidence":"","recommendations":[],"tests":[{"variant":"A","hypothesis":"","change":"","whatToObserve":""},{"variant":"B","hypothesis":"","change":"","whatToObserve":""}],"limitations":[]}},"notes":["limite ou point corrigé"],"anchors":[{"claim":"conclusion","source":"visual ou audio","timecode":"code visuel exact ou vide","excerpt":"court EXTRAIT LITTÉRAL présent dans la source"}]}
 
-Pour une preuve audio sans segment fiable, timecode="". Pour une preuve visuelle, utilise exclusivement le timecode de la scène correspondante. N'invente jamais d'extrait ou de timecode.`;
+Pour une preuve audio, recopie un extrait EXACT du transcript et le champ timecode="" : le code rapproche lui-même la citation des segments Whisper. Pour une preuve visuelle, utilise exclusivement le timecode de la scène correspondante. N'invente jamais d'extrait ou de timecode.`;
     const response = await openai.chat.completions.create({
       model: process.env.OPENAI_QA_MODEL || process.env.OPENAI_ANALYSIS_MODEL || "gpt-4.1-mini",
       temperature: 0,
@@ -139,7 +155,11 @@ Pour une preuve audio sans segment fiable, timecode="". Pour une preuve visuelle
     }
     const merged = { ...analysis };
     for (const key of SUMMARY_KEYS) if (typeof revised[key] === "string") merged[key] = string(revised[key], 2300);
-    for (const key of ARRAY_KEYS) if (Array.isArray(revised[key])) merged[key] = strings(revised[key], 8);
+    for (const key of ARRAY_KEYS) if (Array.isArray(revised[key])) {
+      const entries = strings(revised[key], 8);
+      merged[key] = (["psychology", "strengths", "whyItWorks"] as string[]).includes(key)
+        ? entries.map(qualifyEffect) : entries;
+    }
     // Les champs hérités sont conservés ; le diagnostic validé remplace la première version.
     const d = revised.diagnosticV15;
     const old = analysis.diagnosticV15 || {};
@@ -150,7 +170,10 @@ Pour une preuve audio sans segment fiable, timecode="". Pour une preuve visuelle
     merged.diagnosticV15 = {
       ...old,
       ...Object.fromEntries(["objective", "synopsis", "ctaType", "ctaEvidence"].map(k => [k, typeof d[k] === "string" ? string(d[k]) : string(old[k])])),
-      ...Object.fromEntries(["facts", "hypotheses", "recommendations", "limitations"].map(k => [k, Array.isArray(d[k]) ? strings(d[k], 8) : strings(old[k], 8)])),
+      ...Object.fromEntries(["facts", "hypotheses", "recommendations", "limitations"].map(k => {
+        const entries = Array.isArray(d[k]) ? strings(d[k], 8) : strings(old[k], 8);
+        return [k, k === "hypotheses" ? entries.map(qualifyEffect) : entries];
+      })),
       tests,
     };
     merged.viralScore = "";

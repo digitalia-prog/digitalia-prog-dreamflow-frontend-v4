@@ -615,7 +615,14 @@ export default function AnalyzeUploadPage() {
                     ? "Relecture de cohérence IA effectuée"
                     : "Relecture supplémentaire indisponible"}</p>
                   <p className="text-xs text-white/50">Une seconde lecture IA peut réduire les contradictions, mais ne prouve ni l'authenticité des événements ni les performances publicitaires.</p>
-                  {!!result.qualityReview.notes?.length && <ListBlock items={result.qualityReview.notes} />}
+                  {!!result.qualityReview.notes?.length && (
+                    <details className="rounded-xl border border-white/10 bg-white/[0.025] p-3">
+                      <summary className="cursor-pointer text-xs font-semibold text-white/70">
+                        Vérifications et réserves ({result.qualityReview.notes.length})
+                      </summary>
+                      <div className="mt-3"><ListBlock items={result.qualityReview.notes} /></div>
+                    </details>
+                  )}
                   {!!result.qualityReview.anchors?.length && <div className="space-y-2">
                     <p className="text-sm font-semibold text-white/80">Extraits retrouvés dans les sources</p>
                     {result.qualityReview.anchors.map((item, i) => (

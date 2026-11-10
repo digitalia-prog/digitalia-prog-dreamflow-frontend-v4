@@ -2,6 +2,7 @@
 import SaveCreative from "@/components/SaveCreative";
 import VideoIntelligenceCoverage from "@/components/VideoIntelligenceCoverage";
 import VideoIntelligenceTimeline from "@/components/VideoIntelligenceTimeline";
+import AdPerformanceForVideo from "@/components/AdPerformanceForVideo";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -559,6 +560,7 @@ export default function AnalyzeUploadPage() {
               hasLocalPlayer={mode === "video_file" && Boolean(previewUrl)}
               platform={platform}
             />
+            {mode !== "audio_file" && <AdPerformanceForVideo key={mode === "video_file" ? previewUrl || file?.name || "video" : url || "url"} videoName={mode === "video_file" ? file?.name || "Vidéo importée" : url || "Vidéo analysée"} />}
             {mode !== "video_file" && (
               <VideoIntelligenceTimeline scenes={result.visualTimeline} speech={result.transcriptSegments} transcript={result.transcript} />
             )}

@@ -4,7 +4,7 @@ import { PSYCHOLOGY_ANALYSIS_CORE, normalizePsychologyArray } from "@/lib/psycho
 import { reviewCreativeAnalysis } from "@/lib/adniaQualityReview";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 const VIDEO_WORKER_URL =
   process.env.VIDEO_WORKER_URL ||

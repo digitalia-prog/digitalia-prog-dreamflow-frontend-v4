@@ -560,7 +560,7 @@ export default function AnalyzeUploadPage() {
               hasLocalPlayer={mode === "video_file" && Boolean(previewUrl)}
               platform={platform}
             />
-            {mode !== "audio_file" && <AdPerformanceForVideo key={mode === "video_file" ? previewUrl || file?.name || "video" : url || "url"} videoName={mode === "video_file" ? file?.name || "Vidéo importée" : url || "Vidéo analysée"} />}
+            {mode !== "audio_file" && <AdPerformanceForVideo key={mode === "video_file" ? previewUrl || file?.name || "video" : url || "url"} videoName={mode === "video_file" ? file?.name || "Vidéo importée" : url || "Vidéo analysée"} analysis={result} />}
             {mode !== "video_file" && (
               <VideoIntelligenceTimeline scenes={result.visualTimeline} speech={result.transcriptSegments} transcript={result.transcript} />
             )}

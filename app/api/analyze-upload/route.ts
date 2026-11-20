@@ -220,6 +220,9 @@ RÈGLES ESSENTIELLES DE DIAGNOSTIC MULTIMODAL :
 - Les timecodes des captures concernent seulement les images ; les segments de parole ont leurs propres timecodes Whisper si fournis. Ne les confonds pas.
 - Une variation de pixels mesurée à 1 Hz n'est ni un changement de plan confirmé, ni une mesure d'attention, ni une analyse IA de chaque seconde. N'invente pas ce qui se passe entre les captures.
 - Un conseil ou une mise en garde explicite peut constituer un CTA comportemental, même sans demande de partage ou de vente.
+- Si la personne donne déjà un CTA comportemental dans l'audio, ne conclus JAMAIS "aucun CTA" et ne recommande pas simplement d'"ajouter un CTA". Propose plutôt de rendre cet appel existant plus explicite à l'écran ou de TESTER une nouvelle invitation à commenter/partager, en nommant la différence.
+- Ne donne pas un timecode estimé pour un CTA : si son instant exact n'est pas confirmé par un segment de parole, cite les mots sans horaire.
+- Le worker interprète un PETIT NOMBRE de captures visuelles IA échantillonnées ; il mesure PAR AILLEURS la différence de pixels à 1 Hz. Ne dis jamais "analyse visuelle IA à 1 Hz", ni "10 captures = 180 secondes analysées visuellement".
 - "whyItWorks" doit décrire des leviers CRÉATIFS PLAUSIBLES, et non prétendre à une performance observée.
 - Si une conclusion manque de preuves, dis-le et laisse les champs correspondants vides plutôt que d'inventer.
 - Propose deux versions A et B avec modifications DIFFÉRENTES, chacune avec hypothèse testable et mesure à RECUEILLIR après diffusion (pas de métrique inventée).

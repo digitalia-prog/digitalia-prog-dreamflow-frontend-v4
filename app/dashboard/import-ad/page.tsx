@@ -197,7 +197,7 @@ setMounted(true);
       return;
     }
 
-    if (!analysisUrl) {
+    if (!analysisUrl && !(platform === "meta" && isVideoCreative)) {
       setStatus("error");
       setMessage(
         "La publicité a bien été détectée, mais aucune URL exploitable n’a été transmise."
@@ -205,7 +205,7 @@ setMounted(true);
       return;
     }
 
-    if (isBlobUrl(analysisUrl)) {
+    if (isBlobUrl(analysisUrl) && !(platform === "meta" && isVideoCreative)) {
       setStatus("error");
       setMessage(
         `${platformLabel} a transmis une URL vidéo temporaire. La publicité est bien détectée, mais cette URL ne peut pas encore être analysée depuis un autre onglet.`
@@ -224,7 +224,7 @@ setMounted(true);
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          url: analysisUrl,
+          url: isVideoCreative && platform === "meta" && isBlobUrl(analysisUrl) ? sourceUrl : analysisUrl,
           sourceUrl,
           sourcePlatform: platform,
           platform,

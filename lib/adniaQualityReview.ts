@@ -164,6 +164,36 @@ function sourceAnchors(
   return anchors.slice(0, 4);
 }
 
+// V1.8.6 — rattachement des tests A/B à des extraits réellement localisables.
+// Les extraits établissent l'indice créatif, jamais l'efficacité de la modification.
+function attachVerifiedTestEvidence(
+  analysis: any,
+  transcript: string,
+  segments: Array<{start:number;end:number;text:string}>,
+  scenes: Array<{timecode:string;observation:string}>,
+): any {
+  if (!analysis?.diagnosticV15 || !Array.isArray(analysis.diagnosticV15.tests)) return analysis;
+  const tests = analysis.diagnosticV15.tests.map((item: any) => {
+    if (!item || typeof item !== "object") return item;
+    const { evidenceSource, evidenceExcerpt, evidenceTimecode, verifiedEvidence: _untrusted, ...rest } = item;
+    const source = string(evidenceSource, 12);
+    const excerpt = string(evidenceExcerpt, 220);
+    let verifiedEvidence: {source:"audio"|"visual";excerpt:string;timecode:string} | null = null;
+    if (canon(excerpt).length >= 12 && source === "audio") {
+      // Un horodatage audio ne peut venir que d'une correspondance Whisper unique.
+      const timecode = findVerifiedAudioTimecode(excerpt, transcript, segments);
+      if (timecode) verifiedEvidence = { source:"audio", excerpt, timecode };
+    } else if (canon(excerpt).length >= 12 && source === "visual") {
+      // Une observation IA n'a de preuve qu'à l'instant exact d'une capture reçue.
+      const match = scenes.find(s => s.timecode === string(evidenceTimecode, 25)
+        && canon(s.observation).includes(canon(excerpt)));
+      if (match) verifiedEvidence = { source:"visual", excerpt, timecode:match.timecode };
+    }
+    return { ...rest, verifiedEvidence };
+  });
+  return { ...analysis, diagnosticV15:{ ...analysis.diagnosticV15, tests } };
+}
+
 export async function reviewCreativeAnalysis(args: {
   openai: OpenAI;
   analysis: any;
@@ -179,7 +209,7 @@ export async function reviewCreativeAnalysis(args: {
   const scenes = extractSceneList(visualContext);
   const coverage: AdniaQualityReview["coverage"] = visualContext && transcript
     ? "sampled_visual_and_audio" : visualContext ? "visual_only" : "audio_only";
-  const baseAnalysis = safeFirstAnalysis(analysis);
+  const baseAnalysis = attachVerifiedTestEvidence(safeFirstAnalysis(analysis), transcript, segments, scenes);
   const fallback: AdniaQualityReview = {
     status: "unavailable",
     notes: [

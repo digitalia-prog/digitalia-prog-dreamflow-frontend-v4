@@ -40,7 +40,7 @@ type AnalyzeResponse = {
     ctaType?: string;
     ctaEvidence?: string;
     recommendations?: string[];
-    tests?: Array<{variant?: string; hypothesis?: string; change?: string; whatToObserve?: string}>;
+    tests?: Array<{variant?: string; hypothesis?: string; change?: string; whatToObserve?: string; verifiedEvidence?: {source:"audio"|"visual";excerpt:string;timecode:string} | null}>;
     limitations?: string[];
   } | null;
   // UGC_VISUAL_V14 — observations sourcées, non métriques plateforme.
@@ -149,6 +149,13 @@ function mapResponseToResult(data: any): AnalyzeResponse {
 function formatSecond(value: number): string {
   const s = Math.max(0, Math.floor(value));
   return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+}
+
+function evidenceSecond(timecode: string): number | null {
+  const leading = timecode.split(/[–—]/)[0].trim();
+  const parts = leading.split(":").map(Number);
+  if ((parts.length !== 2 && parts.length !== 3) || parts.some(n => !Number.isInteger(n) || n < 0)) return null;
+  return parts.reduce((acc, n) => acc * 60 + n, 0);
 }
 
 function modeFromQuery(value: string | null): AnalyzeMode | null {
@@ -655,6 +662,20 @@ export default function AnalyzeUploadPage() {
                         {test.hypothesis && <p><strong>Hypothèse :</strong> {test.hypothesis}</p>}
                         {test.change && <p><strong>Modification :</strong> {test.change}</p>}
                         {test.whatToObserve && <p><strong>À mesurer après diffusion :</strong> {test.whatToObserve}</p>}
+                        {test.verifiedEvidence?.timecode ? (
+                          <div className="mt-3 border-t border-violet-300/15 pt-3 text-xs text-white/65">
+                            <p><strong>Indice source vérifié</strong> · {test.verifiedEvidence.source === "audio" ? "paroles transcrites" : "capture IA échantillonnée"} · {test.verifiedEvidence.timecode}</p>
+                            <p className="mt-1 italic">« {test.verifiedEvidence.excerpt} »</p>
+                            {mode === "video_file" && previewUrl && evidenceSecond(test.verifiedEvidence.timecode) !== null && (
+                              <button type="button" onClick={() => {
+                                const second = evidenceSecond(test.verifiedEvidence!.timecode);
+                                if (second !== null) seekToSecond(second);
+                              }} className="mt-2 rounded-lg border border-violet-300/30 px-2.5 py-1.5 text-violet-200 hover:bg-violet-400/10">
+                                Voir ce passage dans la vidéo
+                              </button>
+                            )}
+                          </div>
+                        ) : <p className="mt-3 text-xs text-white/40">Aucun extrait horodaté confirmé pour cette variante. Hypothèse créative à tester.</p>}
                       </div>
                     ))}
                   </div>}

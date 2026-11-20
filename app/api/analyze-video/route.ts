@@ -613,21 +613,23 @@ export async function POST(req: Request) {
       return NextResponse.json({
         platform: body?.sourcePlatform || body?.platform || "meta",
         language: normalizeOutputLanguage(language),
-        transcript: body?.adText || "",
+        transcript: "",
+        analysisMode: "image",
         sourceEvidence: extractDescriptionEvidence(body?.adText),
         ...analysis,
-      creativeType: "image",
-  });
+        creativeType: "image",
+      });
     }
 
     const platform = detectPlatform(url);
 
     if (platform === "facebook") {
+      if (isMetaAd) {
+        return analyzeMetaMetadataOnly(body, language,
+          "Le lien de la bibliothèque Meta ne donne pas accès au fichier vidéo. Analyse limitée aux informations de l'annonce.");
+      }
       return NextResponse.json(
-        {
-          error: "Facebook non supporté via lien. Upload la vidéo.",
-          fallback: "upload",
-        },
+        { error: "Facebook non supporté via lien. Upload la vidéo.", fallback: "upload" },
         { status: 422 }
       );
     }
@@ -640,6 +642,10 @@ export async function POST(req: Request) {
           ? await transcribeYoutubeWithSupadata(url)
           : await transcribeVideoUrl(url);
     } catch (err: any) {
+      if (isMetaVideo) {
+        return analyzeMetaMetadataOnly(body, language,
+          "La vidéo Meta a été détectée, mais sa récupération ou sa transcription a échoué. Seul le texte publicitaire est exploitable.");
+      }
       if (err.isAntiBot) {
         return NextResponse.json(
           {

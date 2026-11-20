@@ -535,11 +535,70 @@ Tu analyses aussi les éléments visuels réellement présents dans l’image. J
   return normalizeAnalysis(parsed);
 }
 
+
+function isMetaExtensionAd(body: any): boolean {
+  return ["meta", "facebook"].includes(String(body?.sourcePlatform || body?.platform || "").toLowerCase());
+}
+
+function isUsableDirectMetaVideoUrl(raw: unknown): boolean {
+  if (typeof raw !== "string" || !/^https?:\/\//i.test(raw)) return false;
+  try {
+    const url = new URL(raw);
+    const host = url.hostname.toLowerCase();
+    if (host === "facebook.com" || host.endsWith(".facebook.com") ||
+        host === "fb.me" || host.endsWith(".fb.me")) return false;
+    if (/\.(jpe?g|png|webp|gif|avif)(?:$|[?#])/i.test(raw)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function metaAnalysisContext(body: any): AnalysisContext {
+  return {
+    sourcePlatform: body?.sourcePlatform || body?.platform || "meta",
+    advertiserName: body?.advertiserName || "",
+    adText: body?.adText || "",
+    callToAction: body?.callToAction || "",
+    landingPage: body?.landingPage || "",
+    libraryId: body?.libraryId || "",
+    creativeType: body?.creativeType || "video",
+  };
+}
+
+async function analyzeMetaMetadataOnly(body: any, language: string, reason: string) {
+  // Aucun transcript audio fictif: seule la description publicitaire est utilisée.
+  const context = metaAnalysisContext(body);
+  const analysis = String(context.adText || "").trim()
+    ? await analyzeTranscript("", language, context)
+    : normalizeAnalysis({});
+  return NextResponse.json({
+    platform: "meta",
+    language: normalizeOutputLanguage(language),
+    ...analysis,
+    creativeType: context.creativeType,
+    analysisMode: "metadata_only",
+    transcript: "",
+    transcriptSegments: [],
+    visualAnalysisAvailable: false,
+    visualAnalysisNote: reason,
+    visualTimeline: [],
+    sourceEvidence: extractDescriptionEvidence(context.adText),
+  });
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { url } = body;
     const language = body?.language || body?.lang || "French";
+
+    const isMetaAd = isMetaExtensionAd(body);
+    const isMetaVideo = isMetaAd && body?.creativeType === "video";
+    if (isMetaVideo && !isUsableDirectMetaVideoUrl(url)) {
+      return analyzeMetaMetadataOnly(body, language,
+        "La publicité Meta a fourni du texte ou une miniature, mais aucun fichier vidéo directement exploitable. Aucune parole ni image vidéo n'a été analysée.");
+    }
 
     if (!url) {
       return NextResponse.json({ error: "Lien manquant" }, { status: 400 });

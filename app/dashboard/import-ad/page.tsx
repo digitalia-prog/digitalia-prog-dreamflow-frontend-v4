@@ -149,6 +149,7 @@ setMounted(true);
   const [status, setStatus] = useState<AnalysisStatus>("preparing");
   const [message, setMessage] = useState("");
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [forceVideo, setForceVideo] = useState(false);
 
   const rawPlatform =
     ad?.sourcePlatform ||
@@ -184,7 +185,8 @@ setMounted(true);
   const analysisUrl = creativeUrl || sourceUrl;
   const descriptionEvidence = extractDescriptionEvidence(ad?.adText);
 
-  const isVideoCreative = ad?.creativeType === "video";
+  const isVideoCreative = ad?.creativeType === "video" || (platform === "meta" && forceVideo);
+  const videoPoster = posterUrl || (isVideoCreative && isImageUrl(creativeUrl) ? creativeUrl : "");
   const creativeIsImage = ad?.creativeType === "image" ||
     (!isVideoCreative && Boolean(creativeUrl && isImageUrl(creativeUrl)));
 
@@ -235,7 +237,7 @@ setMounted(true);
           landingPage: ad.landingPage || "",
           publishedAt: ad.publishedAt || "",
           creativeUrl,
-          creativeType: ad.creativeType || "unknown",
+          creativeType: isVideoCreative ? "video" : (ad.creativeType || "unknown"),
           metadata: {
             source:
               ad.source ||
@@ -500,19 +502,35 @@ if (!ad) {
             <h2 className="text-lg font-semibold text-white">
               Créatif détecté
             </h2>
+            {platform === "meta" && ad?.creativeType !== "video" ? (
+              <label className="mt-3 flex cursor-pointer items-center gap-2 text-xs leading-5 text-white/70">
+                <input
+                  type="checkbox"
+                  checked={forceVideo}
+                  onChange={(event) => {
+                    setForceVideo(event.target.checked);
+                    setAnalysisResult(null);
+                    setStatus("ready");
+                    setMessage("Type de créatif corrigé. Relance l’analyse pour utiliser ce choix.");
+                  }}
+                  className="h-4 w-4 accent-violet-500"
+                />
+                Cette publicité est une vidéo (la miniature ressemble à une photo)
+              </label>
+            ) : null}
 
             <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-black/25">
-              {isVideoCreative && creativeUrl && !isImageUrl(creativeUrl) ? (
+              {isVideoCreative && creativeUrl && !isImageUrl(creativeUrl) && !isBlobUrl(creativeUrl) ? (
                 <video
                   src={creativeUrl}
                   controls
                   playsInline
                   className="aspect-video w-full object-contain"
                 />
-              ) : isVideoCreative && posterUrl ? (
+              ) : isVideoCreative && videoPoster ? (
                 <div>
                   <img
-                    src={posterUrl}
+                    src={videoPoster}
                     alt="Miniature de la publicité vidéo Meta"
                     className="aspect-video w-full object-contain"
                   />

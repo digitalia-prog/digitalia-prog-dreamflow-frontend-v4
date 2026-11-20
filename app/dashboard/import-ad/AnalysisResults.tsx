@@ -201,15 +201,23 @@ export default function AnalysisResults({
               Creative Debugger · Analyse visuelle
             </p>
             <h3 className="mt-2 text-xl font-bold text-white">
-              {result.visualAnalysisAvailable ? "Ce qui a été observé dans la vidéo" : "Vérification des images vidéo"}
+              {result.analysisMode === "image"
+                ? "Analyse du visuel publicitaire statique"
+                : result.visualAnalysisAvailable
+                  ? "Ce qui a été observé dans la vidéo"
+                  : "Vérification des images vidéo"}
             </h3>
           </div>
           <span className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
-            result.visualAnalysisAvailable
+            result.analysisMode === "image" || result.visualAnalysisAvailable
               ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-200"
               : "border-amber-400/20 bg-amber-500/10 text-amber-200"
           }`}>
-            {result.visualAnalysisAvailable ? "Captures réelles analysées" : "Visuel indisponible : analyse textuelle"}
+            {result.analysisMode === "image"
+              ? "Image statique analysée"
+              : result.visualAnalysisAvailable
+                ? "Captures réelles analysées"
+                : "Vidéo indisponible : analyse textuelle"}
           </span>
         </div>
 

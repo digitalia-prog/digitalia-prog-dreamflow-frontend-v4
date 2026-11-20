@@ -19,6 +19,7 @@ type CapturedAd = {
   landingPage?: string;
   publishedAt?: string;
   creativeUrl?: string;
+  posterUrl?: string;
   creativeType?: "video" | "image" | "unknown" | string;
   capturedAt?: string;
 };
@@ -148,6 +149,7 @@ setMounted(true);
   const [status, setStatus] = useState<AnalysisStatus>("preparing");
   const [message, setMessage] = useState("");
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [forceVideo, setForceVideo] = useState(false);
 
   const rawPlatform =
     ad?.sourcePlatform ||
@@ -165,6 +167,7 @@ setMounted(true);
         : rawPlatform.toLowerCase();
 
   const creativeUrl = ad?.creativeUrl?.trim() || "";
+  const posterUrl = ad?.posterUrl?.trim() || "";
   const sourceUrl = ad?.sourceUrl?.trim() || "";
 
   const platformLabel =
@@ -182,9 +185,10 @@ setMounted(true);
   const analysisUrl = creativeUrl || sourceUrl;
   const descriptionEvidence = extractDescriptionEvidence(ad?.adText);
 
-  const creativeIsImage =
-    ad?.creativeType === "image" ||
-    (creativeUrl ? isImageUrl(creativeUrl) : false);
+  const isVideoCreative = ad?.creativeType === "video" || (platform === "meta" && forceVideo);
+  const videoPoster = posterUrl || (isVideoCreative && isImageUrl(creativeUrl) ? creativeUrl : "");
+  const creativeIsImage = ad?.creativeType === "image" ||
+    (!isVideoCreative && Boolean(creativeUrl && isImageUrl(creativeUrl)));
 
   async function startAnalysis() {
     if (!ad) {
@@ -195,7 +199,7 @@ setMounted(true);
       return;
     }
 
-    if (!analysisUrl) {
+    if (!analysisUrl && !(platform === "meta" && isVideoCreative)) {
       setStatus("error");
       setMessage(
         "La publicité a bien été détectée, mais aucune URL exploitable n’a été transmise."
@@ -203,7 +207,7 @@ setMounted(true);
       return;
     }
 
-    if (isBlobUrl(analysisUrl)) {
+    if (isBlobUrl(analysisUrl) && !(platform === "meta" && isVideoCreative)) {
       setStatus("error");
       setMessage(
         `${platformLabel} a transmis une URL vidéo temporaire. La publicité est bien détectée, mais cette URL ne peut pas encore être analysée depuis un autre onglet.`
@@ -222,7 +226,7 @@ setMounted(true);
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          url: analysisUrl,
+          url: isVideoCreative && platform === "meta" && isBlobUrl(analysisUrl) ? sourceUrl : analysisUrl,
           sourceUrl,
           sourcePlatform: platform,
           platform,
@@ -233,7 +237,7 @@ setMounted(true);
           landingPage: ad.landingPage || "",
           publishedAt: ad.publishedAt || "",
           creativeUrl,
-          creativeType: ad.creativeType || "unknown",
+          creativeType: isVideoCreative ? "video" : (ad.creativeType || "unknown"),
           metadata: {
             source:
               ad.source ||
@@ -258,7 +262,9 @@ setMounted(true);
 
       setAnalysisResult(result);
       setStatus("success");
-      setMessage("La publicité a été envoyée au moteur d’analyse.");
+      setMessage(result?.analysisMode === "metadata_only"
+        ? "Analyse partielle : seules les informations publicitaires ont été analysées. La vidéo n'a pas été décodée."
+        : "L'analyse a été reçue du moteur UGC Growth.");
 
 
     } catch (error) {
@@ -496,12 +502,46 @@ if (!ad) {
             <h2 className="text-lg font-semibold text-white">
               Créatif détecté
             </h2>
+            {platform === "meta" && ad?.creativeType !== "video" ? (
+              <label className="mt-3 flex cursor-pointer items-center gap-2 text-xs leading-5 text-white/70">
+                <input
+                  type="checkbox"
+                  checked={forceVideo}
+                  onChange={(event) => {
+                    setForceVideo(event.target.checked);
+                    setAnalysisResult(null);
+                    setStatus("ready");
+                    setMessage("Type de créatif corrigé. Relance l’analyse pour utiliser ce choix.");
+                  }}
+                  className="h-4 w-4 accent-violet-500"
+                />
+                Cette publicité est une vidéo (la miniature ressemble à une photo)
+              </label>
+            ) : null}
 
             <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-black/25">
-              {creativeUrl && creativeIsImage ? (
-                <img
+              {isVideoCreative && creativeUrl && !isImageUrl(creativeUrl) && !isBlobUrl(creativeUrl) ? (
+                <video
                   src={creativeUrl}
-                  alt="Créatif publicitaire détecté"
+                  controls
+                  playsInline
+                  className="aspect-video w-full object-contain"
+                />
+              ) : isVideoCreative && videoPoster ? (
+                <div>
+                  <img
+                    src={videoPoster}
+                    alt="Miniature de la publicité vidéo Meta"
+                    className="aspect-video w-full object-contain"
+                  />
+                  <p className="px-4 py-3 text-xs text-amber-200/80">
+                    Miniature uniquement : ce visuel ne prouve pas que le fichier vidéo est accessible ou analysé.
+                  </p>
+                </div>
+              ) : creativeIsImage && (creativeUrl || posterUrl) ? (
+                <img
+                  src={creativeUrl || posterUrl}
+                  alt="Créatif publicitaire statique détecté"
                   className="aspect-video w-full object-contain"
                 />
               ) : creativeUrl ? (
@@ -513,7 +553,7 @@ if (!ad) {
                 />
               ) : (
                 <div className="flex aspect-video items-center justify-center p-6 text-center text-sm text-white/40">
-                  Aucun média directement accessible.
+                  Média non accessible depuis cette annonce. Les informations textuelles peuvent rester analysables.
                 </div>
               )}
             </div>
@@ -536,7 +576,9 @@ if (!ad) {
                   {status === "analyzing"
                     ? "Analyse automatique en cours"
                     : status === "success"
-                      ? "Import envoyé avec succès"
+                      ? analysisResult?.analysisMode === "metadata_only"
+                        ? "Analyse textuelle partielle"
+                        : "Import analysé"
                       : status === "error"
                         ? "L’analyse nécessite une vérification"
                         : "Préparation de l’import"}
@@ -571,15 +613,16 @@ if (!ad) {
               </p>
 
               <p className="mt-2 text-sm leading-6 text-emerald-100/70">
-                Résultat reçu. Vérifie ci-dessous les données réellement accessibles :
-                la transcription peut fonctionner même si YouTube bloque les images.
+                {analysisResult.analysisMode === "metadata_only"
+                  ? "La vidéo Meta n'a pas été décodée. L'analyse concerne uniquement le texte et les informations publicitaires disponibles."
+                  : "Résultat reçu. Les données audio, visuelles et techniques sont indiquées séparément selon leur disponibilité."}
               </p>
             </div>
           ) : null}
         </aside>
       </section>
-      {analysisResult && <SaveCreative creative={{kind:"analysis",result:analysisResult,platform,advertiserName:ad.advertiserName || "",sourceUrl,creativeUrl,creativeType:ad.creativeType || "unknown",adText:ad.adText || "",capturedAt:ad.capturedAt || ""}} />}
-      {analysisResult ? (
+      {analysisResult && <SaveCreative creative={{kind:"analysis",result:analysisResult,platform,advertiserName:ad.advertiserName || "",sourceUrl,creativeUrl,creativeType:isVideoCreative ? "video" : (ad.creativeType || "unknown"),adText:ad.adText || "",capturedAt:ad.capturedAt || ""}} />}
+      {analysisResult && analysisResult.analysisMode !== "image" ? (
         <VideoIntelligenceCoverage
           result={analysisResult}
           input="extension"

@@ -535,11 +535,70 @@ Tu analyses aussi les éléments visuels réellement présents dans l’image. J
   return normalizeAnalysis(parsed);
 }
 
+
+function isMetaExtensionAd(body: any): boolean {
+  return ["meta", "facebook"].includes(String(body?.sourcePlatform || body?.platform || "").toLowerCase());
+}
+
+function isUsableDirectMetaVideoUrl(raw: unknown): boolean {
+  if (typeof raw !== "string" || !/^https?:\/\//i.test(raw)) return false;
+  try {
+    const url = new URL(raw);
+    const host = url.hostname.toLowerCase();
+    if (host === "facebook.com" || host.endsWith(".facebook.com") ||
+        host === "fb.me" || host.endsWith(".fb.me")) return false;
+    if (/\.(jpe?g|png|webp|gif|avif)(?:$|[?#])/i.test(raw)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function metaAnalysisContext(body: any): AnalysisContext {
+  return {
+    sourcePlatform: body?.sourcePlatform || body?.platform || "meta",
+    advertiserName: body?.advertiserName || "",
+    adText: body?.adText || "",
+    callToAction: body?.callToAction || "",
+    landingPage: body?.landingPage || "",
+    libraryId: body?.libraryId || "",
+    creativeType: body?.creativeType || "video",
+  };
+}
+
+async function analyzeMetaMetadataOnly(body: any, language: string, reason: string) {
+  // Aucun transcript audio fictif: seule la description publicitaire est utilisée.
+  const context = metaAnalysisContext(body);
+  const analysis = String(context.adText || "").trim()
+    ? await analyzeTranscript("", language, context)
+    : normalizeAnalysis({});
+  return NextResponse.json({
+    platform: "meta",
+    language: normalizeOutputLanguage(language),
+    ...analysis,
+    creativeType: context.creativeType,
+    analysisMode: "metadata_only",
+    transcript: "",
+    transcriptSegments: [],
+    visualAnalysisAvailable: false,
+    visualAnalysisNote: reason,
+    visualTimeline: [],
+    sourceEvidence: extractDescriptionEvidence(context.adText),
+  });
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { url } = body;
     const language = body?.language || body?.lang || "French";
+
+    const isMetaAd = isMetaExtensionAd(body);
+    const isMetaVideo = isMetaAd && body?.creativeType === "video";
+    if (isMetaVideo && !isUsableDirectMetaVideoUrl(url)) {
+      return analyzeMetaMetadataOnly(body, language,
+        "La publicité Meta a fourni du texte ou une miniature, mais aucun fichier vidéo directement exploitable. Aucune parole ni image vidéo n'a été analysée.");
+    }
 
     if (!url) {
       return NextResponse.json({ error: "Lien manquant" }, { status: 400 });
@@ -554,21 +613,23 @@ export async function POST(req: Request) {
       return NextResponse.json({
         platform: body?.sourcePlatform || body?.platform || "meta",
         language: normalizeOutputLanguage(language),
-        transcript: body?.adText || "",
+        transcript: "",
+        analysisMode: "image",
         sourceEvidence: extractDescriptionEvidence(body?.adText),
         ...analysis,
-      creativeType: "image",
-  });
+        creativeType: "image",
+      });
     }
 
     const platform = detectPlatform(url);
 
     if (platform === "facebook") {
+      if (isMetaAd) {
+        return analyzeMetaMetadataOnly(body, language,
+          "Le lien de la bibliothèque Meta ne donne pas accès au fichier vidéo. Analyse limitée aux informations de l'annonce.");
+      }
       return NextResponse.json(
-        {
-          error: "Facebook non supporté via lien. Upload la vidéo.",
-          fallback: "upload",
-        },
+        { error: "Facebook non supporté via lien. Upload la vidéo.", fallback: "upload" },
         { status: 422 }
       );
     }
@@ -581,6 +642,10 @@ export async function POST(req: Request) {
           ? await transcribeYoutubeWithSupadata(url)
           : await transcribeVideoUrl(url);
     } catch (err: any) {
+      if (isMetaVideo) {
+        return analyzeMetaMetadataOnly(body, language,
+          "La vidéo Meta a été détectée, mais sa récupération ou sa transcription a échoué. Seul le texte publicitaire est exploitable.");
+      }
       if (err.isAntiBot) {
         return NextResponse.json(
           {
@@ -600,31 +665,24 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!transcript) {
+    if (!transcript && !isMetaVideo) {
       return NextResponse.json(
-        {
-          error: "Transcript vide. Upload la vidéo.",
-          fallback: platform === "youtube" ? "youtube_error" : "upload",
-        },
+        { error: "Transcript vide. Upload la vidéo.", fallback: platform === "youtube" ? "youtube_error" : "upload" },
         { status: 422 }
       );
     }
 
-    const analysisContext: AnalysisContext = {
-      sourcePlatform: body?.sourcePlatform || body?.platform || platform,
-      advertiserName: body?.advertiserName || "",
-      adText: body?.adText || "",
-      callToAction: body?.callToAction || "",
-      landingPage: body?.landingPage || "",
-      libraryId: body?.libraryId || "",
-      creativeType: body?.creativeType || "video",
-    };
-
-    const analysis = await analyzeTranscript(
-      transcript,
-      language,
-      analysisContext
-    );
+    const analysisContext: AnalysisContext = isMetaAd
+      ? metaAnalysisContext(body)
+      : {
+          sourcePlatform: body?.sourcePlatform || body?.platform || platform,
+          advertiserName: body?.advertiserName || "",
+          adText: body?.adText || "",
+          callToAction: body?.callToAction || "",
+          landingPage: body?.landingPage || "",
+          libraryId: body?.libraryId || "",
+          creativeType: body?.creativeType || "video",
+        };
 
     const visualAnalysis = await analyzeVideoVisuallySafe(
       url,
@@ -632,12 +690,18 @@ export async function POST(req: Request) {
       language,
       analysisContext
     );
+    if (!transcript && !visualAnalysis.visualAnalysisAvailable && isMetaVideo) {
+      return analyzeMetaMetadataOnly(body, language,
+        "Aucune transcription ou image décodée n'est accessible pour cette vidéo Meta. Analyse limitée aux données publicitaires capturées.");
+    }
+    const analysis = await analyzeTranscript(transcript, language, analysisContext);
 
     return NextResponse.json({
       platform,
       language: normalizeOutputLanguage(language),
       ...analysis,
       ...visualAnalysis,
+      analysisMode: transcript ? "video_audio" : "video_visual",
       sourceEvidence: extractDescriptionEvidence(body?.adText),
       transcript,
     });

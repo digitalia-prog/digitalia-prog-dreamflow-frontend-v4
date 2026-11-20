@@ -152,10 +152,17 @@ function formatSecond(value: number): string {
 }
 
 function evidenceSecond(timecode: string): number | null {
+  // Whisper: 02:20–02:25 ; captures du worker: 00:00.20 (centièmes).
   const leading = timecode.split(/[–—]/)[0].trim();
-  const parts = leading.split(":").map(Number);
-  if ((parts.length !== 2 && parts.length !== 3) || parts.some(n => !Number.isInteger(n) || n < 0)) return null;
-  return parts.reduce((acc, n) => acc * 60 + n, 0);
+  const fields = leading.split(":");
+  if (fields.length !== 2 && fields.length !== 3) return null;
+  if (!fields.every((field, i) =>
+    i === fields.length - 1 ? /^\d+(?:\.\d+)?$/.test(field) : /^\d+$/.test(field)
+  )) return null;
+  const numbers = fields.map(Number);
+  if (numbers.some(n => !Number.isFinite(n) || n < 0)) return null;
+  if (numbers[numbers.length - 1] >= 60 || (numbers.length === 3 && numbers[1] >= 60)) return null;
+  return numbers.reduce((acc, n) => acc * 60 + n, 0);
 }
 
 function modeFromQuery(value: string | null): AnalyzeMode | null {

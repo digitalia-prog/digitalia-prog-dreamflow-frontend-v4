@@ -104,7 +104,9 @@ function qualifyUnverified(value: unknown): string {
     .replace(/\bla thérapeute conjugale\b/gi, "la personne se présentant comme thérapeute conjugale")
     // Les captures interprétées par IA ne sont PAS les mesures techniques de pixels à 1 Hz.
     .replace(/\bcaptures? (?:visuelles? )?échantillonnées? à (?:une|1) image par seconde\b/gi,
-      "captures IA ponctuelles (distinctes des mesures techniques de pixels à 1 Hz)");
+      "captures IA ponctuelles (distinctes des mesures techniques de pixels à 1 Hz)")
+    .replace(/\béchantillonnage visuel à 1\s*Hz\b/gi,
+      "échantillonnage visuel ponctuel (distinct des mesures techniques de pixels à 1 Hz)");
   return qualifyEffect(v);
 }
 

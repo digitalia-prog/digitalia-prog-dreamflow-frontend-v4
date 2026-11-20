@@ -95,7 +95,16 @@ function qualifyUnverified(value: unknown): string {
   v = v.replace(/\bhistoire vraie\b/gi, "histoire présentée comme vraie")
     .replace(/\bhistoires vraies\b/gi, "histoires présentées comme vraies")
     .replace(/\bcas réel\b/gi, "cas présenté comme réel")
-    .replace(/\bfait avéré\b/gi, "fait rapporté");
+    .replace(/\bfait avéré\b/gi, "fait rapporté")
+    // Les déclarations entendues ne certifient ni les qualifications ni les événements.
+    .replace(/\btémoignage authentique\b/gi, "témoignage présenté comme authentique")
+    .replace(/\btémoignage réel\b/gi, "témoignage présenté comme réel")
+    .replace(/\brécit authentique\b/gi, "récit présenté comme authentique")
+    .replace(/\bune thérapeute conjugale\b/gi, "une personne se présentant comme thérapeute conjugale")
+    .replace(/\bla thérapeute conjugale\b/gi, "la personne se présentant comme thérapeute conjugale")
+    // Les captures interprétées par IA ne sont PAS les mesures techniques de pixels à 1 Hz.
+    .replace(/\bcaptures? (?:visuelles? )?échantillonnées? à (?:une|1) image par seconde\b/gi,
+      "captures IA ponctuelles (distinctes des mesures techniques de pixels à 1 Hz)");
   return qualifyEffect(v);
 }
 

@@ -382,7 +382,7 @@
         const ids = text.match(/(?:ID dans la bibliothèque|ID de la bibliothèque|Library ID)\s*:?\s*\d{7,}/gi) || [];
         if (ids.length > 1) break;
         const media = findPosterUrl(current) || current.querySelector("video");
-        if (media && ids.length === 1) {
+        if (media && ids.length === 1 && /^(DIV|ARTICLE)$/.test(current.tagName)) {
           if (!containers.some((known) => known === current || current.contains(known) || known.contains(current))) {
             containers.push(current);
           }
@@ -397,10 +397,8 @@
   function injectButton(container) {
     if (!(container instanceof HTMLElement)) return false;
 
-    if (
-      container.hasAttribute(CARD_MARKER) ||
-      container.querySelector(`.${BUTTON_CLASS}`)
-    ) {
+    // Meta re-renderise les cartes et peut supprimer notre bouton sans retirer le marqueur.
+    if (container.querySelector(`.${BUTTON_CLASS}`)) {
       container.setAttribute(CARD_MARKER, "true");
       return false;
     }

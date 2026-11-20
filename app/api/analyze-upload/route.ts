@@ -136,6 +136,10 @@ function normalizeDiagnosticV15(value: any) {
     hypothesis: t(v?.hypothesis),
     change: t(v?.change),
     whatToObserve: t(v?.whatToObserve),
+    // Claims are never trusted as evidence until validated against actual source chunks.
+    evidenceSource: t(v?.evidenceSource),
+    evidenceExcerpt: t(v?.evidenceExcerpt),
+    evidenceTimecode: t(v?.evidenceTimecode),
   })).filter((v: any) => v.hypothesis && v.change);
   return {
     objective: t(value.objective), synopsis: t(value.synopsis),
@@ -219,6 +223,7 @@ RÈGLES ESSENTIELLES DE DIAGNOSTIC MULTIMODAL :
 - "whyItWorks" doit décrire des leviers CRÉATIFS PLAUSIBLES, et non prétendre à une performance observée.
 - Si une conclusion manque de preuves, dis-le et laisse les champs correspondants vides plutôt que d'inventer.
 - Propose deux versions A et B avec modifications DIFFÉRENTES, chacune avec hypothèse testable et mesure à RECUEILLIR après diffusion (pas de métrique inventée).
+- Pour chaque test A/B, cite si possible un indice EXACT issu des paroles transcrites ou du texte d'une observation visuelle échantillonnée. evidenceSource vaut "audio" ou "visual" ; evidenceExcerpt doit être une SOUS-CHAÎNE LITTÉRALE de la source, sans reformulation. Pour "audio", evidenceTimecode reste vide (calculé par code via Whisper). Pour "visual", evidenceTimecode doit être le timecode EXACT de la scène observée. Si aucun indice direct n'est disponible, laisse ces trois champs vides. L'indice ne prouve pas l'efficacité du test.
 - Tous les champs du diagnosticV15 doivent rester dans la langue de sortie.
 
 Réponds uniquement en JSON valide, sans markdown.
@@ -251,8 +256,8 @@ Format :
     "ctaEvidence": "formulation du CTA et source audio/visuelle, ou non vérifiable",
     "recommendations": ["correction concrète reliée à un indice observé"],
     "tests": [
-      {"variant": "A", "hypothesis": "", "change": "", "whatToObserve": ""},
-      {"variant": "B", "hypothesis": "", "change": "", "whatToObserve": ""}
+      {"variant": "A", "hypothesis": "", "change": "", "whatToObserve": "", "evidenceSource": "", "evidenceExcerpt": "", "evidenceTimecode": ""},
+      {"variant": "B", "hypothesis": "", "change": "", "whatToObserve": "", "evidenceSource": "", "evidenceExcerpt": "", "evidenceTimecode": ""}
     ],
     "limitations": ["métriques absentes, échantillonnage, retranscription, points non vérifiés"]
   }

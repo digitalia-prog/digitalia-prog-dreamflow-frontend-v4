@@ -195,6 +195,19 @@ setMounted(true);
       return;
     }
 
+    // Une vignette vidéo n'est pas un fichier vidéo analysable.
+    // L'extension doit transmettre l'URL du média, pas le lien de recherche Meta.
+    const isMetaVideo = platform === "meta" && ad.creativeType === "video";
+    const hasDirectVideoUrl = /^https?:\/\//i.test(creativeUrl) && !isImageUrl(creativeUrl) &&
+      !/facebook\.com\/ads\/library/i.test(creativeUrl);
+    if (isMetaVideo && !hasDirectVideoUrl) {
+      setStatus("error");
+      setMessage(
+        "Vidéo Meta détectée, mais son fichier n’a pas été transmis. Sur Meta Ads Library, lance d’abord la lecture de cette vidéo puis clique à nouveau sur « Analyser avec UGC Growth ». Si Meta ne fournit pas de fichier accessible, importe un MP4 autorisé dans l’analyse vidéo."
+      );
+      return;
+    }
+
     if (!analysisUrl) {
       setStatus("error");
       setMessage(
@@ -248,12 +261,12 @@ setMounted(true);
       const result = await response.json().catch(() => null);
 
       if (!response.ok) {
-        throw new Error(
-          result?.error ||
-            result?.detail ||
-            result?.message ||
-            "L’analyse n’a pas pu être lancée."
-        );
+        const detail = result?.error || result?.detail || result?.message ||
+          "L’analyse n’a pas pu être lancée.";
+        const fallback = isMetaVideo && (response.status === 422 || result?.fallback === "upload")
+          ? " Lance la vidéo sur Meta et réessaie ; si le fichier reste inaccessible, utilise un MP4 autorisé."
+          : "";
+        throw new Error(detail + fallback);
       }
 
       setAnalysisResult(result);

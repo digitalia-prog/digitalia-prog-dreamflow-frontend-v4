@@ -641,7 +641,7 @@ export default function AnalyzeUploadPage() {
             {result.diagnosticV15 && (
               <Block title="Diagnostic unifié · Audio + visuel">
                 <div className="space-y-4 text-sm leading-6 text-white/75">
-                  <p className="text-xs text-violet-300">Synthèse fondée sur les éléments disponibles. Aucune performance réelle n'est déduite des images.</p>
+                  <p className="text-xs text-violet-300">Synthèse fondée sur les déclarations audio et les captures IA échantillonnées, distinctes des mesures techniques à 1 Hz. Les faits racontés ne sont pas vérifiés indépendamment ; aucune performance réelle n'est déduite des images.</p>
                   {result.diagnosticV15.objective && <p><strong>Objectif probable :</strong> {result.diagnosticV15.objective}</p>}
                   {result.diagnosticV15.synopsis && <p><strong>Lecture d'ensemble :</strong> {result.diagnosticV15.synopsis}</p>}
                   {!!result.diagnosticV15.facts?.length && <div><strong>Éléments observables ou déclarés</strong><ListBlock items={result.diagnosticV15.facts} /></div>}
@@ -671,7 +671,7 @@ export default function AnalyzeUploadPage() {
                     {result.visualHook?.observation && <p><strong>Hook visuel :</strong> {result.visualHook.observation}</p>}
                     {result.pacing?.observation && <p><strong>Rythme visuel estimé :</strong> {result.pacing.observation}</p>}
                     {result.ctaAnalysis && <p><strong>CTA visible dans les captures :</strong> {result.ctaAnalysis.status === "unknown" ? "Non vérifiable" : result.ctaAnalysis.text || result.ctaAnalysis.status}</p>}
-                    <p className="text-xs text-white/50">Les observations horodatées sont présentées une seule fois dans la timeline des preuves ci-dessus.</p>
+                    <p className="text-xs text-white/50">Les captures interprétées par IA restent ponctuelles. Les mesures de différences de pixels à 1 Hz ne constituent pas une analyse sémantique de chaque seconde. Les observations horodatées sont présentées une seule fois dans la timeline des preuves ci-dessus.</p>
                     {!!result.priorityFixes?.length && !result.diagnosticV15 && <div><strong>Corrections prioritaires</strong>{result.priorityFixes.map((fix) => <p key={fix.priority}>{fix.priority}. {fix.diagnosis} — {fix.action} ({fix.evidence})</p>)}</div>}
                     {!!result.dataIntegrity?.limitations?.length && <div><strong>Limites de l’analyse</strong>{result.dataIntegrity.limitations.map((limitation, i) => <p key={i}>{limitation}</p>)}</div>}
                   </>}
@@ -690,7 +690,7 @@ export default function AnalyzeUploadPage() {
             )}
             <details className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
               <summary className="cursor-pointer text-sm font-semibold text-violet-200">Afficher les analyses complémentaires et le transcript complet</summary>
-              <p className="mt-2 mb-4 text-xs text-white/45">Les champs historiques sont conservés pour les projets déjà enregistrés, mais regroupés pour éviter les répétitions dans le diagnostic principal.</p>
+              <p className="mt-2 mb-4 text-xs text-white/45">Archive détaillée facultative : ces champs historiques peuvent répéter la synthèse principale. Ne pas les interpréter comme des preuves ou des performances supplémentaires.</p>
             <div className="grid gap-4 md:grid-cols-2">
             <Block title="Transcript"><TextBlock value={result.transcript} /></Block>
             <Block title="Résumé"><TextBlock value={result.summary} /></Block>

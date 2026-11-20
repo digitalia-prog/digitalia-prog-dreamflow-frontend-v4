@@ -665,31 +665,24 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!transcript) {
+    if (!transcript && !isMetaVideo) {
       return NextResponse.json(
-        {
-          error: "Transcript vide. Upload la vidéo.",
-          fallback: platform === "youtube" ? "youtube_error" : "upload",
-        },
+        { error: "Transcript vide. Upload la vidéo.", fallback: platform === "youtube" ? "youtube_error" : "upload" },
         { status: 422 }
       );
     }
 
-    const analysisContext: AnalysisContext = {
-      sourcePlatform: body?.sourcePlatform || body?.platform || platform,
-      advertiserName: body?.advertiserName || "",
-      adText: body?.adText || "",
-      callToAction: body?.callToAction || "",
-      landingPage: body?.landingPage || "",
-      libraryId: body?.libraryId || "",
-      creativeType: body?.creativeType || "video",
-    };
-
-    const analysis = await analyzeTranscript(
-      transcript,
-      language,
-      analysisContext
-    );
+    const analysisContext: AnalysisContext = isMetaAd
+      ? metaAnalysisContext(body)
+      : {
+          sourcePlatform: body?.sourcePlatform || body?.platform || platform,
+          advertiserName: body?.advertiserName || "",
+          adText: body?.adText || "",
+          callToAction: body?.callToAction || "",
+          landingPage: body?.landingPage || "",
+          libraryId: body?.libraryId || "",
+          creativeType: body?.creativeType || "video",
+        };
 
     const visualAnalysis = await analyzeVideoVisuallySafe(
       url,
@@ -697,12 +690,18 @@ export async function POST(req: Request) {
       language,
       analysisContext
     );
+    if (!transcript && !visualAnalysis.visualAnalysisAvailable && isMetaVideo) {
+      return analyzeMetaMetadataOnly(body, language,
+        "Aucune transcription ou image décodée n'est accessible pour cette vidéo Meta. Analyse limitée aux données publicitaires capturées.");
+    }
+    const analysis = await analyzeTranscript(transcript, language, analysisContext);
 
     return NextResponse.json({
       platform,
       language: normalizeOutputLanguage(language),
       ...analysis,
       ...visualAnalysis,
+      analysisMode: transcript ? "video_audio" : "video_visual",
       sourceEvidence: extractDescriptionEvidence(body?.adText),
       transcript,
     });

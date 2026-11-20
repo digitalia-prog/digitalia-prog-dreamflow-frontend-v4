@@ -3,6 +3,7 @@
 import VideoIntelligenceTimeline from "@/components/VideoIntelligenceTimeline";
 
 export type AnalysisResult = {
+  analysisMode?: "image" | "metadata_only" | "video_audio" | "video_visual";
   transcript?: string;
   transcriptSegments?: Array<{start:number;end:number;text:string}>;
   summary?: string;
@@ -200,7 +201,7 @@ export default function AnalysisResults({
               Creative Debugger · Analyse visuelle
             </p>
             <h3 className="mt-2 text-xl font-bold text-white">
-              Ce que la vidéo montre réellement
+              {result.visualAnalysisAvailable ? "Ce qui a été observé dans la vidéo" : "Vérification des images vidéo"}
             </h3>
           </div>
           <span className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${

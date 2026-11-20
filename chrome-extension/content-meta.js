@@ -355,19 +355,50 @@
     document.head.appendChild(style);
   }
 
+  function findVideoAdCard(media) {
+    let current = media instanceof HTMLElement ? media : media.parentElement;
+    // Structure variable selon la création Meta : retrouver la carte portant un ID unique.
+    for (let level = 0; current instanceof HTMLElement && level < 12; level++) {
+      if (current === document.body || current === document.documentElement) break;
+      const content = cleanText(current.innerText || "");
+      const ids = Array.from(content.matchAll(
+        /(?:ID dans la bibliothèque|ID de la bibliothèque|Identifiant de la bibliothèque|Library ID)\s*:?\s*(\d+)/gi
+      ), (match) => match[1]);
+      if (ids.length && new Set(ids).size === 1 && content.length < 15000) return current;
+      current = current.parentElement;
+    }
+    return null;
+  }
+
   function getAdContainers() {
-    return Array.from(
+    const standard = Array.from(
       document.querySelectorAll(DYNAMIC_CONTAINER_SELECTOR)
     ).filter((element) => element instanceof HTMLElement);
+    const containers = new Set(standard);
+    // Fallback seulement pour les cartes vidéo absentes du sélecteur Meta habituel.
+    const mediaCandidates = document.querySelectorAll(
+      'video, [data-video-id], [data-testid*="video" i], button[aria-label], [role="button"][aria-label]'
+    );
+    for (const media of mediaCandidates) {
+      if (!(media instanceof HTMLElement)) continue;
+      const label = cleanText(media.getAttribute("aria-label"));
+      const explicitMedia = media.matches('video, [data-video-id], [data-testid*="video" i]');
+      if (!explicitMedia && !/^(?:play|lire|lecture|lancer la vidéo)\b/i.test(label)) continue;
+      if (standard.some((card) => card.contains(media))) continue;
+      const card = findVideoAdCard(media);
+      if (!card) continue;
+      if (standard.some((existing) => existing.contains(card) || card.contains(existing))) continue;
+      if (Array.from(containers).some((existing) => existing.contains(card) || card.contains(existing))) continue;
+      containers.add(card);
+    }
+    return Array.from(containers);
   }
 
   function injectButton(container) {
     if (!(container instanceof HTMLElement)) return false;
 
-    if (
-      container.hasAttribute(CARD_MARKER) ||
-      container.querySelector(`.${BUTTON_CLASS}`)
-    ) {
+    // Le DOM Meta peut remplacer le bouton en conservant l'attribut marqueur.
+    if (container.querySelector(`.${BUTTON_CLASS}`)) {
       container.setAttribute(CARD_MARKER, "true");
       return false;
     }

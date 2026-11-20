@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "meta-direct-v1";
+  const VERSION = "meta-video-safe-v188";
   const APP_URL = "https://ugcgrowth.io";
   const DYNAMIC_CONTAINER_SELECTOR =
     '[data-testid="ad-library-dynamic-content-container"]';
@@ -101,7 +101,9 @@
           hostname === "instagram.com" ||
           hostname.endsWith(".instagram.com") ||
           hostname === "meta.com" ||
-          hostname.endsWith(".meta.com");
+          hostname.endsWith(".meta.com") ||
+          hostname === "fb.me" ||
+          hostname.endsWith(".fb.me");
 
         if (url.protocol.startsWith("http") && !isMetaDomain) return url.href;
       } catch {}
@@ -109,39 +111,55 @@
     return "";
   }
 
-  function findCreativeUrl(container) {
-    const videos = Array.from(container.querySelectorAll("video"));
-    for (const video of videos) {
-      const url =
-        video.currentSrc ||
-        video.src ||
-        video.querySelector("source")?.src ||
-        "";
-      if (url) return url;
-    }
-
+  function findPosterUrl(container) {
+    const poster = container.querySelector("video[poster]")?.poster;
+    if (poster) return poster;
     const images = Array.from(container.querySelectorAll("img"))
       .map((image) => {
         const rect = image.getBoundingClientRect();
         const width = image.naturalWidth || rect.width || image.width || 0;
         const height = image.naturalHeight || rect.height || image.height || 0;
-        const url =
-          image.currentSrc ||
-          image.src ||
-          image.getAttribute("data-src") ||
-          "";
+        const url = image.currentSrc || image.src || image.getAttribute("data-src") || "";
         return { url, width, height, area: width * height };
       })
       .filter((image) => image.url && image.width >= 150 && image.height >= 100)
       .sort((a, b) => b.area - a.area);
-
     return images[0]?.url || "";
   }
 
   function findCreativeType(container) {
-    if (container.querySelector("video")) return "video";
-    if (container.querySelector("img")) return "image";
+    if (container.querySelector('video, source[type^="video/"], [data-testid*="video-player" i]')) {
+      return "video";
+    }
+    // Meta peut présenter une vidéo comme une image de couverture avant lecture.
+    // Ne jamais déduire le type uniquement de l'extension .jpg du poster.
+    const controls = Array.from(container.querySelectorAll(
+      'button, [role="button"], [aria-label], [title], [data-testid]'
+    ));
+    const videoControl = controls.some((element) => {
+      if (element.closest(`.${WRAPPER_CLASS}`)) return false;
+      const cues = [
+        element.getAttribute("aria-label"),
+        element.getAttribute("title"),
+        element.getAttribute("data-testid"),
+      ].filter(Boolean).join(" ");
+      return /\b(play|pause|video|vidéo|reproducir)\b|lire la vidéo|lecture vidéo|video-player|play-button/i.test(cues);
+    });
+    if (videoControl) return "video";
+    if (findPosterUrl(container)) return "image";
     return "unknown";
+  }
+
+  function findCreativeUrl(container, creativeType) {
+    if (creativeType !== "video") return creativeType === "image" ? findPosterUrl(container) : "";
+    const videos = Array.from(container.querySelectorAll("video"));
+    for (const video of videos) {
+      // Les URL blob: appartiennent à cet onglet et sont inutilisables dans UGC Growth.
+      const urls = [video.currentSrc, video.src, video.querySelector("source")?.src];
+      const direct = urls.find((url) => /^https?:\/\//i.test(url || ""));
+      if (direct) return direct;
+    }
+    return "";
   }
 
   function findCallToAction(container) {
@@ -167,6 +185,12 @@
       "voir l’offre",
       "voir l'offre",
       "get offer",
+      "see details",
+      "voir les détails",
+      "get quote",
+      "demander un devis",
+      "send message",
+      "envoyer un message",
     ];
 
     const elements = Array.from(
@@ -219,6 +243,7 @@
   }
 
   function extractAdData(container) {
+    const creativeType = findCreativeType(container);
     return {
       sourcePlatform: "meta",
       platform: "meta",
@@ -230,8 +255,9 @@
       callToAction: findCallToAction(container),
       landingPage: findLandingPage(container),
       publishedAt: findPublishedDate(container),
-      creativeUrl: findCreativeUrl(container),
-      creativeType: findCreativeType(container),
+      creativeUrl: findCreativeUrl(container, creativeType),
+      posterUrl: findPosterUrl(container),
+      creativeType,
       capturedAt: new Date().toISOString(),
     };
   }
@@ -338,9 +364,34 @@
   }
 
   function getAdContainers() {
-    return Array.from(
-      document.querySelectorAll(DYNAMIC_CONTAINER_SELECTOR)
-    ).filter((element) => element instanceof HTMLElement);
+    const containers = Array.from(document.querySelectorAll(DYNAMIC_CONTAINER_SELECTOR))
+      .filter((element) => element instanceof HTMLElement);
+
+    // Le DOM Meta n'emploie pas systématiquement ce conteneur pour les vidéos.
+    // Repli : repérer une carte par son ID de bibliothèque, sans englober plusieurs annonces.
+    const markers = Array.from(document.querySelectorAll("div, span")).filter((element) => {
+      if (!(element instanceof HTMLElement) || element.childElementCount > 1) return false;
+      const label = cleanText(element.textContent);
+      return label.length < 130 && /^(ID dans la bibliothèque|ID de la bibliothèque|Library ID)\s*:?\s*\d{7,}/i.test(label);
+    });
+    for (const marker of markers) {
+      let current = marker.parentElement;
+      for (let depth = 0; current instanceof HTMLElement && depth < 9; depth += 1) {
+        if (current === document.body) break;
+        const text = cleanText(current.innerText);
+        const ids = text.match(/(?:ID dans la bibliothèque|ID de la bibliothèque|Library ID)\s*:?\s*\d{7,}/gi) || [];
+        if (ids.length > 1) break;
+        const media = findPosterUrl(current) || current.querySelector("video");
+        if (media && ids.length === 1) {
+          if (!containers.some((known) => known === current || current.contains(known) || known.contains(current))) {
+            containers.push(current);
+          }
+          break;
+        }
+        current = current.parentElement;
+      }
+    }
+    return containers;
   }
 
   function injectButton(container) {

@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const VERSION = "meta-direct-v1";
+  const VERSION = "meta-video-v188";
   const APP_URL = "https://ugcgrowth.io";
   const DYNAMIC_CONTAINER_SELECTOR =
     '[data-testid="ad-library-dynamic-content-container"]';
@@ -109,39 +109,56 @@
     return "";
   }
 
-  function findCreativeUrl(container) {
-    const videos = Array.from(container.querySelectorAll("video"));
-    for (const video of videos) {
-      const url =
-        video.currentSrc ||
-        video.src ||
-        video.querySelector("source")?.src ||
-        "";
-      if (url) return url;
-    }
+  function hasVideoIndicator(container) {
+    // Meta peut afficher une vignette avec un bouton Lecture sans élément <video>.
+    if (container.querySelector('video, source[type^="video/"], [data-video-id], [data-testid*="video" i]')) return true;
+    return Array.from(container.querySelectorAll(
+      'button[aria-label], [role="button"][aria-label], [aria-label][data-testid], svg[aria-label]'
+    )).some((element) => /^(?:play|play video|play this video|lire|lecture|lire la vidéo|lancer la vidéo)\b/i
+      .test(cleanText(element.getAttribute("aria-label"))));
+  }
 
+  function findCreativeType(container) {
+    if (hasVideoIndicator(container)) return "video";
+    if (container.querySelector("img")) return "image";
+    return "unknown";
+  }
+
+  function findVideoUrl(container) {
+    const urls = [];
+    for (const video of container.querySelectorAll("video")) {
+      urls.push(video.currentSrc, video.src, video.getAttribute("src"));
+      for (const source of video.querySelectorAll("source[src]")) {
+        urls.push(source.src, source.getAttribute("src"));
+      }
+    }
+    for (const source of container.querySelectorAll('source[type^="video/"][src]')) {
+      urls.push(source.src, source.getAttribute("src"));
+    }
+    const normalized = urls.filter((url) => typeof url === "string" && url.trim()).map((url) => {
+      try { return new URL(url, window.location.href).href; } catch { return ""; }
+    }).filter(Boolean);
+    // Une URL HTTPS directe peut être traitée par le worker; blob: n'est pas accessible côté serveur.
+    return normalized.find((url) => /^https?:\/\//i.test(url)) ||
+      normalized.find((url) => url.startsWith("blob:")) || "";
+  }
+
+  function findCreativeUrl(container, creativeType) {
+    if (creativeType === "video") {
+      // Ne jamais envoyer une miniature JPG comme si la vidéo avait été analysée.
+      return findVideoUrl(container);
+    }
     const images = Array.from(container.querySelectorAll("img"))
       .map((image) => {
         const rect = image.getBoundingClientRect();
         const width = image.naturalWidth || rect.width || image.width || 0;
         const height = image.naturalHeight || rect.height || image.height || 0;
-        const url =
-          image.currentSrc ||
-          image.src ||
-          image.getAttribute("data-src") ||
-          "";
+        const url = image.currentSrc || image.src || image.getAttribute("data-src") || "";
         return { url, width, height, area: width * height };
       })
       .filter((image) => image.url && image.width >= 150 && image.height >= 100)
       .sort((a, b) => b.area - a.area);
-
     return images[0]?.url || "";
-  }
-
-  function findCreativeType(container) {
-    if (container.querySelector("video")) return "video";
-    if (container.querySelector("img")) return "image";
-    return "unknown";
   }
 
   function findCallToAction(container) {
@@ -219,6 +236,7 @@
   }
 
   function extractAdData(container) {
+    const creativeType = findCreativeType(container);
     return {
       sourcePlatform: "meta",
       platform: "meta",
@@ -230,8 +248,8 @@
       callToAction: findCallToAction(container),
       landingPage: findLandingPage(container),
       publishedAt: findPublishedDate(container),
-      creativeUrl: findCreativeUrl(container),
-      creativeType: findCreativeType(container),
+      creativeUrl: findCreativeUrl(container, creativeType),
+      creativeType,
       capturedAt: new Date().toISOString(),
     };
   }

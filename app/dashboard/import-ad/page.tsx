@@ -621,7 +621,7 @@ if (!ad) {
           ) : null}
         </aside>
       </section>
-      {analysisResult && <SaveCreative creative={{kind:"analysis",result:analysisResult,platform,advertiserName:ad.advertiserName || "",sourceUrl,creativeUrl,creativeType:ad.creativeType || "unknown",adText:ad.adText || "",capturedAt:ad.capturedAt || ""}} />}
+      {analysisResult && <SaveCreative creative={{kind:"analysis",result:analysisResult,platform,advertiserName:ad.advertiserName || "",sourceUrl,creativeUrl,creativeType:isVideoCreative ? "video" : (ad.creativeType || "unknown"),adText:ad.adText || "",capturedAt:ad.capturedAt || ""}} />}
       {analysisResult && analysisResult.analysisMode !== "image" ? (
         <VideoIntelligenceCoverage
           result={analysisResult}
